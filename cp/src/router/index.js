@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // CP
+import SignIn from '@/views/pages/auth/SignIn.vue'
 import Dashboard from '@/views/pages/Dashboard.vue'
 import InquiryIndex from '@/views/pages/Inquiry/Index.vue'
 import UserIndex from '@/views/pages/User/Index.vue'
@@ -17,6 +18,12 @@ const router = createRouter({
       path: '/cp',
       name: 'cp',
       children: [
+        {
+          path: 'sign-in',
+          name: 'cp.signin',
+          component: SignIn,
+          meta: { requiresAuth: false, authLayout: false }
+        },
         {
           path: 'dashboard',
           name: 'cp.dashboard',

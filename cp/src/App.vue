@@ -1,14 +1,26 @@
 <script setup>
+import { ref, computed, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
+
 
 // ADMIN
 import CpHeader from '@/views/layout/Header.vue'
 import CpFooter from '@/views/layout/Footer.vue'
 
+const route = useRoute()
+const authLayout = ref(true)
+
+watchEffect(() => {
+  if(route.meta?.authLayout !== undefined) {
+    authLayout.value = route.meta?.authLayout
+  }
+}, [route.meta])
+
 </script>
 
 <template>
-  <q-layout class="l" view="hHh lpR lff">
-          <CpHeader></CpHeader>
+  <q-layout no-header no-footer class="l" view="hHh lpR lff">
+          <CpHeader v-if="authLayout"></CpHeader>
           <q-page-container class="row fit min-height-fit">
             <RouterView v-slot="{ Component }">
               <template v-if="Component">
@@ -28,7 +40,7 @@ import CpFooter from '@/views/layout/Footer.vue'
               </template>
             </RouterView>
           </q-page-container>
-          <CpFooter></CpFooter>
+          <CpFooter v-if="authLayout"></CpFooter>
         </q-layout>
 </template>
 
