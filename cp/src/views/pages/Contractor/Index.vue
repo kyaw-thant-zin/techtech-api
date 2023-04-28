@@ -169,10 +169,10 @@
                   <q-td>
                     <div class="row no-wrap justify-center items-center q-gutter-sm">
                       <div>
-                        <q-btn size="sm" padding="sm" round color="info" icon="mdi-eye-outline"/>
+                        <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-eye-outline"/>
                       </div>
                       <div>
-                        <q-btn size="sm" padding="sm" round color="negative" icon="mdi-trash-can-outline" />
+                        <q-btn size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
                       </div>
                     </div>
                   </q-td>

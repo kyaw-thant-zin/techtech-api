@@ -53,7 +53,7 @@ const selected = ref([])
           <q-card class="common-card">
             <q-card-section class="row justify-between items-center q-py-md  q-px-lg">
               <div class="common-card-ttl">エリア一覧</div>
-              <q-btn class="shadow-3" color="primary" label="新規作成" to="/" no-caps />
+              <q-btn class="shadow-3 p-common-btn" label="新規作成" to="/" no-caps />
             </q-card-section>
             <q-card-section class="q-px-none">
               <q-table
@@ -77,7 +77,7 @@ const selected = ref([])
                   <q-td>
                     <div class="row no-wrap justify-center items-center q-gutter-sm">
                       <div>
-                        <q-btn size="sm" padding="sm" round color="negative" icon="mdi-trash-can-outline" />
+                        <q-btn size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
                       </div>
                     </div>
                   </q-td>

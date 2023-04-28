@@ -99,7 +99,7 @@ const onSubmit = () => {
                     <div class="col-12 col-sm-12 col-md-4 col-lg-4">
                     </div>
                     <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
-                      <q-btn color="primary" label="変更を保存" />
+                      <q-btn class="p-common-btn" label="変更を保存" />
                     </div>
                   </div>
                 </div>
