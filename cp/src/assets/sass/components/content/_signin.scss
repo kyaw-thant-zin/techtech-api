@@ -1,0 +1,220 @@
+.sl {
+    &-mv {
+        background: #7FB932;
+        &-inn {
+            &-ttl {
+                h1 {
+                    margin: 0px;
+                    text-align: center;
+                    font-size: 30px;
+                    font-weight: 700;
+                    color: #fff;
+                    padding: 70px 0 90px;
+                    line-height: unset;
+                    letter-spacing: unset;
+                    @include mqSp {
+                        font-size: 26px;
+                        padding: 45px 0 120px;
+                    }
+                    @media screen and (max-width: 330px) {
+                        font-size: 24px;
+
+                    }
+                }
+            }
+        }
+        &.bg-orange {
+            background: #FF7533;
+        }
+    }
+    &-login {
+        &-inn {
+            max-width: 400px;
+            padding: 50px 30px;
+            @include mqSp {
+                padding: 50px 20px;
+            }
+            
+            .register-thankyou {
+                h2 {
+                    margin: 0 0 20px;
+                    @include mqSp {
+                        margin: 0 0 25px;
+                    }
+                }
+            }
+        }
+    }
+}
+.common-btn {
+    a,input,button {
+        outline: none;
+        display: block;
+        max-width: 300px;
+        width: 100%;
+        text-align: center;
+        margin: auto;
+        padding: 13px 0;
+        line-height: 1;
+        border-radius: 10px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+        background: #FF7533;
+        border: 1px solid #FF7533;
+    }
+}
+.subpage {
+    padding: 60px 50px;
+    margin: -60px auto 100px;
+    background: #fff;
+    @include mqSp {
+        padding: 50px 20px;
+        margin: -80px auto 0;
+    }
+}
+
+.login-form {
+    p {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    label {
+        font-size: 16px;
+        color: #000;
+        letter-spacing: 0.1em;
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 700;
+        text-align: left;
+    }
+    input:not([type="submit"]):not([type="button"]) {
+        width: 100%;
+        font-size: 16px;
+        color: #000;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        outline: none;
+        border: 1px solid #B9B9B9;
+        background: #fff;
+        padding: 10px 20px;
+        text-align: left;
+    }
+    .record-email {
+        margin-bottom: 30px;
+        span {
+            display: inline-block;
+            position: relative;
+            padding-left: 20px;
+        }
+        label {
+            font-size: 12px;
+            display: inline-block;
+            font-weight: 500;
+            letter-spacing: 0;
+        }
+
+        input[type="checkbox"] {
+            width: 13px;
+            height: 13px;
+            position: absolute;
+            background: #fff;
+            border-radius: 3px;
+            border: 1px solid #707070;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .item-label {
+            padding-left: 0;
+            width: 13px;
+            height: 13px;
+            position: absolute;
+            background: #fff;
+            border-radius: 3px;
+            border: 1px solid #707070;
+            top: 0;
+            left: 0;
+
+            &:after {
+                content: "";
+                width: 13px;
+                height: 13px;
+                background: #000000;
+                position: absolute;
+                border-radius: 0;
+                left: -1px;
+                top: -1px;
+                transform: scale(0);
+            }
+        }
+
+        input[type="checkbox"]:checked+.item-label:after {
+            transform: scale(0.5);
+        }
+
+        a {
+            text-decoration: underline;
+        }
+    }
+    .common-btn {
+        margin-top: 50px;
+        input {
+            margin-bottom: 30px;
+            max-width: 260px;
+        }
+    }
+    .forgot-psw {
+        padding-bottom: 30px;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #B9B9B9;
+        span {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+    }
+    .new-register {
+        margin-bottom: 0;
+        span {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+        }
+    }
+}
+.logout-modal {
+    text-align: center;
+    h2 {
+        font-size: 30px;
+        font-weight: 700;
+        color: #7FB932;
+        margin-bottom: 30px;
+        @include mqSp {
+            font-size: 26px;
+        }
+    }
+    p {
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        margin-bottom: 20px;
+        @media screen and (max-width: 330px) {
+            font-size: 12px;
+        }
+    }
+    .register-btn {
+        input {
+            background: #007518;
+            border: 1px solid #007518;
+            &.cancel-btn {
+                margin-top: 20px;
+                background: #fff;
+                color: #007518;
+            }
+        }
+    }
+}
