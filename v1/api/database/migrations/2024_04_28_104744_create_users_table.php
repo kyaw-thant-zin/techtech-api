@@ -34,7 +34,7 @@ class CreateUsersTable extends Migration
             $table->date('last_login_date')->nullable();
             $table->timestamps();
 
-            $table->foreign('cct_id')->references('id')->on('ccts')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('cc_id')->references('id')->on('ccs')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade')->onDelete('cascade');
         });
     }

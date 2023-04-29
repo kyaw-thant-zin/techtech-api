@@ -17,7 +17,7 @@ class CreateCctsTable extends Migration
             $table->id();
             $table->string('ccty');
             $table->integer('order');
-            $table->boolen('status');
+            $table->boolean('status');
             $table->timestamps();
         });
     }
