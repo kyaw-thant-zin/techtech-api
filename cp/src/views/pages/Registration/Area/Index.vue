@@ -1,7 +1,7 @@
 <script setup>
 import { useQuasar } from 'quasar'
 import { ref, watchEffect } from 'vue'
-import { useAreaStore } from '@/stores/Area'
+import { useAreaStore } from '@/stores/area'
 
 const $q = useQuasar()
 const areaStore = useAreaStore()
@@ -25,8 +25,6 @@ const columns = [
 const visibileColumns = ['code', 'name', 'action']
 const rows = ref([])
 
-const selected = ref([])
-
 function showConfirmDialog(row) {
     $q.dialog({
       title: `消去してもよろしいですか「${row.name}」?`,
@@ -44,6 +42,7 @@ function showConfirmDialog(row) {
                 type: 'positive',
                 timeout: 1000
             })
+            areaStore.storeSuccess(false)
         }
 
         if(areaStore._error) {
@@ -53,6 +52,7 @@ function showConfirmDialog(row) {
                 type: 'negative',
                 timeout: 1000
             })
+            areaStore.storeError(false)
         }
     })
 }
@@ -98,6 +98,7 @@ const updateAreaRow = async (r) => {
                 type: 'positive',
                 timeout: 1000
             })
+            areaStore.storeSuccess(false)
         }
 
         if(areaStore._error) {
@@ -107,6 +108,7 @@ const updateAreaRow = async (r) => {
                 type: 'negative',
                 timeout: 1000
             })
+            areaStore.storeError(false)
         }
         return true
     }
@@ -144,7 +146,6 @@ const updateAreaRow = async (r) => {
                 :columns="columns"
                 row-key="code"
                 :visible-columns="visibileColumns"
-                v-model:selected="selected"
               >
                 <template v-slot:body="props">
                     <q-tr :props="props">

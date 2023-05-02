@@ -1,10 +1,10 @@
 <script setup>
 import { useQuasar } from 'quasar'
-import { ref, watchEffect } from 'vue' 
-import { useAreaStore } from '@/stores/Area'
+import { ref, watchEffect } from 'vue'
+import { useConstructionStore } from '@/stores/construction'
 
 const $q = useQuasar()
-const areaStore = useAreaStore()
+const constructionStore = useConstructionStore()
 
 const settingForm = ref(null)
 const formData = ref({
@@ -20,37 +20,37 @@ const resetForm = () => {
 // watch the loading
 watchEffect(() => {
     // set area rows
-    if(areaStore._loading) {
+    if(constructionStore._loading) {
         $q.loading.show()
     } else {
         $q.loading.hide()
     }
 
-}, [areaStore._loading])
+}, [constructionStore._loading])
 
 // create new area
 const onSubmit = async () => {
-    await areaStore.handleStoreArea(formData.value)
-    if(areaStore._success) {
+    await constructionStore.handleStoreConstructions(formData.value)
+    if(constructionStore._success) {
         $q.notify({
             caption: 'エリアが正常に追加されました',
             message: '成功！',
             type: 'positive',
             timeout: 1000
         })
-        areaStore.storeSuccess(false)
         resetForm()
-        areaStore.router.replace({ name: 'cp.area' })
+        constructionStore.storeSuccess(false)
+        constructionStore.router.replace({ name: 'cp.construction' })
     }
 
-    if(areaStore._error) {
+    if(constructionStore._error) {
         $q.notify({
             caption: 'エラーが発生しました。後でもう一度お試しください。',
             message: 'エラー！',
             type: 'negative',
             timeout: 1000
         })
-        areaStore.storeError(false)
+        constructionStore.storeError(false)
     }
 }
 
@@ -67,7 +67,7 @@ const onSubmit = async () => {
       <div class="q-px-md row">
         <q-toolbar>
           <q-toolbar-title class="page-ttl">
-            エリア作成
+            建設タイプの作成
           </q-toolbar-title>
         </q-toolbar>
       </div>

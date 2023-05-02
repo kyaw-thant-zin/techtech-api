@@ -9,8 +9,9 @@ import ContractorIndex from '@/views/pages/Contractor/Index.vue'
 // Area
 import AreaIndex from '@/views/pages/Registration/Area/Index.vue'
 import AreaCreate from '@/views/pages/Registration/Area/Create.vue'
-
+// Construction
 import ConstructionIndex from '@/views/pages/Registration/Construction/Index.vue'
+import ConstructionCreate from '@/views/pages/Registration/Construction/Create.vue'
 import ContactIndex from '@/views/pages/Contact/Index.vue'
 import Setting from '@/views/pages/Setting.vue'
 
@@ -78,10 +79,21 @@ const router = createRouter({
               ]
             },
             {
-              path: 'work',
-              name: 'cp.work',
-              component: ConstructionIndex,
-              meta: { requiresAuth: false }
+              path: 'construction',
+              children: [
+                {
+                  path: '',
+                  name: 'cp.construction',
+                  component: ConstructionIndex,
+                  meta: { requiresAuth: false }
+                },
+                {
+                  path: 'create',
+                  name: 'cp.construction.create',
+                  component: ConstructionCreate,
+                  meta: { requiresAuth: false }
+                }
+              ]
             },
           ]
         },

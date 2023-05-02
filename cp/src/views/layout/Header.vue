@@ -40,8 +40,8 @@
           icon: 'mdi-map-marker',
         },
         {
-          label: '対応可能な施工',
-          path: '/cp/registration/work',
+          label: '建設の種類',
+          path: '/cp/registration/construction',
           icon: 'mdi-briefcase-outline',
         },
       ]

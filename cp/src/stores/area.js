@@ -4,12 +4,10 @@ import { API } from '@/api/index.js'
 
 export const useAreaStore = defineStore('area', () => {
 
-
     const _loading = ref(false)
     const _success = ref(false)
     const _error = ref(false)
     const _areas = ref(null)
-    const _area = ref(null)
 
     const storeLoading = (loading) => {
         _loading.value = loading
@@ -36,10 +34,6 @@ export const useAreaStore = defineStore('area', () => {
             })
         }
         _areas.value = filteredAreas
-    }
-
-    const storeArea = (area) => {
-        _area.value = area
     }
 
     const handleAreas = async () => {
@@ -91,6 +85,8 @@ export const useAreaStore = defineStore('area', () => {
         _success,
         _error,
         _loading,
+        storeError,
+        storeSuccess,
         handleAreas,
         handleArea,
         handleStoreArea,
