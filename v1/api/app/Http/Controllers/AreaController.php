@@ -36,7 +36,28 @@ class AreaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        if((isset($data['code']) && $data['code'] != '') && (isset($data['name']) && $data['name'] != '')) {
+            $condi = Area::create([
+                'code' => $data['code'],
+                'name' => $data['name'],
+                'order' => 1,
+                'status' => 1
+            ]);
+            if(!$condi) {
+                return response()->json([
+                    'response' => 0
+                ]);
+            } else {
+                return response()->json([
+                    'response' => 1
+                ]);
+            }
+        } else {
+            return response()->json([
+                'response' => 0
+            ]);
+        }
     }
 
     /**
@@ -70,7 +91,17 @@ class AreaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        if((isset($data['code']) && $data['code'] != '') && (isset($data['name']) && $data['name'] != '')) {
+            $area = Area::find($id);
+            if($area) {
+                $area->code = $data['code'];
+                $area->name = $data['name'];
+                $area->save();
+                return response()->json(1);
+            } 
+        }
+        return response()->json(0);
     }
 
     /**
@@ -81,6 +112,12 @@ class AreaController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $data = Area::find($id);
+        if($data) {
+            $data->delete();
+            return response()->json(1);
+        } else {
+            return response()->json(0);
+        }
     }
 }

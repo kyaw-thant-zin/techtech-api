@@ -80,7 +80,7 @@
           <img src="@/assets/img/logo.png" alt="logo" class="hd-logo">
         </q-toolbar-title>
         <q-space />
-        <q-btn size="md" flat class="q-ml-md" to="/" icon="mdi-logout-variant"></q-btn>
+        <q-btn size="md" flat class="q-ml-md" to="/cp/dashboard" icon="mdi-logout-variant"></q-btn>
       </q-toolbar>
     </q-header>
 

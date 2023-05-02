@@ -1,13 +1,7 @@
 <script setup>
-import { ref, watchEffect } from 'vue'
-import { useAreaStore } from '@/stores/Area'
-
-const areaStore = useAreaStore()
-areaStore.handleAreas()
-
+import { ref } from 'vue'
 
 const columns = [
-    { name: 'id', required: false, label: 'ID', sortable: false },
     {
         name: 'code',
         required: true,
@@ -17,23 +11,19 @@ const columns = [
         format: val => `${val}`,
         sortable: true
     },
-    { name: 'name', align: 'center', label: 'エリア', field: 'name', sortable: true },
+    { name: 'name', align: 'center', label: '対応可能な施工', field: 'name', sortable: true },
     { name: 'action', align: 'center', label: 'アクション', field: 'action' },
 ]
-const visibileColumns = ['code', 'name', 'action']
-const rows = ref([])
+
+const rows = [
+  {
+    code: '01',
+    name: 'Wall Painting',
+    action: '',
+  },
+]
 
 const selected = ref([])
-
-
-
-watchEffect(() => {
-  // set area rows
-  if(areaStore._areas !== null) {
-    rows.value = areaStore._areas
-  }
-
-}, [areaStore._areas])
 
 
 </script>
@@ -42,14 +32,14 @@ watchEffect(() => {
     <div class="q-pa-sm row items-start q-gutter-md">
       <q-breadcrumbs>
           <q-breadcrumbs-el label="ホーム" icon="mdi-home-variant-outline" :to="{ name: 'admin.dashboard' }" />
-          <q-breadcrumbs-el label="エリア" />
+          <q-breadcrumbs-el label="対応可能な施工" />
       </q-breadcrumbs>
     </div>
     <div class="full-width row wrap justify-start items-start content-start">
       <div class="q-px-md row">
         <q-toolbar>
           <q-toolbar-title class="page-ttl">
-            エリア
+            対応可能な施工
           </q-toolbar-title>
         </q-toolbar>
       </div>
@@ -57,16 +47,15 @@ watchEffect(() => {
         <div class="col-12">
           <q-card class="common-card">
             <q-card-section class="row justify-between items-center q-py-md  q-px-lg">
-              <div class="common-card-ttl">エリア一覧</div>
-              <q-btn class="shadow-3 p-common-btn" label="新規作成" to="/" no-caps />
+              <div class="common-card-ttl">対応可能な施工一覧</div>
+              <q-btn class="shadow-3 p-common-btn" label="新規作成" to="/cp/dashboard" no-caps />
             </q-card-section>
             <q-card-section class="q-px-none">
               <q-table
                 class="index-table no-shadow"
                 :rows="rows"
                 :columns="columns"
-                row-key="code"
-                :visible-columns="visibileColumns"
+                row-key="name"
                 v-model:selected="selected"
               >
                 <template v-slot:body-cell-name="props">

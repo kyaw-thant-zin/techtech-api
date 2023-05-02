@@ -23,4 +23,8 @@ Route::get('/test', function (Request $request) {
     return 'this is testing';
 });
 
+// AREA API
 Route::get('/areas', 'App\Http\Controllers\AreaController@index');
+Route::post('/areas/store', 'App\Http\Controllers\AreaController@store');
+Route::put('/areas/{id}/update', 'App\Http\Controllers\AreaController@update');
+Route::delete('areas/{id}/destroy', 'App\Http\Controllers\AreaController@destroy');

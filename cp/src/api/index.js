@@ -20,8 +20,17 @@ export const API = {
             const response = await instance.get(apiURL+'/areas', { headers: headers })
             return response.data
         },
-        "store": (formData) => {
-
+        "store": async (formData) => {
+            const response = await instance.post(apiURL+'/areas/store', formData, {headers: headers})
+            return response.data
+        },
+        "update": async (id, formData) => {
+            const response = await instance.put(apiURL+'/areas/'+id+'/update', formData, {headers: headers})
+            return response.data
+        },
+        "destroy": async (id) => {
+            const response = await instance.delete(apiURL+'/areas/'+id+'/destroy', {headers: headers})
+            return response.data
         }
     }
 }

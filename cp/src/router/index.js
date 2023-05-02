@@ -6,8 +6,11 @@ import Dashboard from '@/views/pages/Dashboard.vue'
 import InquiryIndex from '@/views/pages/Inquiry/Index.vue'
 import UserIndex from '@/views/pages/User/Index.vue'
 import ContractorIndex from '@/views/pages/Contractor/Index.vue'
-import AreaIndex from '@/views/pages/Registration/Area.vue'
-import WorkIndex from '@/views/pages/Registration/Work.vue'
+// Area
+import AreaIndex from '@/views/pages/Registration/Area/Index.vue'
+import AreaCreate from '@/views/pages/Registration/Area/Create.vue'
+
+import ConstructionIndex from '@/views/pages/Registration/Construction/Index.vue'
 import ContactIndex from '@/views/pages/Contact/Index.vue'
 import Setting from '@/views/pages/Setting.vue'
 
@@ -59,14 +62,25 @@ const router = createRouter({
           children: [
             {
               path: 'area',
-              name: 'cp.area',
-              component: AreaIndex,
-              meta: { requiresAuth: false }
+              children: [
+                {
+                  path: '',
+                  name: 'cp.area',
+                  component: AreaIndex,
+                  meta: { requiresAuth: false }
+                },
+                {
+                  path: 'create',
+                  name: 'cp.area.create',
+                  component: AreaCreate,
+                  meta: { requiresAuth: false }
+                }
+              ]
             },
             {
               path: 'work',
               name: 'cp.work',
-              component: WorkIndex,
+              component: ConstructionIndex,
               meta: { requiresAuth: false }
             },
           ]

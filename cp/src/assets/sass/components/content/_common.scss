@@ -59,3 +59,32 @@ a {
 .ft {
     min-height: unset;
 }
+
+.q-dialog--modal {
+    .q-dialog__title {
+        color: #fff;
+        font-size: 16px;
+        background-color: #FF7533;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
+
+    .q-dialog__message {
+        font-size: 12px;
+    }
+    .q-card__actions {
+        .q-btn {
+            &:first-child {
+                .q-btn__content {
+                    color: #007518;
+                }
+            }
+            &:last-child {
+                .q-btn__content {
+                    color: #FF7533;
+                }
+            }
+        }
+    }
+}

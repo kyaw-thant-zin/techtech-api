@@ -53,15 +53,49 @@ export const useAreaStore = defineStore('area', () => {
 
     }
 
-    const handleStoreArea = (formData) => {
+    const handleStoreArea = async (formData) => {
+        storeLoading(true)
+        const response = await API.area.store(formData)
+        if(response) {
+            storeSuccess(true)
+        } else {
+            storeError(true)
+        }
+        storeLoading(false)
+    }
 
+    const handelUpdateArea = async (id, formData) => {
+        storeLoading(true)
+        const response = await API.area.update(id, formData)
+        if(response) {
+            storeSuccess(true)
+        } else {
+            storeError(true)
+        }
+        storeLoading(false)
+    }
+
+    const handleDestroyArea = async (id) => {
+        storeLoading(true)
+        const response = await API.area.destroy(id)
+        if(response) {
+            storeSuccess(true)
+        } else {
+            storeError(true)
+        }
+        storeLoading(false)
     }
 
     return {
         _areas,
+        _success,
+        _error,
+        _loading,
         handleAreas,
         handleArea,
         handleStoreArea,
+        handelUpdateArea,
+        handleDestroyArea
     }
 
 })
