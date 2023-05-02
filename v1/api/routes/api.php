@@ -19,3 +19,8 @@ use Illuminate\Support\Facades\Route;
 // });
 
 
+Route::get('/test', function (Request $request) {
+    return 'this is testing';
+});
+
+Route::get('/areas', 'App\Http\Controllers\AreaController@index');

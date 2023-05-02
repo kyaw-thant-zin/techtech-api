@@ -1,7 +1,13 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
+import { useAreaStore } from '@/stores/Area'
+
+const areaStore = useAreaStore()
+areaStore.handleAreas()
+
 
 const columns = [
+    { name: 'id', required: false, label: 'ID', sortable: false },
     {
         name: 'code',
         required: true,
@@ -14,21 +20,20 @@ const columns = [
     { name: 'name', align: 'center', label: 'エリア', field: 'name', sortable: true },
     { name: 'action', align: 'center', label: 'アクション', field: 'action' },
 ]
-
-const rows = [
-  {
-    code: '01',
-    name: '北海道',
-    action: '',
-  },
-  {
-    code: '02',
-    name: '青森県',
-    action: '',
-  },
-]
+const visibileColumns = ['code', 'name', 'action']
+const rows = ref([])
 
 const selected = ref([])
+
+
+
+watchEffect(() => {
+  // set area rows
+  if(areaStore._areas !== null) {
+    rows.value = areaStore._areas
+  }
+
+}, [areaStore._areas])
 
 
 </script>
@@ -60,7 +65,8 @@ const selected = ref([])
                 class="index-table no-shadow"
                 :rows="rows"
                 :columns="columns"
-                row-key="name"
+                row-key="code"
+                :visible-columns="visibileColumns"
                 v-model:selected="selected"
               >
                 <template v-slot:body-cell-name="props">
