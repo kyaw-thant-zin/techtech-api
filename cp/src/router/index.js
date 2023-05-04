@@ -32,31 +32,31 @@ const router = createRouter({
           path: 'dashboard',
           name: 'cp.dashboard',
           component: Dashboard,
-          meta: { requiresAuth: false }
+          meta: { requiresAuth: true }
         },
         {
           path: 'inquiry',
           name: 'cp.inquiry',
           component: InquiryIndex,
-          meta: { requiresAuth: false }
+          meta: { requiresAuth: true }
         },
         {
           path: 'user',
           name: 'cp.user',
           component: UserIndex,
-          meta: { requiresAuth: false }
+          meta: { requiresAuth: true }
         },
         {
           path: 'contractor',
           name: 'cp.contractor',
           component: ContractorIndex,
-          meta: { requiresAuth: false }
+          meta: { requiresAuth: true }
         },
         {
           path: 'contact',
           name: 'cp.contact',
           component: ContactIndex,
-          meta: { requiresAuth: false }
+          meta: { requiresAuth: true }
         },
         {
           path: 'registration',
@@ -68,13 +68,13 @@ const router = createRouter({
                   path: '',
                   name: 'cp.area',
                   component: AreaIndex,
-                  meta: { requiresAuth: false }
+                  meta: { requiresAuth: true }
                 },
                 {
                   path: 'create',
                   name: 'cp.area.create',
                   component: AreaCreate,
-                  meta: { requiresAuth: false }
+                  meta: { requiresAuth: true }
                 }
               ]
             },
@@ -85,13 +85,13 @@ const router = createRouter({
                   path: '',
                   name: 'cp.construction',
                   component: ConstructionIndex,
-                  meta: { requiresAuth: false }
+                  meta: { requiresAuth: true }
                 },
                 {
                   path: 'create',
                   name: 'cp.construction.create',
                   component: ConstructionCreate,
-                  meta: { requiresAuth: false }
+                  meta: { requiresAuth: true }
                 }
               ]
             },
@@ -101,7 +101,7 @@ const router = createRouter({
           path: 'setting',
           name: 'cp.setting',
           component: Setting,
-          meta: { requiresAuth: false }
+          meta: { requiresAuth: true }
         },
       ]
     },
@@ -109,9 +109,11 @@ const router = createRouter({
 });
 
 router.beforeEach( async (to, from, next) => {
-  if (to.meta.requiresAuth) {
-    console.log('next auth')
-    return
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    next({
+      name: 'cp.signin'
+    })
+    return 
   }
   next()
   return

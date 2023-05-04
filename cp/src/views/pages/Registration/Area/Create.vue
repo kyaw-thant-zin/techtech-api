@@ -93,7 +93,7 @@ const onSubmit = async () => {
                       <q-input 
                         name="code" 
                         outlined 
-                        class="common-input-text" 
+                        class="common-input-text"  
                         v-model="formData.code"
                         lazy-rules
                         :rules="[

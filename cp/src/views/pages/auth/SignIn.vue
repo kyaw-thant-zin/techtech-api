@@ -1,13 +1,22 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-const router = useRouter()
-const formSuccess = ref(false)
-const formSubmitRedirect = () => {
-  formSuccess.value = !formSuccess.value
-  router.push('/thankyou')
 
+const loginForm = ref(null)
+const formData = ref({
+    email: '',
+    password: ''
+})
+
+const resetForm = () => {
+    formData.value.email = ''
+    formData.value.password = ''
 }
+
+// sign in
+const onSubmit = async () => {
+    
+}
+
 </script>
 
 <template>
@@ -21,22 +30,37 @@ const formSubmitRedirect = () => {
     </div>
     <div id="login" class="sl-login">
       <div class="sl-login-inn inner subpage">
-
-          <form action="" id="login-form">
+          <q-form ref="loginForm" @submit="onSubmit">
             <div class="login-form">
               <p>
                 <label for="">メールアドレス</label>
-                <span><input type="email" name="login-email" placeholder="abc@mail.com" required></span>
+                <q-input 
+                  name="email" 
+                  placeholder="abc@mail.com"
+                  borderless
+                  lazy-rules
+                  :rules="[
+                    val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                  ]"
+                />
               </p>
               <p>
                 <label for="">パスワード</label>
-                <span><input type="password" name="password" placeholder="6文字以上" minlength="6" required></span>
+                <q-input 
+                  name="password" 
+                  placeholder="Password"
+                  borderless
+                  lazy-rules
+                  :rules="[
+                    val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                  ]"
+                />
               </p>
               <p class="common-btn">
                 <input type="submit" value="ログイン" name="submit" class="login-btn" @click="e => formSubmitRedirect(e)">
               </p>
             </div>
-          </form>
+          </q-form>
       </div>
     </div>
   </main><!-- #main -->

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\AuthenticateMiddleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,12 @@ use Illuminate\Support\Facades\Route;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+Route::middleware([AuthenticateMiddleware::class])->group(function () {
+    
+    
+
+});
 
 
 Route::get('/test', function (Request $request) {
@@ -34,3 +41,4 @@ Route::get('/constructions', 'App\Http\Controllers\ConstructionController@index'
 Route::post('/constructions/store', 'App\Http\Controllers\ConstructionController@store');
 Route::put('/constructions/{id}/update', 'App\Http\Controllers\ConstructionController@update');
 Route::delete('constructions/{id}/destroy', 'App\Http\Controllers\ConstructionController@destroy');
+
