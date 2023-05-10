@@ -7,11 +7,42 @@ const headers = {
     'Content-Type': 'application/json',
 }
 
+axios.defaults.withCredentials = true;
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 const instance = axios.create({
     baseURL: baseURL,
 })
 
 export const API = {
+    "auth": {
+        "check": async() => {
+            try {
+                const response = await instance.get(apiURL+'/check-auth')
+                return response.data
+            } catch (error) {
+                return error.response
+            }
+        },
+        "signin": async (formData) => {
+            try {
+                const response = await instance.get('/sanctum/csrf-cookie')
+                if(response.status == 204) {
+                    const response = await instance.post(apiURL+'/sign-in', formData, {headers: headers})
+                    return response
+                }
+            } catch (error) {
+                return error.response
+            }
+        },
+        "signout": async () => {
+            try {
+                const response = await instance.post(apiURL+'/sign-out', {headers: headers})
+                return response
+            } catch (error) {
+                return error.response
+            }
+        }
+    },
     "area": {
         "get": (id) => {
 

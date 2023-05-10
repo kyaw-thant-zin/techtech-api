@@ -3,6 +3,9 @@
   import 'quasar/dist/quasar.css'
   import { ref, watchEffect } from 'vue'
   import { useRoute } from 'vue-router'
+  import { useAuthStore } from '@/stores/Auth'
+
+const authStore = useAuthStore()
 
   const route = useRoute()
   const activeLink = ref()
@@ -70,6 +73,14 @@
 
   }, [route])
 
+
+  const signout = async () => {
+    const condi = await authStore.handleSignOut()
+    if(!condi) {
+      authStore.router.replace({ name: 'cp.signin' })
+    }
+  }
+
 </script>
 
 <template>
@@ -80,7 +91,7 @@
           <img src="@/assets/img/logo.png" alt="logo" class="hd-logo">
         </q-toolbar-title>
         <q-space />
-        <q-btn size="md" flat class="q-ml-md" to="/cp/dashboard" icon="mdi-logout-variant"></q-btn>
+        <q-btn size="md" flat class="q-ml-md" @click="signout()" icon="mdi-logout-variant"></q-btn>
       </q-toolbar>
     </q-header>
 

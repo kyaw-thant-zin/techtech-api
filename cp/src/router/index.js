@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { API } from '../api'
 
 // CP
 import SignIn from '@/views/pages/auth/SignIn.vue'
@@ -108,12 +109,23 @@ const router = createRouter({
   ],
 });
 
+const checkAuth = async () => {
+  const response = await API.auth.check()
+  return response
+}
+
 router.beforeEach( async (to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    next({
-      name: 'cp.signin'
-    })
-    return 
+    if(await checkAuth()) {
+      next()
+      return
+    } else {
+      next({
+        name: 'cp.signin'
+      })
+      return 
+    }
+    
   }
   next()
   return

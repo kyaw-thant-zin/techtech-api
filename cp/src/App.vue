@@ -11,8 +11,10 @@ const route = useRoute()
 const authLayout = ref(true)
 
 watchEffect(() => {
-  if(route.meta?.authLayout !== undefined) {
+  if(route.meta?.authLayout != undefined) {
     authLayout.value = route.meta?.authLayout
+  } else {
+    authLayout.value = true
   }
 }, [route.meta])
 
