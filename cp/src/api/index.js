@@ -43,6 +43,27 @@ export const API = {
             }
         }
     },
+    "pm": {
+        "get": (id) => {
+
+        },
+        "getAll": async () => {
+            const response = await instance.get(apiURL+'/pm', { headers: headers })
+            return response.data
+        },
+        "store": async (formData) => {
+            const response = await instance.post(apiURL+'/pm/store', formData, {headers: headers})
+            return response.data
+        },
+        "update": async (id, formData) => {
+            const response = await instance.put(apiURL+'/pm/'+id+'/update', formData, {headers: headers})
+            return response.data
+        },
+        "destroy": async (id) => {
+            const response = await instance.delete(apiURL+'/pm/'+id+'/destroy', {headers: headers})
+            return response.data
+        }
+    },
     "area": {
         "get": (id) => {
 

@@ -38,6 +38,11 @@ const authStore = useAuthStore()
       hasChild: true,
       children: [
         {
+          label: 'お支払方法',
+          path: '/cp/registration/payment-method',
+          icon: 'mdi-credit-card-outline',
+        },
+        {
           label: 'エリア',
           path: '/cp/registration/area',
           icon: 'mdi-map-marker',

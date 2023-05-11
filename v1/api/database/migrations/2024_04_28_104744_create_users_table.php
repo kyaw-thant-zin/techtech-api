@@ -26,6 +26,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->unsignedBigInteger('cc_id')->nullable();
+            $table->unsignedBigInteger('payment_method_id')->nullable();
             $table->unsignedBigInteger('role_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->boolean('status');
@@ -34,6 +35,7 @@ class CreateUsersTable extends Migration
             $table->date('last_login_date')->nullable();
             $table->timestamps();
 
+            $table->foreign('payment_method_id')->references('id')->on('payment_methods')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('cc_id')->references('id')->on('ccs')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade')->onDelete('cascade');
         });
