@@ -59,11 +59,11 @@ function showConfirmDialog(row) {
 
 watchEffect(() => {
   // set area rows
-  if(pmStore._areas !== null) {
-    rows.value = pmStore._areas
+  if(pmStore._pms !== null) {
+    rows.value = pmStore._pms
   }
 
-}, [pmStore._areas])
+}, [pmStore._pms])
 
 const error = ref(false)
 const errorMessage = ref('')

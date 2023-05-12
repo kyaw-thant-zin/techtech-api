@@ -46,6 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 // AUTH
 Route::post('/register', 'App\Http\Controllers\AuthController@register');
+Route::post('/cp/sign-in', 'App\Http\Controllers\AuthController@signincp');
 Route::post('/sign-in', 'App\Http\Controllers\AuthController@signin');
 Route::get('/check-auth', 'App\Http\Controllers\AuthController@checkauth');
 Route::post('/sign-out', 'App\Http\Controllers\AuthController@signout');
@@ -57,9 +58,9 @@ Route::get('/areas', 'App\Http\Controllers\AreaController@index');
 // CONSTRUCTION INDEX
 Route::get('/constructions', 'App\Http\Controllers\ConstructionController@index');
 
-Route::get('/test', function (Request $request) {
-    return Hash::make('mYgG#85y5KV@');
-});
+// Route::get('/test', function (Request $request) {
+//     return Hash::make('mYgG#85y5KV@');
+// });
 
 
 

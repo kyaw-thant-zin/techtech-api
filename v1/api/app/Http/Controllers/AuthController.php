@@ -122,7 +122,6 @@ class AuthController extends Controller
         return response()->json(0);
     }
 
-
     /**
      * Sign in
      *
@@ -130,6 +129,37 @@ class AuthController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function signin(Request $request)
+    {
+        $data = $request->all();
+        if((isset($data['email']) && $data['email'] != '') && (isset($data['password']) && $data['password'] != '')) {
+            $credentials = $request->only('email', 'password');
+            if (Auth::attempt($credentials)) {
+                if(Auth::user()->role_id != 2) {
+                    return response()->json([
+                        'error' => 'Invalid email or password'
+                    ], 401);
+                }
+                $request->session()->regenerate();
+                return response()->json(Auth::user());
+            } else {
+                return response()->json([
+                    'error' => 'Invalid email or password'
+                ], 401);
+            }
+        } else {
+            return response()->json([
+                'response' => 0
+            ]);
+        }
+    }
+
+    /**
+     * Sign in
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function signincp(Request $request)
     {
         $data = $request->all();
         if((isset($data['email']) && $data['email'] != '') && (isset($data['password']) && $data['password'] != '')) {
@@ -162,7 +192,12 @@ class AuthController extends Controller
      */
     public function checkauth(Request $request)
     {
-        return response()->json(auth('sanctum')->check());
+        if(auth('sanctum')->check()) {
+            return response()->json(Auth::user());
+        } else {
+            return response()->json(auth('sanctum')->check());
+        }
+        
     }
 
     /**
