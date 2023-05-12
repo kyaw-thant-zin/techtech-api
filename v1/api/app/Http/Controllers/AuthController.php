@@ -67,8 +67,8 @@ class AuthController extends Controller
             // store user
             try {
                 $user = User::create([
-                    'name' => $data['fname'].' '.$data['lname'],
-                    'kana_name' => $data['kata_fname'].' '.$data['kata_lname'],
+                    'name' => $data['lname'].' '.$data['fname'],
+                    'kana_name' => $data['kata_lname'].' '.$data['kata_fname'],
                     'company_name' => $data['company_name'],
                     'tel' => $data['tel'],
                     'url' => $data['company_url'],
@@ -135,6 +135,11 @@ class AuthController extends Controller
         if((isset($data['email']) && $data['email'] != '') && (isset($data['password']) && $data['password'] != '')) {
             $credentials = $request->only('email', 'password');
             if (Auth::attempt($credentials)) {
+                if(Auth::user()->role_id != 3) {
+                    return response()->json([
+                        'error' => 'Invalid email or password'
+                    ], 401);
+                }
                 $request->session()->regenerate();
                 return response()->json('success');
             } else {

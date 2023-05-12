@@ -105,5 +105,19 @@ export const API = {
             const response = await instance.delete(apiURL+'/constructions/'+id+'/destroy', {headers: headers})
             return response.data
         }
+    },
+    "contractor": {
+        "getAll": async () => {
+            const response = await instance.get(apiURL+'/contractor', { headers: headers })
+            return response.data
+        },
+        "get": async (id) => {
+            const response = await instance.get(apiURL+'/contractor/'+id.value+'/detail', { headers: headers })
+            return response.data
+        },
+        "deactivate": async (id) => {
+            const response = await instance.delete(apiURL+'/contractor/'+id+'/deactivate', {headers: headers})
+            return response.data
+        }
     }
 }

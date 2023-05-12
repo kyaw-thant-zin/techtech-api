@@ -7,6 +7,7 @@ import Dashboard from '@/views/pages/Dashboard.vue'
 import InquiryIndex from '@/views/pages/Inquiry/Index.vue'
 import UserIndex from '@/views/pages/User/Index.vue'
 import ContractorIndex from '@/views/pages/Contractor/Index.vue'
+import ContractorView from '@/views/pages/Contractor/View.vue'
 // Payment Method
 import PMIndex from '@/views/pages/Registration/Method/Index.vue'
 import PMCreate from '@/views/pages/Registration/Method/Create.vue'
@@ -52,9 +53,20 @@ const router = createRouter({
         },
         {
           path: 'contractor',
-          name: 'cp.contractor',
-          component: ContractorIndex,
-          meta: { requiresAuth: true }
+          children: [
+            {
+              path: '',
+              name: 'cp.contractor',
+              component: ContractorIndex,
+              meta: { requiresAuth: true }
+            },
+            {
+              path: ':id/detail',
+              name: 'cp.contractor.detail',
+              component: ContractorView,
+              meta: { requiresAuth: true }
+            },
+          ]
         },
         {
           path: 'contact',
@@ -135,18 +147,18 @@ const checkAuth = async () => {
 }
 
 router.beforeEach( async (to, from, next) => {
-  // if (to.matched.some(record => record.meta.requiresAuth)) {
-  //   if(await checkAuth()) {
-  //     next()
-  //     return
-  //   } else {
-  //     next({
-  //       name: 'cp.signin'
-  //     })
-  //     return 
-  //   }
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if(await checkAuth()) {
+      next()
+      return
+    } else {
+      next({
+        name: 'cp.signin'
+      })
+      return 
+    }
     
-  // }
+  }
   next()
   return
 })

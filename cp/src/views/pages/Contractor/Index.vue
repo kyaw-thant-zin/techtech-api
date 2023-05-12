@@ -1,7 +1,14 @@
 <script setup>
-  import { ref } from 'vue'
+  import { useQuasar } from 'quasar'
+  import { ref, watchEffect } from 'vue'
+  import { useContractorStore } from '@/stores/contractor'
+
+  const $q = useQuasar()
+  const contractorStore = useContractorStore()
+  contractorStore.handleContractors()
 
   const columns = [
+    { name: 'id', required: false, label: 'ID', sortable: false },
     { name: 'status', align: 'center', label: '地位', field: 'status' },
     {
       name: 'name',
@@ -16,110 +23,50 @@
     { name: 'company', align: 'center', label: '会社', field: 'company', sortable: true },
     { name: 'area', align: 'center', label: 'エリア', field: 'area', sortable: true },
     { name: 'work', align: 'center', label: '仕事', field: 'work', sortable: true },
-    { name: 'workdone', align: 'center', label: '完成した作品', field: 'workdone', sortable: true },
     { name: 'action', align: 'center', label: 'アクション', field: 'action' },
   ]
+  const visibileColumns = ['status', 'name', 'email', 'company', 'area', 'work', 'workdone', 'action']
+  const rows = ref([])
 
-  const rows = [
-    {
-      status: 1,
-      name: 'Frozen Yogurt',
-      email: 'example@gmail.com',
-      company: 'Areoline',
-      area: '北海道, 青森県',
-      work: 'Clean drains, Clean guttering',
-      workdone: 3,
-      action: 4.0,
-    },
-    {
-      status: 0,
-      name: 'Ice cream sandwich',
-      email: 'example@gmail.com',
-      company: 'Apple',
-      area: '岩手県, 宮城',
-      work: 'Treat the grass, Painting',
-      workdone: 5,
-      action: 4.0,
-    },
-    {
-      status: 1,
-      name: 'Eclair',
-      email: 'example@gmail.com',
-      company: 'Microsoft',
-      area: '岩手県, 宮城',
-      work: 'Repair Windows',
-      workdone: 15,
-      action: 4.0,
-    },
-    {
-      status: 1,
-      name: 'Cupcake',
-      email: 'example@gmail.com',
-      company: 'Microsoft',
-      area: '岩手県, 宮城',
-      work: 'Repair Windows',
-      workdone: 15,
-      action: 4.0,
-    },
-    {
-      status: 0,
-      name: 'Gingerbread',
-      email: 'example@gmail.com',
-      company: 'Microsoft',
-      area: '岩手県, 宮城',
-      work: 'Repair Windows',
-      workdone: 15,
-      action: 4.0,
-    },
-    {
-      status: 0,
-      name: 'Jelly bean',
-      email: 'example@gmail.com',
-      company: 'Microsoft',
-      area: '岩手県, 宮城',
-      work: 'Repair Windows',
-      workdone: 15,
-      action: 4.0,
-    },
-    {
-      status: 1,
-      name: 'Lollipop',
-      email: 'example@gmail.com',
-      company: 'Microsoft',
-      area: '岩手県, 宮城',
-      work: 'Repair Windows',
-      workdone: 15,
-      action: 4.0,
-    },
-    {
-      status: 1,
-      name: 'Honeycomb',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 87,
-      action: 6.5,
-    },
-    {
-      status: 1,
-      name: 'Donut',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 51,
-      action: 4.9,
-    },
-    {
-      status: 1,
-      name: 'KitKat',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 65,
-      action: 7,
+  watchEffect(() => {
+    // set area rows
+    if(contractorStore._contractors !== null) {
+      rows.value = contractorStore._contractors
     }
-  ]
 
-  const selected = ref([])
+  }, [contractorStore._contractors])
 
+  function showConfirmDialog(row) {
+    $q.dialog({
+      title: `「${row.name} のステータスを変更してもよろしいですか?`,
+      message: 'このアクションはユーザー側にも影響し、ユーザーはログインできなくなります。',
+      cancel: true,
+      persistent: true,
+      html: true,
+    }).onOk( async () => {
+        await contractorStore.handleDeactivateContractor(row.id)
+        if(contractorStore._success) {
+          contractorStore.handleContractors()
+            $q.notify({
+                caption: 'ステータスが正常に変更されました',
+                message: '成功！',
+                type: 'positive',
+                timeout: 1000
+            })
+            contractorStore.storeSuccess(false)
+        }
 
+        if(contractorStore._error) {
+            $q.notify({
+                caption: 'エラーが発生しました。後でもう一度お試しください。',
+                message: 'エラー！',
+                type: 'negative',
+                timeout: 1000
+            })
+            contractorStore.storeError(false)
+        }
+    })
+  }
 
 </script>
 <template>
@@ -150,8 +97,7 @@
                 :rows="rows"
                 :columns="columns"
                 row-key="name"
-                selection="multiple"
-                v-model:selected="selected"
+                :visible-columns="visibileColumns"
               >
                 <template v-slot:body-cell-status="props">
                   <q-td>
@@ -169,10 +115,17 @@
                   <q-td>
                     <div class="row no-wrap justify-center items-center q-gutter-sm">
                       <div>
-                        <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-eye-outline"/>
+                        <router-link :to="{ name: 'cp.contractor.detail', params: { id: props.row.id } }">
+                          <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-eye-outline"/>
+                        </router-link>
                       </div>
                       <div>
-                        <q-btn size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
+                        <template v-if="props.row.status == 1">
+                          <q-btn @click="showConfirmDialog(props.row)" size="sm" padding="sm" round class="p-common-btn" icon="mdi-lock-open-variant-outline" />
+                        </template>
+                        <template v-else>
+                          <q-btn @click="showConfirmDialog(props.row)" size="sm" padding="sm" round class="p-common-btn" icon="mdi-lock-outline" />
+                        </template>
                       </div>
                     </div>
                   </q-td>

@@ -37,6 +37,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/constructions/{id}/update', 'App\Http\Controllers\ConstructionController@update');
     Route::delete('constructions/{id}/destroy', 'App\Http\Controllers\ConstructionController@destroy');
 
+    // CONTRACTOR API
+    Route::get('/contractor', 'App\Http\Controllers\ContractorController@index');
+    Route::get('/contractor/{id}/detail', 'App\Http\Controllers\ContractorController@show');
+    Route::delete('contractor/{id}/deactivate', 'App\Http\Controllers\ContractorController@destroy');
+
 });
 
 // AUTH
