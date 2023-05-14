@@ -193,7 +193,8 @@ class AuthController extends Controller
     public function checkauth(Request $request)
     {
         if(auth('sanctum')->check()) {
-            return response()->json(Auth::user());
+            $user = User::where('id', Auth::user()->id)->with(['constructions', 'areas', 'paymentMethod'])->first();
+            return response()->json($user);
         } else {
             return response()->json(auth('sanctum')->check());
         }
