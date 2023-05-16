@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const apiURL = '/api'
-const baseURL = 'http://localhost/techtech-api/v1'
+// const baseURL = 'http://localhost/techtech-api/v1'
+const baseURL = 'https://gaiko-souba-net.icdl.tokyo/v1'
 
 const headers = {
     'Content-Type': 'application/json',

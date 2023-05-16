@@ -28,6 +28,12 @@ const router = createRouter({
       name: 'cp',
       children: [
         {
+          path: '',
+          name: 'cp.home',
+          component: SignIn,
+          meta: { requiresAuth: false, authLayout: false }
+        },
+        {
           path: 'sign-in',
           name: 'cp.signin',
           component: SignIn,
@@ -37,19 +43,19 @@ const router = createRouter({
           path: 'dashboard',
           name: 'cp.dashboard',
           component: Dashboard,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true, requiresSuperAdmin: true }
         },
         {
           path: 'inquiry',
           name: 'cp.inquiry',
           component: InquiryIndex,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true, requiresSuperAdmin: true }
         },
         {
           path: 'user',
           name: 'cp.user',
           component: UserIndex,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true, requiresSuperAdmin: true }
         },
         {
           path: 'contractor',
@@ -58,13 +64,13 @@ const router = createRouter({
               path: '',
               name: 'cp.contractor',
               component: ContractorIndex,
-              meta: { requiresAuth: true }
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
             },
             {
               path: ':id/detail',
               name: 'cp.contractor.detail',
               component: ContractorView,
-              meta: { requiresAuth: true }
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
             },
           ]
         },
@@ -72,7 +78,7 @@ const router = createRouter({
           path: 'contact',
           name: 'cp.contact',
           component: ContactIndex,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true, requiresSuperAdmin: true }
         },
         {
           path: 'registration',
@@ -84,13 +90,13 @@ const router = createRouter({
                   path: '',
                   name: 'cp.pm',
                   component: PMIndex,
-                  meta: { requiresAuth: true }
+                  meta: { requiresAuth: true, requiresSuperAdmin: true }
                 },
                 {
                   path: 'create',
                   name: 'cp.pm.create',
                   component: PMCreate,
-                  meta: { requiresAuth: true }
+                  meta: { requiresAuth: true, requiresSuperAdmin: true }
                 }
               ]
             },
@@ -101,13 +107,13 @@ const router = createRouter({
                   path: '',
                   name: 'cp.area',
                   component: AreaIndex,
-                  meta: { requiresAuth: true }
+                  meta: { requiresAuth: true, requiresSuperAdmin: true }
                 },
                 {
                   path: 'create',
                   name: 'cp.area.create',
                   component: AreaCreate,
-                  meta: { requiresAuth: true }
+                  meta: { requiresAuth: true, requiresSuperAdmin: true }
                 }
               ]
             },
@@ -118,13 +124,13 @@ const router = createRouter({
                   path: '',
                   name: 'cp.construction',
                   component: ConstructionIndex,
-                  meta: { requiresAuth: true }
+                  meta: { requiresAuth: true, requiresSuperAdmin: true }
                 },
                 {
                   path: 'create',
                   name: 'cp.construction.create',
                   component: ConstructionCreate,
-                  meta: { requiresAuth: true }
+                  meta: { requiresAuth: true, requiresSuperAdmin: true }
                 }
               ]
             },
@@ -138,6 +144,12 @@ const router = createRouter({
         },
       ]
     },
+    {
+      path: '/:catchAll(.*)',
+      name: 'cp.notfound',
+      component: SignIn,
+      meta: { requiresAuth: false, authLayout: false }
+    },
   ],
 });
 
@@ -147,17 +159,24 @@ const checkAuth = async () => {
 }
 
 router.beforeEach( async (to, from, next) => {
+  console.log('cp')
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if(await checkAuth()) {
-      next()
-      return
+    const isAuthUser = await checkAuth()
+    if(isAuthUser) {
+      if(to.matched.some(record => record.meta.requiresSuperAdmin) && isAuthUser.role_id == 3) {
+        next()
+        return
+      } else {
+        next(false); // Cancel the current navigation
+        router.back(); // Go back to the previous route
+        return 
+      }
     } else {
       next({
         name: 'cp.signin'
       })
       return 
     }
-    
   }
   next()
   return

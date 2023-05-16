@@ -171,7 +171,7 @@ class AuthController extends Controller
                     ], 401);
                 }
                 $request->session()->regenerate();
-                return response()->json('success');
+                return response()->json(Auth::user());
             } else {
                 return response()->json([
                     'error' => 'Invalid email or password'

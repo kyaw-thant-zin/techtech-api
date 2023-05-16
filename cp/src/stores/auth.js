@@ -30,7 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
 
         storeLoading(true)
         const response = await API.auth.signin(formData)
-        if(response.data === "success") {
+        if(response.data?.id != undefined) {
             storeSuccess(true)
             storeUser(response.data)
         } else {
@@ -46,6 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     return {
+        _user,
         _loading,
         _success,
         _error,

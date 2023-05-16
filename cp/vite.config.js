@@ -9,7 +9,7 @@ import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 export default defineConfig({
   assetsDir: ['public'],
   outDir: './',
-  base: '/gaiko-souba',
+  base: '/v1',
   plugins: [
     vue({
       template: {
@@ -31,7 +31,6 @@ export default defineConfig({
     ]
   },
   build: {
-    outDir: '../../../',
     rollupOptions: {
       input: '/src/main.js',
       // manualChunks(id) {
