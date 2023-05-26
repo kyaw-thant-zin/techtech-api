@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { API } from '../api'
+import { useAuthStore } from '../stores/auth'
 
 // CP
 import SignIn from '@/views/pages/auth/SignIn.vue'
@@ -159,11 +160,12 @@ const checkAuth = async () => {
 }
 
 router.beforeEach( async (to, from, next) => {
-  console.log('cp')
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const isAuthUser = await checkAuth()
     if(isAuthUser) {
       if(to.matched.some(record => record.meta.requiresSuperAdmin) && isAuthUser.role_id == 3) {
+        const authStore = useAuthStore()
+        authStore._user = isAuthUser
         next()
         return
       } else {

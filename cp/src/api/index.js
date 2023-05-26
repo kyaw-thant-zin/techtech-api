@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 const apiURL = '/api'
-// const baseURL = 'http://localhost/techtech-api/v1'
-const baseURL = 'https://gaiko-souba-net.icdl.tokyo/v1'
+const baseURL = 'http://localhost/gaiko-souba-api/v1'
+// const baseURL = 'https://gaiko-souba-net.icdl.tokyo/v1'
 
 const headers = {
     'Content-Type': 'application/json',
@@ -29,6 +29,7 @@ export const API = {
                 const response = await instance.get('/sanctum/csrf-cookie')
                 if(response.status == 204) {
                     const response = await instance.post(apiURL+'/cp/sign-in', formData, {headers: headers})
+                    console.log(response)
                     return response
                 }
             } catch (error) {
