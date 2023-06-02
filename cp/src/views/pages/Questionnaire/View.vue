@@ -449,7 +449,7 @@ const onSubmit = async () => {
                                                               <q-img
                                                                 :src="ci.file != null ? ci.localSrc:ci.imagePath"
                                                                 loading="lazy"
-                                                                spinner-color="white"
+                                                                spinner-color="grey"
                                                                 style="max-width: 250px; height: 140px;"
                                                                 fit="contain"
                                                               >

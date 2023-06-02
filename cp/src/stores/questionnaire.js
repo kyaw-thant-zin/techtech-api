@@ -72,7 +72,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
                         // input choice
                         const dumpChoiceItem = {
                             label: qT.label,
-                            imagePath: qT.image != null ? APP.API.LOCAL_URL+APP.API.PREFIX+'/'+qT.image:null,
+                            imagePath: qT.image != null ? APP.API.ACTIVE_API_URL+APP.API.PREFIX+'/'+qT.image:null,
                             amount: qT.amount
                         }
                         q.choiceItems.push(dumpChoiceItem)

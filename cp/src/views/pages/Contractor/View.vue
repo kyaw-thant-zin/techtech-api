@@ -202,6 +202,10 @@ watchEffect(() => {
                         <td class="text-left">パスワード発行<br/>（決済システムが発行するパスワード）</td>
                         <td class="text-right">{{ user.payment_info.ps != null ? user.payment_info.ps:'-' }}</td>
                       </tr>
+                      <tr>
+                        <td class="text-left">自動課金番号</td>
+                        <td class="text-right">{{ user.payment_info.acid != null ? user.payment_info.acid:'-' }}</td>
+                      </tr>
                     </tbody>
                   </q-markup-table>
                 </div>
