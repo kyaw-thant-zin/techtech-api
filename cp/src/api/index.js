@@ -1,8 +1,8 @@
 import axios from 'axios'
+import { APP } from '@/config.js'
 
-const apiURL = '/api'
-const baseURL = 'http://localhost/gaiko-souba-api/v1'
-// const baseURL = 'https://gaiko-souba-net.icdl.tokyo/v1'
+const apiURL = APP.API.PREFIX
+const baseURL = APP.API.ACTIVE_API_URL
 
 const headers = {
     'Content-Type': 'application/json',
@@ -121,5 +121,47 @@ export const API = {
             const response = await instance.delete(apiURL+'/contractor/'+id+'/deactivate', {headers: headers})
             return response.data
         }
+    },
+    "contact": {
+        'getAll': async () => {
+            const response = await instance.get(apiURL+'/contact', {headers: headers})
+            return response.data
+        },
+        'get': async (id) => {
+            const response = await instance.get(apiURL+'/contact/'+id.value+'/detail', {headers: headers})
+            return response.data
+        },
+        'updateNew': async (id) => {
+            const response = await instance.put(apiURL+'/contact/'+id.value+'/update-new', {headers: headers})
+            return response.data
+        },
+        'destroy': async (id) => {
+            const response = await instance.delete(apiURL+'/contact/'+id+'/destroy', {headers: headers})
+            return response.data
+        },
+    },
+    "questionnaire": {
+        'getAll': async () => {
+            const response = await instance.get(apiURL+'/questionnaire', {headers: headers})
+            return response.data
+        },
+        'get': async (id) => {
+            const response = await instance.get(apiURL+'/questionnaire/'+id.value+'/detail', {headers: headers})
+            return response.data
+        },
+        'store': async (formData) => {
+            headers['Content-Type'] = 'multipart/form-data'
+            const response = await instance.post(apiURL+'/questionnaire/store', formData, {headers: headers})
+            return response.data
+        },
+        'update': async (id, formData) => {
+            headers['Content-Type'] = 'multipart/form-data'
+            const response = await instance.post(apiURL+'/questionnaire/'+id.value+'/update', formData, {headers: headers})
+            return response.data
+        },
+        'destroy': async (id) => {
+            const response = await instance.delete(apiURL+'/questionnaire/'+id+'/destroy', {headers: headers})
+            return response.data
+        },
     }
 }

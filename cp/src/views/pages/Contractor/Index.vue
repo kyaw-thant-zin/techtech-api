@@ -1,5 +1,6 @@
 <script setup>
   import { useQuasar } from 'quasar'
+  import { APP } from '@/config.js'
   import { ref, watchEffect } from 'vue'
   import { useContractorStore } from '@/stores/contractor'
 
@@ -115,7 +116,7 @@
                   <q-td>
                     <div class="row no-wrap justify-center items-center q-gutter-sm">
                       <div>
-                        <router-link :to="{ name: 'cp.contractor.detail', params: { id: props.row.id } }">
+                        <router-link :to="{ name: 'cp.contractor.detail', params: { id: APP.encryptID(props.row.id) } }">
                           <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-eye-outline"/>
                         </router-link>
                       </div>

@@ -33,6 +33,11 @@ const authStore = useAuthStore()
       icon: 'mdi-account-multiple-check-outline',
     },
     {
+      label: 'アンケート',
+      path: '/cp/questionnaire',
+      icon: 'mdi-comment-question-outline',
+    },
+    {
       label: '登録',
       icon: 'mdi-account-box',
       hasChild: true,

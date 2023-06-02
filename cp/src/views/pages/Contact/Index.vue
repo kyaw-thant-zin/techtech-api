@@ -1,9 +1,18 @@
 <script setup>
-  import { ref } from 'vue'
+  
+  import { APP } from '@/config.js'
+  import { useQuasar } from 'quasar'
+  import { ref, watchEffect } from 'vue'
+  import { useContactStore } from '@/stores/contact';
+
+  const $q = useQuasar()
+  const contactStore = useContactStore()
+  contactStore.handleGetContacts()
 
   const columns = [
+    { name: 'id', required: false, label: 'ID', sortable: false },
+    { name: 'new', required: false, label: 'NEW', sortable: false },
     { name: 'direction', align: 'center', label: '', field: 'direction' },
-    { name: 'status', align: 'center', label: '', field: 'status' },
     {
       name: 'company',
       required: true,
@@ -18,92 +27,48 @@
     { name: 'tel', align: 'center', label: '電話番号', field: 'tel', sortable: true },
     { name: 'action', align: 'center', label: 'アクション', field: 'action' },
   ]
+  const visibileColumns = ['direction', 'company', 'name', 'email', 'tel', 'action']
+  const rows = ref([])
 
-  const rows = [
-    {
-      direction: 1,
-      status: true,
-      company: 'Areoline',
-      name: 'Frozen Yogurt',
-      email: 'example@gmail.com',
-      tel: '000-000-0000',
-      action: 4.0,
-    },
-    {
-      status: false,
-      company: 'Microsoft',
-      name: 'Ice cream sandwich',
-      email: 'example@gmail.com',
-      tel: '000-000-0000',
-      action: 4.0,
-    },
-    {
-      status: false,
-      company: 'Apple',
-      name: 'Eclair',
-      email: 'example@gmail.com',
-      tel: '000-000-0000',
-      action: 6.0,
-    },
-    {
-      status: true,
-      company: 'Alibaba',
-      name: 'Cupcake',
-      email: 'example@gmail.com',
-      tel: '000-000-0000',
-      action: 4.3,
-    },
-    {
-      status: true,
-      company: 'Space X',
-      name: 'Gingerbread',
-      email: 'example@gmail.com',
-      tel: '000-000-0000',
-      action: 3.9,
-    },
-    {
-      status: 0,
-      name: 'Jelly bean',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 94,
-      action: 0.0,
-    },
-    {
-      status: 2,
-      name: 'Lollipop',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 98,
-      action: 0,
-    },
-    {
-      status: 2,
-      name: 'Honeycomb',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 87,
-      action: 6.5,
-    },
-    {
-      status: 2,
-      name: 'Donut',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 51,
-      action: 4.9,
-    },
-    {
-      status: 2,
-      name: 'KitKat',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 65,
-      action: 7,
+  watchEffect(() => {
+    // set contacts rows
+    if(contactStore._contacts !== null) {
+      rows.value = contactStore._contacts
     }
-  ]
 
-  const selected = ref([])
+  }, [contactStore._contacts])
+
+  function showConfirmDialog(row) {
+    $q.dialog({
+      title: `この連絡先を削除してもよろしいですか?`,
+      message: 'この連絡先はすぐに削除されます。 この操作は元に戻すことができません。',
+      cancel: true,
+      persistent: true,
+      html: true,
+    }).onOk( async () => {
+        await contactStore.handleDestroyContact(row.id)
+        if(contactStore._success) {
+          contactStore.handleGetContacts()
+            $q.notify({
+                caption: '正常に削除されました。',
+                message: '成功！',
+                type: 'positive',
+                timeout: 1000
+            })
+            contactStore.storeSuccess(false)
+        }
+
+        if(contactStore._error) {
+            $q.notify({
+                caption: 'エラーが発生しました。後でもう一度お試しください。',
+                message: 'エラー！',
+                type: 'negative',
+                timeout: 1000
+            })
+            contactStore.storeError(false)
+        }
+    })
+  }
 
 
 </script>
@@ -135,8 +100,7 @@
                 :rows="rows"
                 :columns="columns"
                 row-key="name"
-                selection="multiple"
-                v-model:selected="selected"
+                :visible-columns="visibileColumns"
               >
                 <template v-slot:body-cell-direction="props">
                   <q-td>
@@ -154,22 +118,7 @@
                   <q-td>
                     <div class="tb-mail-subject">
                       {{ props.row.company }}
-                      <q-badge class="tb-contact-new-badge" color="red" floating>NEW</q-badge>
-                    </div>
-                  </q-td>
-                </template>
-                <template v-slot:body-cell-status="props">
-                  <q-td>
-                    <div class="row justify-center items-center">
-                      <div>
-                        <q-checkbox
-                          class="tb-gold-checkbox"
-                          v-model="props.row.status"
-                          checked-icon="mdi-star"
-                          unchecked-icon="mdi-star-outline"
-                          indeterminate-icon="help"
-                        />
-                      </div>
+                      <q-badge v-if="props.row.new" class="tb-contact-new-badge" color="red" floating>NEW</q-badge>
                     </div>
                   </q-td>
                 </template>
@@ -177,10 +126,12 @@
                   <q-td>
                     <div class="row no-wrap justify-center items-center q-gutter-sm">
                       <div>
-                        <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-eye-outline"/>
+                        <router-link :to="{ name: 'cp.contact.detail', params: { id: APP.encryptID(props.row.id) } }">
+                          <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-eye-outline"/>
+                        </router-link>
                       </div>
                       <div>
-                        <q-btn size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
+                        <q-btn @click="showConfirmDialog(props.row)" size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
                       </div>
                     </div>
                   </q-td>
@@ -192,4 +143,4 @@
       </div>
     </div>
   </div>
-</template>
+</template> 

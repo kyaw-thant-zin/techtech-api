@@ -7,6 +7,7 @@ import SignIn from '@/views/pages/auth/SignIn.vue'
 import Dashboard from '@/views/pages/Dashboard.vue'
 import InquiryIndex from '@/views/pages/Inquiry/Index.vue'
 import UserIndex from '@/views/pages/User/Index.vue'
+// Contractor
 import ContractorIndex from '@/views/pages/Contractor/Index.vue'
 import ContractorView from '@/views/pages/Contractor/View.vue'
 // Payment Method
@@ -18,7 +19,14 @@ import AreaCreate from '@/views/pages/Registration/Area/Create.vue'
 // Construction
 import ConstructionIndex from '@/views/pages/Registration/Construction/Index.vue'
 import ConstructionCreate from '@/views/pages/Registration/Construction/Create.vue'
+// Questionnaire
+import QuestIndex from '@/views/pages/Questionnaire/Index.vue'
+import QuestCreate from '@/views/pages/Questionnaire/Create.vue'
+import QuestView from '@/views/pages/Questionnaire/View.vue'
+// Contact
 import ContactIndex from '@/views/pages/Contact/Index.vue'
+import ContactView from '@/views/pages/Contact/View.vue'
+// Setting
 import Setting from '@/views/pages/Setting.vue'
 
 const router = createRouter({
@@ -77,9 +85,43 @@ const router = createRouter({
         },
         {
           path: 'contact',
-          name: 'cp.contact',
-          component: ContactIndex,
-          meta: { requiresAuth: true, requiresSuperAdmin: true }
+          children: [
+            {
+              path: '',
+              name: 'cp.contact',
+              component: ContactIndex,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: ':id/detail',
+              name: 'cp.contact.detail',
+              component: ContactView,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+          ]
+        },
+        {
+          path: 'questionnaire',
+          children: [
+            {
+              path: '',
+              name: 'cp.questionnaire',
+              component: QuestIndex,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: 'create',
+              name: 'cp.questionnaire.create',
+              component: QuestCreate,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: ':id/detail',
+              name: 'cp.questionnaire.detail',
+              component: QuestView,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+          ]
         },
         {
           path: 'registration',
@@ -141,7 +183,7 @@ const router = createRouter({
           path: 'setting',
           name: 'cp.setting',
           component: Setting,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true, requiresSuperAdmin: true }
         },
       ]
     },
@@ -160,6 +202,7 @@ const checkAuth = async () => {
 }
 
 router.beforeEach( async (to, from, next) => {
+
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const isAuthUser = await checkAuth()
     if(isAuthUser) {

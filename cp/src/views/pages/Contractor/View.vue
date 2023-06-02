@@ -1,20 +1,23 @@
 <script setup>
 import dayjs from 'dayjs'
+import { APP } from '@/config.js'
 import { useQuasar } from 'quasar'
 import { ref, watchEffect, computed } from 'vue'
 import { useContractorStore } from '@/stores/contractor'
 
 const $q = useQuasar()
 const contractorStore = useContractorStore()
-const id = computed(() => contractorStore.router.currentRoute._value.params.id)
+const id = computed(() => APP.decryptID(contractorStore.router.currentRoute._value.params.id.toString()))
 contractorStore.handleContractor(id)
 
 const user = ref(null)
 
 watchEffect(() => {
     // set area rows
-    if(contractorStore._contractor !== null) {
+    if(contractorStore._contractor !== null && contractorStore._contractor?.id) {
       user.value = contractorStore._contractor
+    } else {
+      user.value = null 
     }
 
 }, [contractorStore._contractor])
@@ -32,7 +35,7 @@ watchEffect(() => {
       <div class="q-px-md row">
         <q-toolbar>
           <q-toolbar-title class="page-ttl">
-            請負業者
+            請負業者の詳細
           </q-toolbar-title>
         </q-toolbar>
       </div>
@@ -44,9 +47,14 @@ watchEffect(() => {
             </q-card-section>
             <q-card-section class="">
               <div class="row">
-                <div class="col-12 col-sm-12 col-md-6 col-lg-3">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6">
                   <q-markup-table class="no-shadow"	 v-if="user != null">
                     <tbody>
+                      <tr>
+                        <th>
+                          <p class="text-subtitle1">個人情報</p>
+                        </th>
+                      </tr>
                       <tr>
                         <td class="text-left">地位</td>
                         <td class="text-right">
@@ -110,6 +118,89 @@ watchEffect(() => {
                       <tr>
                         <td class="text-left">作成日</td>
                         <td class="text-right">{{ dayjs(user.created_at).format('YYYY/MM/DD HH:mm') }}</td>
+                      </tr>
+                    </tbody>
+                  </q-markup-table>
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                  <q-markup-table class="no-shadow br-left"	 v-if="user != null">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="text-subtitle1">お支払い詳細</p>
+                        </th>
+                      </tr>
+                      <tr>
+                        <td class="text-left">製品コード</td>
+                        <td class="text-right">{{ user.payment_info.product_code }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">支払計画</td>
+                        <td class="text-right">{{ user.payment_info.plan }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">決済金額</td>
+                        <td class="text-right">{{ user.payment_info.price }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">カードの種類</td>
+                        <td class="text-right">{{ user.cc?.cct.ccty }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">カード番号</td>
+                        <td class="text-right">{{ user.cc.cn }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">有効期限</td>
+                        <td class="text-right">{{ user.cc.ed_month }}月/{{ user.cc.ed_year }}年</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">トランザクションID</td>
+                        <td class="text-right">{{ user.payment_info.gid != null ? user.payment_info.gid:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">結果</td>
+                        <td class="text-right">{{ user.payment_info.rst != null ? user.payment_info.rst:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">カード会社承認ID</td>
+                        <td class="text-right">{{ user.payment_info.ap != null ? user.payment_info.ap:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">エラーコード</td>
+                        <td class="text-right">{{ user.payment_info.ec != null ? user.payment_info.ec:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">注文ID</td>
+                        <td class="text-right">{{ user.payment_info.god != null ? user.payment_info.god:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">ストア注文番号</td>
+                        <td class="text-right">{{ user.payment_info.cod != null ? user.payment_info.cod:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">決済金額</td>
+                        <td class="text-right">{{ user.payment_info.am != null ? user.payment_info.am:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">課税額</td>
+                        <td class="text-right">{{ user.payment_info.tx != null ? user.payment_info.tx:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">送料</td>
+                        <td class="text-right">{{ user.payment_info.sf != null ? user.payment_info.sf:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">合計金額</td>
+                        <td class="text-right">{{ user.payment_info.ta != null ? user.payment_info.ta:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">ID発行<br/>（決済システムが発行するID）</td>
+                        <td class="text-right">{{ user.payment_info.issue_id != null ? user.payment_info.issue_id:'-' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-left">パスワード発行<br/>（決済システムが発行するパスワード）</td>
+                        <td class="text-right">{{ user.payment_info.ps != null ? user.payment_info.ps:'-' }}</td>
                       </tr>
                     </tbody>
                   </q-markup-table>
