@@ -163,5 +163,16 @@ export const API = {
             const response = await instance.delete(apiURL+'/questionnaire/'+id+'/destroy', {headers: headers})
             return response.data
         },
+    },
+    "setting": {
+        'getAll': async () => {
+            const response = await instance.get(apiURL+'/settings', {headers: headers})
+            return response.data
+        },
+        'update': async (id, formData) => {
+            headers['Content-Type'] = 'multipart/form-data'
+            const response = await instance.post(apiURL+'/settings/'+id+'/update', formData, {headers: headers})
+            return response.data
+        },
     }
 }

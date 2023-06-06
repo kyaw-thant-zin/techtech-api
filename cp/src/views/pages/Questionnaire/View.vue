@@ -44,7 +44,7 @@ const formData = ref({
     question: '',
     prefix: '',
     inputType: '',
-    // choice: '独身',
+    choice: '独身',
     textItems: textItems.value, // テキスト
     selectItems: selectItems.value, // 選択
     choiceItems: choiceItems.value // 選択肢
@@ -53,29 +53,30 @@ const formData = ref({
 watchEffect(() => {
     // set area rows
     if(qStore._questionnaire !== null && qStore._questionnaire?.formData) {
-      q.value = qStore._questionnaire
-      // set formData
-      formData.value.question = q.value.formData.question
-      formData.value.prefix = q.value.formData.prefix
-      formData.value.inputType = q.value.formData.inputType
-      if(q.value.formData.inputType == 'テキスト') {
-        // set textItems
-        textItems.value.textType = q.value.textItems.textType
-        if(q.value.textItems.textType == '自由入力') {
-          textItems.value.label = q.value.textItems.label
-        } else if(q.value.textItems.textType == '対策') {
-          textItems.value.measure = q.value.textItems.measure
-          textItems.value.amount = q.value.textItems.amount
+        q.value = qStore._questionnaire
+        // set formData
+        formData.value.question = q.value.formData.question
+        formData.value.prefix = q.value.formData.prefix
+        formData.value.inputType = q.value.formData.inputType
+        formData.value.choice = q.value.formData.choice != undefined ? q.value.formData.choice:'独身'
+        if(q.value.formData.inputType == 'テキスト') {
+            // set textItems
+            textItems.value.textType = q.value.textItems.textType
+            if(q.value.textItems.textType == '自由入力') {
+            textItems.value.label = q.value.textItems.label
+            } else if(q.value.textItems.textType == '対策') {
+            textItems.value.measure = q.value.textItems.measure
+            textItems.value.amount = q.value.textItems.amount
+            }
+        } else if(q.value.formData.inputType == '選択') {
+            // set selectItems
+            selectItems.value = q.value.selectItems
+        } else if(q.value.formData.inputType == '選択肢') {
+            // set choiceItems
+            choiceItems.value = q.value.choiceItems
         }
-      } else if(q.value.formData.inputType == '選択') {
-        // set selectItems
-        selectItems.value = q.value.selectItems
-      } else if(q.value.formData.inputType == '選択肢') {
-        // set choiceItems
-        choiceItems.value = q.value.choiceItems
-      }
     } else {
-      q.value = null 
+        q.value = null 
     }
 
 }, [qStore._questionnaire])
@@ -156,27 +157,38 @@ const updateTextType = (value) => {
 // update questionnaire
 const onSubmit = async () => {
 
-  // set formData
-  formData.value.textItems = textItems.value
-  formData.value.selectItems = selectItems.value
-  formData.value.choiceItems = choiceItems.value
+    // set formData
+    formData.value.textItems = textItems.value
+    formData.value.selectItems = selectItems.value
+    formData.value.choiceItems = choiceItems.value
 
-  // check the input type and remove others
-  if(formData.value.inputType == 'テキスト') {
-    delete formData.value.choiceItems
-    delete formData.value.selectItems
-  } else if(formData.value.inputType == '選択') {
-    delete formData.value.textItems
-    delete formData.value.choiceItems
-  } else {
-    delete formData.value.textItems
-    delete formData.value.selectItems
-  }
-  // send API
-  await qStore.handleUpdateQuestionnaire( id, formData.value)
+    // check the input type and remove others
+    if(formData.value.inputType == 'テキスト') {
+        delete formData.value.choiceItems
+        delete formData.value.selectItems
+        delete formData.value.choice
+    } else if(formData.value.inputType == '選択') {
+        delete formData.value.textItems
+        delete formData.value.choiceItems
+        delete formData.value.choice
+    } else {
+        delete formData.value.textItems
+        delete formData.value.selectItems
+    }
 
-  // check result
-  if(qStore._success) {
+    if(formData.value.choice == '独身') {
+        // ラジオボタン - radio
+        formData.value.inputType = 'ラジオボタン'
+    } else {
+        // チェックボックス - checkbox
+        formData.value.inputType = 'チェックボックス'
+    }   
+
+    // send API
+    await qStore.handleUpdateQuestionnaire( id, formData.value)
+
+    // check result
+    if(qStore._success) {
       $q.notify({
         caption: 'アンケートは正常に更新されました',
         message: '成功！',
@@ -389,7 +401,8 @@ const onSubmit = async () => {
                                         <q-btn @click="addMoreSelectItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
                                     </div>
                                 </div>
-                                <!-- <div class="row q-mt-sm" v-if="formData.inputType == '選択肢'">
+                                <!-- 選択肢 single or multiple -->
+                                <div class="row q-mt-sm" v-if="formData.inputType == '選択肢'">
                                     <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
                                         <div>
                                             <div class="text-caption q-mb-xs">タイプ</div>
@@ -401,7 +414,7 @@ const onSubmit = async () => {
                                             />
                                         </div>
                                     </div>
-                                </div> -->
+                                </div>
                                 <div  class="row q-mt-lg" v-if="formData.inputType == '選択肢'">
                                     <div class="col-12 q-mb-sm" v-for="(ci, index) in choiceItems" :key="index">
                                         <q-list bordered class="rounded-borders">

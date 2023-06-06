@@ -66,7 +66,7 @@ const formData = ref({
     question: '',
     prefix: '',
     inputType: '',
-    // choice: '独身',
+    choice: '独身',
     textItems: textItems.value, // テキスト
     selectItems: selectItems.value, // 選択
     choiceItems: choiceItems.value // 選択肢
@@ -96,14 +96,27 @@ const resetForm = () => {
 const onSubmit = async () => {
     // check the input type and remove others
     if(formData.value.inputType == 'テキスト') {
+        // text
         delete formData.value.choiceItems
         delete formData.value.selectItems
+        delete formData.value.choice
     } else if(formData.value.inputType == '選択') {
+        // select
         delete formData.value.textItems
         delete formData.value.choiceItems
+        delete formData.value.choice
     } else {
+        // choice
         delete formData.value.textItems
         delete formData.value.selectItems
+    }
+
+    if(formData.value.choice == '独身') {
+        // ラジオボタン - radio
+        formData.value.inputType = 'ラジオボタン'
+    } else {
+        // チェックボックス - checkbox
+        formData.value.inputType = 'チェックボックス'
     }
 
     // send API
@@ -327,7 +340,7 @@ watchEffect(() => {
                                                     </div>
                                                     <div class="q-item__section column q-item__section--side justify-center">
                                                         <q-btn dense size="sm" flat>
-                                                            <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveChoiceOption(si)" />
+                                                            <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveSelectOption(si)" />
                                                         </q-btn>
                                                     </div>
                                                     
@@ -361,7 +374,8 @@ watchEffect(() => {
                                         <q-btn @click="addMoreSelectItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
                                     </div>
                                 </div>
-                                <!-- <div class="row q-mt-sm" v-if="formData.inputType == '選択肢'">
+                                <!-- 選択肢 single or multiple -->
+                                <div class="row q-mt-sm" v-if="formData.inputType == '選択肢'">
                                     <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
                                         <div>
                                             <div class="text-caption q-mb-xs">タイプ</div>
@@ -373,7 +387,7 @@ watchEffect(() => {
                                             />
                                         </div>
                                     </div>
-                                </div> -->
+                                </div>
                                 <div  class="row q-mt-lg" v-if="formData.inputType == '選択肢'">
                                     <div class="col-12 q-mb-sm" v-for="(ci, index) in choiceItems" :key="index">
                                         <q-list bordered class="rounded-borders">

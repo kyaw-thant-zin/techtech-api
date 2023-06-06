@@ -39,17 +39,19 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
             'selectItems': [],
             'choiceItems': []
         }
+
         if(questionnaire != null) {
             // set formData
             q.formData.question = questionnaire.q
             q.formData.prefix = questionnaire.prefix
-            q.formData.inputType = questionnaire.q_ans_input_type.type
 
             const qInputType = questionnaire.q_ans_input_type.type
+            const qFormInputType = qInputType == 'ラジオボタン' || qInputType == 'チェックボックス' ? '選択肢': qInputType
+            q.formData.inputType = qFormInputType 
             const qAll = questionnaire.qas_with_all
-            if(qAll != null) {
+            if(qAll != null && qAll.length > 0) {
                 qAll.forEach(qT => {
-                    if(qInputType == 'テキスト') {
+                    if(qFormInputType == 'テキスト') {
                         // input text
                         if(qT.measure_id != null) {
                             q.textItems.textType = '対策'
@@ -61,23 +63,26 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
                             q.textItems.textType = '自由入力'
                             q.textItems.label = qT.suffix
                         }
-                    } else if(qInputType == '選択') {
+                    } else if(qFormInputType == '選択') {
                         // input select
                         const dumpSelectItem = {
                             'label': qT.label,
                             'amount': qT.amount,
                         }
                         q.selectItems.push(dumpSelectItem)
-                    } else if(qInputType == '選択肢') {
+                    } else if(qFormInputType == '選択肢') {
                         // input choice
+                        q.formData.choice = qInputType == 'ラジオボタン' ? '独身':'多数'
                         const dumpChoiceItem = {
                             label: qT.label,
                             imagePath: qT.image != null ? APP.API.ACTIVE_API_URL+APP.API.PREFIX+'/'+qT.image:null,
-                            amount: qT.amount
+                            amount: qT.amount,
                         }
                         q.choiceItems.push(dumpChoiceItem)
                     }
                 });
+            } else {
+                
             }
         }
         _questionnaire.value = q
@@ -86,11 +91,14 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const storeQuestionnaires = (questionnaires) => {
         const filteredQuests = []
         if(questionnaires.length > 0) {
-            questionnaires.forEach((q) => {
+            questionnaires.forEach((q, index) => {
                 const dumpQuest = {}
+                const qInputType = q.q_ans_input_type.type
+                const qChoice = q.q_ans_input_type.type == 'ラジオボタン' ? '独身':'多数'
+                dumpQuest.index = questionnaires.length - index
                 dumpQuest.id = q.id
                 dumpQuest.question = q.q
-                dumpQuest.ans_intput_type = q.q_ans_input_type.type
+                dumpQuest.ans_intput_type = qInputType == 'ラジオボタン' || qInputType == 'チェックボックス' ? qInputType+'（'+qChoice+'）':qInputType
                 dumpQuest.action = ''
                 filteredQuests.push(dumpQuest)
             })

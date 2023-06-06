@@ -11,12 +11,13 @@ qStore.handleGetQuestionnaires()
 
 const rows = ref([])
 const columns = [
+    { name: 'index', required: false, label: 'INDEX', sortable: false },
     { name: 'id', required: false, label: 'ID', sortable: false },
     {
         name: 'question',
         required: true,
         label: '質問',
-        align: 'center',
+        align: 'left',
         field: row => row.question,
         format: val => `${val}`,
         sortable: true
@@ -101,7 +102,7 @@ function showConfirmDialog(row) {
               >
                 <template v-slot:body="props">
                     <q-tr :props="props">
-                      <q-td key="question" :props="props">{{ props.row.question }}</q-td>
+                      <q-td key="question" :props="props"><span class="text-weight-medium color-orange">Q{{ props.row.index }}.</span> {{ props.row.question }}</q-td>
                       <q-td key="ans_intput_type" :props="props">{{ props.row.ans_intput_type }}</q-td>
                       <q-td key="action" :props="props">
                         <div class="row no-wrap justify-center items-center q-gutter-sm">
