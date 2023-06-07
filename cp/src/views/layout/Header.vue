@@ -20,7 +20,7 @@ const authStore = useAuthStore()
     {
       label: '問い合わせ',
       path: '/cp/inquiry',
-      icon: 'mdi-email-multiple-outline',
+      icon: 'mdi-card-account-mail-outline',
     },
     {
       label: 'ユーザー',
@@ -30,7 +30,7 @@ const authStore = useAuthStore()
     {
       label: '請負業者',
       path: '/cp/contractor',
-      icon: 'mdi-account-multiple-check-outline',
+      icon: 'mdi-briefcase-account-outline',
     },
     {
       label: 'アンケート',

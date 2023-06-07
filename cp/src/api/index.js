@@ -174,5 +174,11 @@ export const API = {
             const response = await instance.post(apiURL+'/settings/'+id+'/update', formData, {headers: headers})
             return response.data
         },
+    },
+    'dashboard': {
+        'getAll': async () => {
+            const response = await instance.get(apiURL+'/dashboard', {headers: headers})
+            return response.data
+        },
     }
 }
