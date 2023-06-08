@@ -172,17 +172,17 @@ const onSubmit = async () => {
         delete formData.value.choiceItems
         delete formData.value.choice
     } else {
+        // choice
+        if(formData.value.choice == '独身') {
+            // ラジオボタン - radio
+            formData.value.inputType = 'ラジオボタン'
+        } else {
+            // チェックボックス - checkbox
+            formData.value.inputType = 'チェックボックス'
+        }
         delete formData.value.textItems
         delete formData.value.selectItems
-    }
-
-    if(formData.value.choice == '独身') {
-        // ラジオボタン - radio
-        formData.value.inputType = 'ラジオボタン'
-    } else {
-        // チェックボックス - checkbox
-        formData.value.inputType = 'チェックボックス'
-    }   
+    } 
 
     // send API
     await qStore.handleUpdateQuestionnaire( id, formData.value)

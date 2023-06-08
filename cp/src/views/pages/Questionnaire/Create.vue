@@ -24,12 +24,16 @@ const optionsChoice = [
 ]
 
 const textItems = ref({
-    'textType': '',
-    'label': '',
-    'measure': '',
-    'amount': ''
+    'suffix': '',
+    'quantity': 1,
+    'unit_price': 0
 })
 const choiceItems = ref([])
+const qaudSelectItems = ref({
+    'use_default': false,
+    'quantity': 1,
+    'unit_price': 0
+})
 const selectItems = ref([])
 const addMoreSelectItem = () => {
     selectItems.value.push({
@@ -64,22 +68,13 @@ const handleRemoveChoiceItemImage = (ci) => {
 
 const formData = ref({
     question: '',
-    prefix: '',
+    suffix: '',
     inputType: '',
     choice: '独身',
     textItems: textItems.value, // テキスト
     selectItems: selectItems.value, // 選択
     choiceItems: choiceItems.value // 選択肢
 })
-
-const updateTextType = (value) => {
-    if(value == '自由入力') {
-        textItems.value.amount = ''
-        textItems.value.measure = ''
-    } else if(value == '対策') {
-        textItems.value.label = ''
-    }
-}
 
 const resetForm = () => {
     formData.value.question = ''
@@ -107,16 +102,17 @@ const onSubmit = async () => {
         delete formData.value.choice
     } else {
         // choice
+        if(formData.value.choice == '独身') {
+            // ラジオボタン - radio
+            formData.value.inputType = 'ラジオボタン'
+        } else {
+            // チェックボックス - checkbox
+            formData.value.inputType = 'チェックボックス'
+        }
+
         delete formData.value.textItems
         delete formData.value.selectItems
-    }
-
-    if(formData.value.choice == '独身') {
-        // ラジオボタン - radio
-        formData.value.inputType = 'ラジオボタン'
-    } else {
-        // チェックボックス - checkbox
-        formData.value.inputType = 'チェックボックス'
+        
     }
 
     // send API
@@ -234,12 +230,12 @@ watchEffect(() => {
                                 />
                                 <div class="row q-mt-sm">
                                     <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
-                                        <label class="">接頭語</label>
+                                        <label class="">接尾辞</label>
                                         <q-input 
                                             name="question" 
                                             outlined 
                                             class="common-input-text"  
-                                            v-model="formData.prefix"
+                                            v-model="formData.suffix"
                                         />
                                     </div>
                                 </div>
@@ -267,66 +263,87 @@ watchEffect(() => {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row q-mt-sm q-gutter-md" v-if="formData.inputType == 'テキスト'">
-                                    <div class="col-12">
-                                        <div class="row">
-                                            <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
-                                                <div>
-                                                    <div class="text-caption q-mb-xs">テキストの種類</div>
-                                                    <q-select 
-                                                        dense 
-                                                        outlined 
-                                                        v-model="textItems.textType" 
-                                                        :options="optionsText" 
-                                                        @update:model-value="updateTextType"
-                                                    />
-                                                </div>
-                                            </div>
+                                <!-- テキスト input text -->
+                                <div class="row q-mt-sm q-col-gutter-md" v-if="formData.inputType == 'テキスト'">
+                                    <div class="col-12 col-sm-4 col-md-2 col-lg-1 col-xl-1">
+                                        <div>
+                                            <div class="text-caption q-mb-xs">接尾辞</div>
+                                            <q-input 
+                                                dense 
+                                                outlined 
+                                                v-model="textItems.suffix" 
+                                            />
                                         </div>
-                                        <div class="row q-mt-md"  v-if="textItems.textType == '自由入力'">
-                                            <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
+                                    </div>
+                                    <div class="col-6 col-sm-4 col-md-2 col-lg-1 col-xl-1">
+                                        <div>
+                                            <div class="text-caption q-mb-xs">接尾語</div>
+                                            <q-input 
+                                                type="number"
+                                                dense 
+                                                outlined 
+                                                v-model="textItems.quantity" 
+                                                input-class="text-right"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-4 col-md-2 col-lg-1 col-xl-1">
+                                        <div>
+                                            <div class="text-caption q-mb-xs">決済金額</div>
+                                            <q-input 
+                                                dense 
+                                                outlined 
+                                                type="number"
+                                                v-model="textItems.unit_price" 
+                                                suffix="円"
+                                                input-class="text-right"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <p class="q-mb-xs text-caption"><span class="text-negative">※</span> 「接尾語」と「決済金額」に値がない場合、入力はフリータイプになります。</p>
+                                        <p class="q-mb-xs text-caption"><span class="text-negative">※</span> 「接尾語」と「決済金額」に値がある場合、入力タイプは「数値」になります。</p>
+                                        <p class="q-mb-xs text-caption">
+                                            <span class="text-negative">※</span> 2 ( 接尾語 ) × 1000 ( 決済金額 ) = 1000 ( 金額 ) <br />
+                                            <span class="text-negative">※</span> ( 決済金額 × 希望数量 )  / 接尾語 = 金額
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- 選択 input select -->
+                                <div  class="row q-mt-lg" v-if="formData.inputType == '選択'">
+                                    <div class="col-12 q-mb-sm">
+                                        <q-checkbox dense size="sm" v-model="qaudSelectItems.use_default" label="すべての選択にデフォルトの「数量」と「単価」を使用します。" />
+                                    </div>
+                                    <div class="col-12 q-mb-sm q-mt-sm" v-if="qaudSelectItems.use_default">
+                                        <div class="row q-col-gutter-md">
+                                            <div class="col-6 col-sm-4 col-md-2 col-lg-1 col-xl-1">
                                                 <div>
                                                     <div class="text-caption q-mb-xs">接尾語</div>
                                                     <q-input 
+                                                        type="number"
                                                         dense 
                                                         outlined 
-                                                        v-model="textItems.label" 
+                                                        v-model="textItems.quantity" 
+                                                        input-class="text-right"
                                                     />
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row q-mt-md q-gutter-lg"  v-if="textItems.textType == '対策'">
-                                            <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2">
-                                                <div>
-                                                    <div class="text-caption q-mb-xs">接尾語</div>
-                                                    <q-select 
-                                                        dense 
-                                                        outlined 
-                                                        v-model="textItems.measure" 
-                                                        :options="optionMeasures" 
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2">
+                                            <div class="col-6 col-sm-4 col-md-2 col-lg-1 col-xl-1">
                                                 <div>
                                                     <div class="text-caption q-mb-xs">決済金額</div>
                                                     <q-input 
                                                         dense 
                                                         outlined 
                                                         type="number"
-                                                        v-model="textItems.amount" 
+                                                        v-model="textItems.unit_price" 
                                                         suffix="円"
+                                                        input-class="text-right"
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="col-12">
-                                                <p> 1 (接尾語) x 決済金額</p>
-                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div  class="row q-mt-lg" v-if="formData.inputType == '選択'">
-                                    <div class="col-12 q-mb-sm" v-for="(si, index) in selectItems" :key="index">
+                                    <div class="col-12 q-mb-sm q-mt-md" v-for="(si, index) in selectItems" :key="index">
                                         <q-list bordered class="rounded-borders">
                                             <q-expansion-item
                                                 dense
@@ -356,14 +373,28 @@ watchEffect(() => {
                                                             />
                                                         </div>
                                                         <div class="q-mt-sm">
-                                                            <div>決済金額</div>
+                                                            <div>接尾語</div>
                                                             <q-input 
                                                                 type="number"
                                                                 dense 
                                                                 outlined 
                                                                 v-model="si.amount" 
-                                                                suffix="円"
                                                             />
+                                                        </div>
+                                                        <div class="q-mt-sm">
+                                                            <div>決済金額</div>
+                                                            <template  v-if="!qaudSelectItems.use_default">
+                                                                <q-input 
+                                                                    type="number"
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="si.amount" 
+                                                                    suffix="円"
+                                                                />
+                                                            </template>
+                                                            <template v-else>
+                                                                <p>0 <span>円</span></p>
+                                                            </template>
                                                         </div>
                                                     </q-card-section>
                                                 </q-card>
@@ -374,7 +405,7 @@ watchEffect(() => {
                                         <q-btn @click="addMoreSelectItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
                                     </div>
                                 </div>
-                                <!-- 選択肢 single or multiple -->
+                                <!-- 選択肢 radio or checkbox -->
                                 <div class="row q-mt-sm" v-if="formData.inputType == '選択肢'">
                                     <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
                                         <div>
