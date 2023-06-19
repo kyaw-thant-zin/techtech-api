@@ -34,7 +34,6 @@ export const useDashboardStore = defineStore('dashboard', () => {
     const handleGetDashboard = async () => {
         storeLoading(true)
         const response = await API.dashboard.getAll()
-        console.log(response)
         storeDashboard(response)
         storeLoading(false)
     }

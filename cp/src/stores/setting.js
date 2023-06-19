@@ -31,9 +31,9 @@ export const useSettingStore = defineStore('setting', () => {
             'description': setting.description,
             'keywords': setting.keywords,
             'site_logo': null,
-            'site_logo_local_src': setting.site_logo != null ? APP.API.ACTIVE_API_URL+APP.API.PREFIX+'/'+setting.site_logo:null,
+            'site_logo_local_src': setting.site_logo != null ? APP.ACTIVE_PUBLIC_SITE_URL+'/'+setting.site_logo:null,
             'icon': null,
-            'icon_local_src': setting.icon != null ? APP.API.ACTIVE_API_URL+APP.API.PREFIX+'/'+setting.icon:null,
+            'icon_local_src': setting.icon != null ? APP.ACTIVE_PUBLIC_SITE_URL+'/'+setting.icon:null,
             'email': setting.email,
             'footer_text': setting.footer_text
         }
@@ -50,7 +50,7 @@ export const useSettingStore = defineStore('setting', () => {
             'description': seo.og_description,
             'url': seo.og_url,
             'image': null,
-            'image_local_src': seo.og_image != null ? APP.API.ACTIVE_API_URL+APP.API.PREFIX+'/'+seo.og_image:null,
+            'image_local_src': seo.og_image != null ? APP.ACTIVE_PUBLIC_SITE_URL+'/'+seo.og_image:null,
             'image_width': seo.og_image_width,
             'image_height': seo.og_image_height
         }
@@ -68,6 +68,7 @@ export const useSettingStore = defineStore('setting', () => {
     const handleUpdateSettings = async (id, formData) => {
         storeLoading(true)
         const response = await API.setting.update(id, formData)
+        console.log(response)
         if(response) {
             storeSuccess(true)
         } else {

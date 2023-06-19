@@ -1,6 +1,4 @@
 <script setup>
-
-import dayjs from 'dayjs'
 import { APP } from '@/config.js'
 import { useQuasar } from 'quasar'
 import { ref, watchEffect, watch, computed } from 'vue'
@@ -18,33 +16,23 @@ const optionsInputs = [
     '選択', // select
     '選択肢' // checkbox or radio
 ]
-const optionsText = [
-    '自由入力',
-    '対策'
-]
-const optionMeasures = [
-    'm',
-    '坪'
-]
 const optionsChoice = [
     '独身', // single
     '多数' // multiple
 ]
 
 const textItems = ref({
-    'textType': '',
-    'label': '',
-    'measure': '',
-    'amount': ''
+    'suffix': '',
 })
 const selectItems = ref([])
 const choiceItems = ref([])
 
 const formData = ref({
     question: '',
-    prefix: '',
+    suffix: '',
     inputType: '',
     choice: '独身',
+    required: false,
     textItems: textItems.value, // テキスト
     selectItems: selectItems.value, // 選択
     choiceItems: choiceItems.value // 選択肢
@@ -56,18 +44,13 @@ watchEffect(() => {
         q.value = qStore._questionnaire
         // set formData
         formData.value.question = q.value.formData.question
-        formData.value.prefix = q.value.formData.prefix
+        formData.value.suffix = q.value.formData.suffix
         formData.value.inputType = q.value.formData.inputType
+        formData.value.required = q.value.formData.required
         formData.value.choice = q.value.formData.choice != undefined ? q.value.formData.choice:'独身'
         if(q.value.formData.inputType == 'テキスト') {
             // set textItems
-            textItems.value.textType = q.value.textItems.textType
-            if(q.value.textItems.textType == '自由入力') {
-            textItems.value.label = q.value.textItems.label
-            } else if(q.value.textItems.textType == '対策') {
-            textItems.value.measure = q.value.textItems.measure
-            textItems.value.amount = q.value.textItems.amount
-            }
+            textItems.value.suffix = q.value.textItems.suffix
         } else if(q.value.formData.inputType == '選択') {
             // set selectItems
             selectItems.value = q.value.selectItems
@@ -84,14 +67,14 @@ watchEffect(() => {
 const addMoreSelectItem = () => {
     selectItems.value.push({
         label: null,
-        amount: null,
+        unit_price: null,
     })
 }
 const addMoreChoiceItem = () => {
     choiceItems.value.push({
         label: null,
         file: null,
-        amount: null
+        unit_price: null
     })
 }
 const handleRemoveSelectOption = (si) => {
@@ -145,15 +128,6 @@ watch(
   { deep: true }
 )
 
-const updateTextType = (value) => {
-    if(value == '自由入力') {
-        textItems.value.amount = ''
-        textItems.value.measure = ''
-    } else if(value == '対策') {
-        textItems.value.label = ''
-    }
-}
-
 // update questionnaire
 const onSubmit = async () => {
 
@@ -173,13 +147,6 @@ const onSubmit = async () => {
         delete formData.value.choice
     } else {
         // choice
-        if(formData.value.choice == '独身') {
-            // ラジオボタン - radio
-            formData.value.inputType = 'ラジオボタン'
-        } else {
-            // チェックボックス - checkbox
-            formData.value.inputType = 'チェックボックス'
-        }
         delete formData.value.textItems
         delete formData.value.selectItems
     } 
@@ -259,14 +226,25 @@ const onSubmit = async () => {
                                   val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
                                   ]"
                               />
-                              <div class="row q-mt-sm">
+                                <div class="row q-mt-sm">
                                     <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
                                         <label class="">接頭語</label>
                                         <q-input 
                                             name="question" 
                                             outlined 
                                             class="common-input-text"  
-                                            v-model="formData.prefix"
+                                            v-model="formData.suffix"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="row q-mt-md">
+                                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
+                                        <q-checkbox 
+                                            name="required" 
+                                            outlined 
+                                            dense
+                                            label="必須フィールド"
+                                            v-model="formData.required"
                                         />
                                     </div>
                                 </div>
@@ -295,60 +273,14 @@ const onSubmit = async () => {
                                     </div>
                                 </div>
                                 <div class="row q-mt-sm q-gutter-md" v-if="formData.inputType == 'テキスト'">
-                                    <div class="col-12">
-                                        <div class="row">
-                                            <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
-                                                <div>
-                                                    <div class="text-caption q-mb-xs">テキストの種類</div>
-                                                    <q-select 
-                                                        dense 
-                                                        outlined 
-                                                        v-model="textItems.textType" 
-                                                        :options="optionsText" 
-                                                        @update:model-value="updateTextType"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row q-mt-md"  v-if="textItems.textType == '自由入力'">
-                                            <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
-                                                <div>
-                                                    <div class="text-caption q-mb-xs">接尾語</div>
-                                                    <q-input 
-                                                        dense 
-                                                        outlined 
-                                                        v-model="textItems.label" 
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row q-mt-md q-gutter-lg"  v-if="textItems.textType == '対策'">
-                                            <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2">
-                                                <div>
-                                                    <div class="text-caption q-mb-xs">接尾語</div>
-                                                    <q-select 
-                                                        dense 
-                                                        outlined 
-                                                        v-model="textItems.measure" 
-                                                        :options="optionMeasures" 
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2">
-                                                <div>
-                                                    <div class="text-caption q-mb-xs">決済金額</div>
-                                                    <q-input 
-                                                        dense 
-                                                        outlined 
-                                                        type="number"
-                                                        v-model="textItems.amount" 
-                                                        suffix="円"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div class="col-12">
-                                                <p> 1 (接尾語) x 決済金額</p>
-                                            </div>
+                                    <div class="col-12 col-sm-4 col-md-2 col-lg-1 col-xl-1">
+                                        <div>
+                                            <div class="text-caption q-mb-xs">接尾辞</div>
+                                            <q-input 
+                                                dense 
+                                                outlined 
+                                                v-model="textItems.suffix" 
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -367,7 +299,7 @@ const onSubmit = async () => {
                                                     </div>
                                                     <div class="q-item__section column q-item__section--side justify-center">
                                                         <q-btn dense size="sm" flat>
-                                                            <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveChoiceOption(si)" />
+                                                            <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveSelectOption(si)" />
                                                         </q-btn>
                                                     </div>
                                                     
@@ -388,7 +320,7 @@ const onSubmit = async () => {
                                                                 type="number"
                                                                 dense 
                                                                 outlined 
-                                                                v-model="si.amount" 
+                                                                v-model="si.unit_price" 
                                                                 suffix="円"
                                                             />
                                                         </div>
@@ -476,7 +408,7 @@ const onSubmit = async () => {
                                                                 type="number"
                                                                 dense 
                                                                 outlined 
-                                                                v-model="ci.amount" 
+                                                                v-model="ci.unit_price" 
                                                                 suffix="円"
                                                             />
                                                         </div>
