@@ -205,7 +205,7 @@ watchEffect(() => {
                                     lazy-rules
                                     dense
                                     :rules="[
-                                    val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                        val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
                                     ]"
                                 />
                                 <div class="row q-mt-sm">

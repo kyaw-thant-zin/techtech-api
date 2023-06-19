@@ -23,6 +23,9 @@ import ConstructionCreate from '@/views/pages/Registration/Construction/Create.v
 import QuestIndex from '@/views/pages/Questionnaire/Index.vue'
 import QuestCreate from '@/views/pages/Questionnaire/Create.vue'
 import QuestView from '@/views/pages/Questionnaire/View.vue'
+// Quotation
+import QuotationIndex from '@/views/pages/Quotation/Index.vue'
+import QuotationCreate from '@/views/pages/Quotation/Create.vue'
 // Contact
 import ContactIndex from '@/views/pages/Contact/Index.vue'
 import ContactView from '@/views/pages/Contact/View.vue'
@@ -119,6 +122,23 @@ const router = createRouter({
               path: ':id/detail',
               name: 'cp.questionnaire.detail',
               component: QuestView,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+          ]
+        },
+        {
+          path: 'quotation',
+          children: [
+            {
+              path: '',
+              name: 'cp.quotation',
+              component: QuotationIndex,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: 'create',
+              name: 'cp.quotation.create',
+              component: QuotationCreate,
               meta: { requiresAuth: true, requiresSuperAdmin: true }
             },
           ]

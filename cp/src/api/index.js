@@ -29,7 +29,6 @@ export const API = {
                 const response = await instance.get('/sanctum/csrf-cookie')
                 if(response.status == 204) {
                     const response = await instance.post(apiURL+'/cp/sign-in', formData, {headers: headers})
-                    console.log(response)
                     return response
                 }
             } catch (error) {

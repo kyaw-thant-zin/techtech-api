@@ -38,6 +38,11 @@ const authStore = useAuthStore()
       icon: 'mdi-comment-question-outline',
     },
     {
+      label: 'お見積り',
+      path: '/cp/quotation',
+      icon: 'mdi-format-list-checkbox',
+    },
+    {
       label: '登録',
       icon: 'mdi-account-box',
       hasChild: true,
