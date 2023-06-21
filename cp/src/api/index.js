@@ -163,6 +163,16 @@ export const API = {
             return response.data
         },
     },
+    "quotation": {
+        "getAllRequiredToCreate": async () => {
+            const response = await instance.get(apiURL+'/quotation/create', {headers: headers})
+            return response.data
+        },
+        "store": async (formData) => {
+            const response = await instance.post(apiURL+'/quotation/store', formData, {headers: headers})
+            return response.data
+        }
+    },
     "setting": {
         'getAll': async () => {
             const response = await instance.get(apiURL+'/settings', {headers: headers})

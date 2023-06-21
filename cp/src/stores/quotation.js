@@ -1,0 +1,131 @@
+import { ref } from 'vue'
+import { defineStore } from 'pinia'
+import { API } from '@/api/index.js'
+
+export const useQuotationStore = defineStore('quotation', () => {
+
+    const _loading = ref(false)
+    const _success = ref(false)
+    const _error = ref(false)
+    const _symbols = ref([])
+    const _qqs = ref([])
+    const _qas = ref([])
+    const _quotationIDs = ref([])
+
+    const storeLoading = (loading) => {
+        _loading.value = loading
+    }
+
+    const storeError = (error) => {
+        _error.value = error
+    }
+
+    const storeSuccess = (success) => {
+        _success.value = success
+    }
+
+    const storeSymbols = (symbols) => {
+        const dumpSymbols = []
+        if(symbols.length > 0) {
+            symbols.forEach(s => {
+                const dumpS = {
+                    'label': s.jp_name,
+                    'value': s.id
+                }
+                dumpSymbols.push(dumpS)
+            });
+        }
+        _symbols.value = dumpSymbols
+    }
+
+    const storeQqs = (qqs) => {
+        const dumpQqs = []
+        if(qqs.length > 0) {
+            qqs.forEach((q, index) => {
+                const dumpQ = {
+                    'label': 'Q'+(index + 1),
+                    'value': q.id
+                }
+                dumpQqs.push(dumpQ)
+            });
+        }
+        _qqs.value = dumpQqs
+    }
+
+    const storeQas = (qas) => {
+        let groupedQas = {}
+        if(qas.length > 0) {
+            groupedQas = qas.reduce((result, qa) => {
+                const { qq_id, label, id } = qa;
+                if (!result['q-' + qq_id]) {
+                    result['q-' + qq_id] = [];
+                }
+                result['q-' + qq_id].push({ 'label': label, 'value': id });
+                return result;
+            }, {});
+        }
+        _qas.value = groupedQas
+    }
+
+    const storeQuotationIDs = (q) => {
+        const dumpQs = []
+        if(q.length > 0) {
+            q.forEach((qu, index) => {
+                const dumpQ = {
+                    'label': qu.q_name,
+                    'value': qu.id
+                }
+                dumpQs.push(dumpQ)
+            });
+        }
+        _quotationIDs.value = dumpQs
+    }
+
+    const handleGetAllRequired = async () => {
+        storeLoading(true)
+        const response = await API.quotation.getAllRequiredToCreate()
+        if(response?.symbols) {
+            storeSymbols(response.symbols)
+        }
+        if(response?.qqs) {
+            storeQqs(response.qqs)
+        }
+        if(response?.qas) {
+            storeQas(response.qas)
+        }
+        if(response?.quotation) {
+            storeQuotationIDs(response.quotation)
+        }
+        storeLoading(false)
+    }
+
+    const handleStoreQuotation  = async (formData) => {
+        storeLoading(true)
+        const response = await API.quotation.store(formData)
+        console.log(response)
+        if(response) {
+            storeSuccess(true)
+            storeError(false)
+        } else {
+            storeError(true)
+            storeSuccess(false)
+        }
+        storeLoading(false)
+    }
+
+    return {
+        _success,
+        _error,
+        _loading,
+        _symbols,
+        _qqs,
+        _qas,
+        _quotationIDs,
+        storeError,
+        storeSuccess,
+        handleGetAllRequired,
+        handleStoreQuotation
+    }
+
+})
+
