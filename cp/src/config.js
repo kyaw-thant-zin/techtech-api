@@ -13,7 +13,7 @@ const PREFIX = '/api'
 
 
 export const APP = {
-    'ACTIVE_PUBLIC_SITE_URL': LOCAL_PUBLIC_SITE_URL,
+    'ACTIVE_PUBLIC_SITE_URL': SERVER_PUBLIC_SITE_URL,
     'ACTIVE_SITE_URL': SERVER_SITE_URL,
     'SECRET_KEY': SECRET_KEY,
     'encryptID': (id) => {
@@ -34,6 +34,6 @@ export const APP = {
         'PREFIX': PREFIX,
         'LOCAL_URL': LOCAL_URL,
         'SERVER_URL': SERVER_URL,
-        'ACTIVE_API_URL': LOCAL_URL,
+        'ACTIVE_API_URL': SERVER_URL,
     }
 }
