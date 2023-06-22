@@ -26,6 +26,7 @@ const parentSelect = ref([
 ])
 const formData = ref({
     'qName': '',
+    'totalFormula': '',
     'condition': checkConditions.value,
     'formula': formulas.value,
     'qParent': parentSelect.value[0],
@@ -51,11 +52,17 @@ const addMoreFormula = () => {
         text: null,
         fcondition: [],
     })
+    if(formulas.value.length == 1) {
+        formData.value.totalFormula = 'F1'
+    }
 }
 const handleRemoveFormula = (f) => {
     const index = formulas.value.indexOf(f)
     if (index !== -1) {
         formulas.value.splice(index, 1);
+    }
+    if(formulas.value.length <= 0) {
+        formData.value.totalFormula = ''
     }
 }
 const addMoreFormulaResultCondition = (fCondition) => {
@@ -119,13 +126,14 @@ watch(
 // Events
 const setAnsIDByQqID = (index) => {
     const newValue = conditionSelectedQqID.value[index]
+    console.log(newValue)
     if(newValue.length > 0) {
         const filteredAnsID = []
         newValue.forEach((el) => {
             const key = 'q-'+el
             if(groupedQas.value[key] != undefined) {
                 groupedQas.value[key].forEach((el) => {
-                    if (!filteredAnsID.includes(el.label)) {
+                    if (!filteredAnsID.some(fAID => fAID.label === el.label)) {
                         const dumpEl = {
                             'label': el.label,
                             'value': el.value
@@ -159,22 +167,39 @@ const removeConditionQq = (value, cc) => {
     if (index == -1) {
         conditionSelectedQqID.value[indexCC].splice(value.index, 1);
     }
+
+    if(checkConditions.value[indexCC].conQqID.length <= 1) {
+        checkConditions.value[indexCC].conAnsID = null
+    }
 }
 const updateConditionAnsID = (value, cc) => {
-    let foundKey = null
+    let foundKey = []
     const targetValue = value
     for (const key in groupedQas.value) {
         if (groupedQas.value.hasOwnProperty(key)) {
             const arr = groupedQas.value[key]
-            if (arr.some(item => item.label === targetValue.label && item.value === targetValue.value)) {
-                foundKey = key
-                break
+            if (arr.some(item => item.label === targetValue.label)) {
+                foundKey.push(key)
             }
         }
     }
-    cc.conQqID = cc.conQqID.filter(item => item.value == foundKey.replace('q-', ''))
-    const index = checkConditions.value.indexOf(cc)
-    conditionAnsID.value[index] = groupedQas.value[foundKey]
+
+    if(foundKey.length > 0) {
+        const convertedArray = foundKey.map(item => parseInt(item.split('-')[1]))
+        // remove unselected qq
+        cc.conQqID = cc.conQqID.filter(item => convertedArray.includes(item.value))
+        // remove unselected answers by qq
+        const index = checkConditions.value.indexOf(cc)
+        conditionAnsID.value[index] = foundKey.reduce((acc, key) => {
+            groupedQas.value[key].forEach(item => {
+                if (!acc.labels[item.label]) {
+                    acc.labels[item.label] = true;
+                    acc.array.push(item);
+                }
+            });
+            return acc;
+        }, { array: [], labels: {} }).array
+    }
 }
 
 // watch the loading
@@ -189,13 +214,12 @@ watchEffect(() => {
 
 // submit the form
 const onSubmit = async () => {
-    console.log(formData.value)
     const dumpFormData = {}
     Object.entries(formData.value).forEach(([key1, dataValue1]) => {
         if (typeof dataValue1 === "string") { //string
             dumpFormData[key1] = dataValue1
         } else if (Array.isArray(dataValue1)) { //array
-            if(key1 == 'condition') {
+            if(key1 == 'condition') { //condition
                 dumpFormData[key1] = []
                 if(dataValue1.length > 0) {
                     dataValue1.forEach((el1, index1) => {
@@ -206,13 +230,17 @@ const onSubmit = async () => {
                             } else if (Array.isArray(dataValue2)) { //array
                                 dumpFormData[key1][index1][key2] = dataValue2.map(item => item.value)
                             } else { //object
-                                dumpFormData[key1][index1][key2] = dataValue2.value
+                                if(key2 == 'conAnsID') {
+                                    dumpFormData[key1][index1][key2] = dataValue2
+                                } else {
+                                    dumpFormData[key1][index1][key2] = dataValue2.value
+                                }
                             }
                         })
                         
                     })
                 }
-            } else {
+            } else { // formula
                 dumpFormData[key1] = []
                 if(dataValue1.length > 0) {
                     dataValue1.forEach((el1, index1) => {
@@ -221,8 +249,21 @@ const onSubmit = async () => {
                             if (typeof dataValue2 === "string") { //string
                                 dumpFormData[key1][index1][key2] = dataValue2
                             } else if (Array.isArray(dataValue2)) { //array
-                                console.log(dataValue2)
-                                // dumpFormData[key1][index1][key2] = dataValue2.map(item => item.value)
+                                dumpFormData[key1][index1][key2] = []
+                                if(dataValue2.length > 0) {
+                                    dataValue2.forEach((el2, index2) => {
+                                        if(typeof el2 === "object" && el2 !== null) { //object
+                                            dumpFormData[key1][index1][key2][index2] = {}
+                                            Object.entries(el2).forEach(([key3, dataValue3]) => {
+                                                if(typeof dataValue3 === "string") { //string
+                                                    dumpFormData[key1][index1][key2][index2][key3] = dataValue3
+                                                } else { // object
+                                                    dumpFormData[key1][index1][key2][index2][key3] = dataValue3.value
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
                             }
                         })
                         
@@ -233,25 +274,8 @@ const onSubmit = async () => {
             dumpFormData[key1] = dataValue1.value
         }
     })
-    console.log(dumpFormData)
-    // const dumpFormData = {
-    //     'qName': formData.value.qName,
-    //     'qParent': formData.value.qParent.value
-    // }
-    // // condition
-    // const dumpCondition = []
-    // if(formData.value.condition.length > 0) {
-    //     formData.value.condition.forEach((el) => {
-    //         const dumpConQqID = el.conQqID.map(item => item.value)
-    //         const dumpConSymbol = el.conSymbol.value
-    //         const dumpConAnsID = el.conAnsID.value
-    //         dumpCondition.push([dumpConQqID, dumpConSymbol, dumpConAnsID])
-    //     })
-    // }
-    // dumpFormData.condition = dumpCondition
-    // console.log(dumpFormData)
 
-    // await quoteStore.handleStoreQuotation(formData.value)
+    await quoteStore.handleStoreQuotation(dumpFormData)
 }
 
 </script>
@@ -338,6 +362,10 @@ const onSubmit = async () => {
                                                                 :options="conditionQqID"
                                                                 @update:model-value="(value) => updateConditionQq(value, cc)"
                                                                 @remove="(value) => removeConditionQq(value, cc)"
+                                                                lazy-rules
+                                                                :rules="[
+                                                                    val => val != null || 'フィールドは必須項目です', 
+                                                                ]"
                                                             />
                                                         </div>
                                                         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
@@ -347,6 +375,10 @@ const onSubmit = async () => {
                                                                 outlined 
                                                                 v-model="cc.conSymbol" 
                                                                 :options="conditionSymbols"
+                                                                lazy-rules
+                                                                :rules="[
+                                                                    val => val != null || 'フィールドは必須項目です', 
+                                                                ]"
                                                             />
                                                         </div>
                                                         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
@@ -357,6 +389,10 @@ const onSubmit = async () => {
                                                                 v-model="cc.conAnsID" 
                                                                 :options="conditionAnsID[index]"
                                                                 @update:model-value="(value) => updateConditionAnsID(value, cc)"
+                                                                lazy-rules
+                                                                :rules="[
+                                                                    val => val != null || 'フィールドは必須項目です', 
+                                                                ]"
                                                             />
                                                         </div>
                                                     </div>
@@ -386,7 +422,7 @@ const onSubmit = async () => {
                                         >
                                             <template v-slot:header>
                                                 <div class="q-item__section column q-item__section--main justify-center">
-                                                    <div class="q-item__label">式</div><!---->
+                                                    <div class="q-item__label">式 ( F{{ index + 1 }} )</div><!---->
                                                 </div>
                                                 <div class="q-item__section column q-item__section--side justify-center">
                                                     <q-btn dense size="sm" flat>
@@ -435,22 +471,36 @@ const onSubmit = async () => {
                                                                                             outlined 
                                                                                             v-model="frc.fconSymbol" 
                                                                                             :options="conditionSymbols"
+                                                                                            lazy-rules
+                                                                                            :rules="[
+                                                                                                val => val != null || 'フィールドは必須項目です', 
+                                                                                            ]"
                                                                                         />
                                                                                     </div>
                                                                                     <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
                                                                                         <div>状態</div>
                                                                                         <q-input 
+                                                                                            type="number"
                                                                                             dense 
                                                                                             outlined 
                                                                                             v-model="frc.fconSituation" 
+                                                                                            lazy-rules
+                                                                                            :rules="[
+                                                                                                val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です'
+                                                                                            ]"
                                                                                         />
                                                                                     </div>
                                                                                     <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
                                                                                         <div>結果</div>
                                                                                         <q-input 
+                                                                                            type="number"
                                                                                             dense 
                                                                                             outlined 
                                                                                             v-model="frc.fconResult" 
+                                                                                            lazy-rules
+                                                                                            :rules="[
+                                                                                                val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です'
+                                                                                            ]"
                                                                                         />
                                                                                     </div>
                                                                                 </div>
@@ -472,6 +522,23 @@ const onSubmit = async () => {
                                 </div>
                                 <div class="col-12 q-mt-sm">
                                     <p class="text-caption text-grey">{{ formulaMessage }}</p>
+                                </div>
+                            </div>
+                            <div class="row q-mt-md">
+                                <div class="col-12">
+                                    <label>合計の計算式<small class="required-suffix">※必須</small></label>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-2 q-mt-sm q-mt-sm">
+                                    <q-input  
+                                        outlined 
+                                        class="common-input-text" 
+                                        v-model="formData.totalFormula"
+                                        lazy-rules
+                                        dense
+                                        :rules="[
+                                            val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                        ]"
+                                    />
                                 </div>
                             </div>
                             <div class="row q-mt-md">
