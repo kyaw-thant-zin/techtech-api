@@ -164,6 +164,14 @@ export const API = {
         },
     },
     "quotation": {
+        "getAll": async () => {
+            const response = await instance.get(apiURL+'/quotation', {headers: headers})
+            return response.data
+        },
+        "get": async (id) => {
+            const response = await instance.get(apiURL+'/quotation/'+id+'/detail', {headers: headers})
+            return response.data
+        },
         "getAllRequiredToCreate": async () => {
             const response = await instance.get(apiURL+'/quotation/create', {headers: headers})
             return response.data
@@ -171,7 +179,15 @@ export const API = {
         "store": async (formData) => {
             const response = await instance.post(apiURL+'/quotation/store', formData, {headers: headers})
             return response.data
-        }
+        },
+        "update": async (id, formData) => {
+            const response = await instance.post(apiURL+'/quotation/'+id+'/update', formData, {headers: headers})
+            return response.data
+        },
+        'destroy': async (id) => {
+            const response = await instance.delete(apiURL+'/quotation/'+id+'/destroy', {headers: headers})
+            return response.data
+        },
     },
     "setting": {
         'getAll': async () => {

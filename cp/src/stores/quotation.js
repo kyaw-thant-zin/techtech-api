@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import dayjs from 'dayjs'
 import { defineStore } from 'pinia'
 import { API } from '@/api/index.js'
 
@@ -11,6 +12,8 @@ export const useQuotationStore = defineStore('quotation', () => {
     const _qqs = ref([])
     const _qas = ref([])
     const _quotationIDs = ref([])
+    const _quotations = ref([])
+    const _quotation = ref(null)
 
     const storeLoading = (loading) => {
         _loading.value = loading
@@ -81,6 +84,25 @@ export const useQuotationStore = defineStore('quotation', () => {
         _quotationIDs.value = dumpQs
     }
 
+    const storeQuotations = (quotations) => {
+        const filteredQ = []
+        if(quotations.length > 0) {
+            quotations.forEach((q, index) => {
+                const dumpQ = {}
+                dumpQ.id = q.id
+                dumpQ.name = q.q_name
+                dumpQ.created = dayjs(q.updated_at).fromNow()
+                dumpQ.action = ''
+                filteredQ.push(dumpQ)
+            })
+        }
+        _quotations.value  = filteredQ
+    }
+
+    const storeQuotation = (quotation) => {
+        _quotation.value  = quotation
+    }
+
     const handleGetAllRequired = async () => {
         storeLoading(true)
         const response = await API.quotation.getAllRequiredToCreate()
@@ -99,16 +121,51 @@ export const useQuotationStore = defineStore('quotation', () => {
         storeLoading(false)
     }
 
+    const handleGetQuotations = async () => {
+        storeLoading(true)
+        const response = await API.quotation.getAll()
+        storeQuotations(response)
+        storeLoading(false)
+    }
+
     const handleStoreQuotation  = async (formData) => {
         storeLoading(true)
         const response = await API.quotation.store(formData)
-        console.log(response)
         if(response) {
             storeSuccess(true)
             storeError(false)
         } else {
             storeError(true)
             storeSuccess(false)
+        }
+        storeLoading(false)
+    }
+
+    const handleGetQuotation = async (id) => {
+        storeLoading(true)
+        const response = await API.quotation.get(id)
+        storeQuotation(response)
+        storeLoading(false)
+    }
+
+    const handleUpdateQuotation = async (id, formData) => {
+        storeLoading(true)
+        const response = await API.quotation.update(id, formData)
+        if(response) {
+            storeSuccess(response)
+        } else {
+            storeError(response)
+        }
+        storeLoading(false)
+    }
+
+    const handleDestroyQuotation = async (id) => {
+        storeLoading(true)
+        const response = await API.quotation.destroy(id)
+        if(response) {
+            storeSuccess(true)
+        } else {
+            storeError(true)
         }
         storeLoading(false)
     }
@@ -121,10 +178,15 @@ export const useQuotationStore = defineStore('quotation', () => {
         _qqs,
         _qas,
         _quotationIDs,
+        _quotations,
         storeError,
         storeSuccess,
         handleGetAllRequired,
-        handleStoreQuotation
+        handleStoreQuotation,
+        handleGetQuotations,
+        handleGetQuotation,
+        handleUpdateQuotation,
+        handleDestroyQuotation
     }
 
 })

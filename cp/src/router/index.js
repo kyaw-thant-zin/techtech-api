@@ -26,6 +26,7 @@ import QuestView from '@/views/pages/Questionnaire/View.vue'
 // Quotation
 import QuotationIndex from '@/views/pages/Quotation/Index.vue'
 import QuotationCreate from '@/views/pages/Quotation/Create.vue'
+import QuotationView from '@/views/pages/Quotation/View.vue'
 // Contact
 import ContactIndex from '@/views/pages/Contact/Index.vue'
 import ContactView from '@/views/pages/Contact/View.vue'
@@ -139,6 +140,12 @@ const router = createRouter({
               path: 'create',
               name: 'cp.quotation.create',
               component: QuotationCreate,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: ':id/detail',
+              name: 'cp.quotation.detail',
+              component: QuotationView,
               meta: { requiresAuth: true, requiresSuperAdmin: true }
             },
           ]

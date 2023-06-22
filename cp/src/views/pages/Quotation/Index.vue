@@ -1,8 +1,15 @@
 <script setup>
-  import { ref } from 'vue'
+  import { useQuasar } from 'quasar'
+  import { APP } from '@/config.js'
+  import { ref, watch, watchEffect } from 'vue' 
+  import { useQuotationStore } from '@/stores/quotation'
+
+  const $q = useQuasar()
+  const quoteStore = useQuotationStore()
+  quoteStore.handleGetQuotations()
 
   const columns = [
-    { name: 'status', align: 'center', label: '地位', field: 'status' },
+    { name: 'id', required: false, label: 'ID', sortable: false },
     {
       name: 'name',
       required: true,
@@ -12,94 +19,52 @@
       format: val => `${val}`,
       sortable: true
     },
-    { name: 'email', align: 'left', label: 'メールアドレス', field: 'email', sortable: true },
-    { name: 'summry', align: 'center', label: '摘要', field: 'summry', sortable: true },
-    { name: 'total', align: 'center', label: '合計', field: 'total', sortable: true },
+    { name: 'created', align: 'center', label: 'で作成された', field: 'created' },
     { name: 'action', align: 'center', label: 'アクション', field: 'action' },
   ]
+  const visibileColumns = ['name', 'created', 'action']
 
-  const rows = [
-    {
-      status: 2,
-      name: 'Frozen Yogurt',
-      email: 'example@gmail.com',
-      summry: 24,
-      total: '80,0000円(税込)',
-      action: 4.0,
-    },
-    {
-      status: 0,
-      name: 'Ice cream sandwich',
-      email: 'example@gmail.com',
-      total: '110,0000円(税込)',
-      summry: 37,
-      action: 4.0,
-    },
-    {
-      status: 1,
-      name: 'Eclair',
-      email: 'example@gmail.com',
-      total: '60,0000円(税込)',
-      summry: 23,
-      action: 6.0,
-    },
-    {
-      status: 1,
-      name: 'Cupcake',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 67,
-      action: 4.3,
-    },
-    {
-      status: 0,
-      name: 'Gingerbread',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 49,
-      action: 3.9,
-    },
-    {
-      status: 0,
-      name: 'Jelly bean',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 94,
-      action: 0.0,
-    },
-    {
-      status: 2,
-      name: 'Lollipop',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 98,
-      action: 0,
-    },
-    {
-      status: 2,
-      name: 'Honeycomb',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 87,
-      action: 6.5,
-    },
-    {
-      status: 2,
-      name: 'Donut',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 51,
-      action: 4.9,
-    },
-    {
-      status: 2,
-      name: 'KitKat',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 65,
-      action: 7,
+  const rows = []
+
+  watchEffect(() => {
+    // set quotation rows
+    if(quoteStore._quotations !== null) {
+      rows.value = quoteStore._quotations
     }
-  ]
+
+  }, [quoteStore._quotations])
+
+  const showConfirmDialog = (row) => {
+    $q.dialog({
+      title: `消去してもよろしいですか「${row.name}」?`,
+      message: 'この引用はすぐに削除されます。 この操作を元に戻すことはできません。',
+      cancel: true,
+      persistent: true,
+      html: true,
+    }).onOk( async () => {
+        await quoteStore.handleDestroyQuotation(row.id)
+        if(quoteStore._success) {
+            quoteStore.handleGetQuotations()
+            $q.notify({
+                caption: '見積書は正常に削除されました。',
+                message: '成功！',
+                type: 'positive',
+                timeout: 1000
+            })
+            quoteStore.storeSuccess(false)
+        }
+
+        if(quoteStore._error) {
+            $q.notify({
+                caption: 'エラーが発生しました。後でもう一度お試しください。',
+                message: 'エラー！',
+                type: 'negative',
+                timeout: 1000
+            })
+            quoteStore.storeError(false)
+        }
+    })
+  }
 
 
 </script>
@@ -132,33 +97,25 @@
                 :rows="rows"
                 :columns="columns"
                 row-key="name"
+                :visible-columns="visibileColumns"
               >
-                <template v-slot:body-cell-status="props">
-                  <q-td>
-                    <div class="row justify-center">
-                      <div v-if="props.row.status == 2">
-                        <q-chip size="sm" icon="mdi-check-circle-outline" color="positive" text-color="white">終了した</q-chip>
+                <template v-slot:body="props">
+                  <q-tr :props="props">
+                    <q-td key="name" :props="props">{{ props.row.name }}</q-td>
+                    <q-td key="created" :props="props">{{ props.row.created }}</q-td>
+                    <q-td key="action" :props="props">
+                      <div class="row no-wrap justify-center items-center q-gutter-sm">
+                        <div>
+                          <router-link :to="{ name: 'cp.quotation.detail', params: { id: APP.encryptID(props.row.id) } }">
+                            <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-note-edit-outline"/>
+                          </router-link>
+                        </div>
+                        <div>
+                          <q-btn @click="showConfirmDialog(props.row)" size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
+                        </div>
                       </div>
-                      <div v-if="props.row.status == 1">
-                        <q-chip size="sm" icon="mdi-progress-clock" color="warning">進行中</q-chip>
-                      </div>
-                      <div v-if="props.row.status == 0">
-                        <q-chip size="sm" icon="mdi-account-search-outline" color="negative"  text-color="white">まだ</q-chip>
-                      </div>
-                    </div>
-                  </q-td>
-                </template>
-                <template v-slot:body-cell-action="props">
-                  <q-td>
-                    <div class="row no-wrap justify-center items-center q-gutter-sm">
-                      <div>
-                        <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-eye-outline"/>
-                      </div>
-                      <div>
-                        <q-btn size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
-                      </div>
-                    </div>
-                  </q-td>
+                    </q-td>
+                  </q-tr>
                 </template>
               </q-table>
             </q-card-section>
