@@ -270,7 +270,7 @@ watchEffect(() => {
                                 </div>
                                 <!-- 選択 input select -->
                                 <div  class="row q-mt-lg" v-if="formData.inputType == '選択'">
-                                    <div class="col-12 q-mb-sm q-mt-md" v-for="(si, index) in selectItems" :key="index">
+                                    <div class="col-12 q-mb-sm" v-for="(si, index) in selectItems" :key="index">
                                         <q-list bordered class="rounded-borders">
                                             <q-expansion-item
                                                 dense
