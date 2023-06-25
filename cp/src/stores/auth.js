@@ -56,6 +56,7 @@ export const useAuthStore = defineStore('auth', () => {
         if(!response.data) {
             Cookies.remove('auth_tkn', { sameSite: 'strict' })
             storeIsAuth(false)
+            storeUser(null)
         } 
         return response.data
     }
