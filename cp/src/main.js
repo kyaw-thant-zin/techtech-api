@@ -1,4 +1,4 @@
-import { createApp, markRaw } from 'vue'
+import { createApp, markRaw, onMounted } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
@@ -44,24 +44,3 @@ createApp(App)
   })
   .mount('#app')
 
-// Add an event listener for window.onfocus event
-window.onfocus = async () => {
-  const isAuthUser = await API.auth.check()
-  if (isAuthUser) {
-    if (
-      router.currentRoute.value.matched.some(
-        (record) => record.meta.requiresSuperAdmin
-      ) &&
-      isAuthUser.role_id === 3
-    ) {
-      const authStore = useAuthStore()
-      authStore._user = isAuthUser
-    } else {
-      // Cancel the current navigation
-      router.replace(router.currentRoute.value.fullPath)
-    }
-  } else {
-    // Redirect to the signin route
-    router.push({ name: 'cp.signin' })
-  }
-}

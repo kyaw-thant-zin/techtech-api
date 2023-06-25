@@ -7,6 +7,10 @@ import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    host: 'app-cp.localhost',
+    post: 3000
+  },
   assetsDir: ['public'],
   outDir: './',
   base: '/v1',

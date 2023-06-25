@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { API } from '../api'
 import { useAuthStore } from '../stores/auth'
+import Cookies from 'js-cookie'
 
 // CP
 import SignIn from '@/views/pages/auth/SignIn.vue'
@@ -231,11 +232,17 @@ const checkAuth = async () => {
 router.beforeEach( async (to, from, next) => {
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    const isAuthUser = await checkAuth()
-    if(isAuthUser) {
-      if(to.matched.some(record => record.meta.requiresSuperAdmin) && isAuthUser.role_id == 3) {
-        const authStore = useAuthStore()
-        authStore._user = isAuthUser
+    let authStore = useAuthStore()
+    let isAuthUser = authStore._isAuth
+    let checkCookie = Cookies.get('auth_tkn')
+    if(checkCookie != undefined) {
+      isAuthUser = await checkAuth()
+      authStore.storeUser(isAuthUser)
+    }
+
+    if(isAuthUser && checkCookie != undefined) {
+      const user = authStore._user
+      if(to.matched.some(record => record.meta.requiresSuperAdmin) && user.role_id == 3) {
         next()
         return
       } else {

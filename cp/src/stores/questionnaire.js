@@ -86,6 +86,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
                 const qInputType = q.q_ans_input_type.type
                 const qChoice = q.q_ans_input_type.type == 'ラジオボタン' ? '独身':'多数'
                 dumpQuest.index = questionnaires.length - index
+                dumpQuest.qindex = 'Q'+(questionnaires.length - index)
                 dumpQuest.id = q.id
                 dumpQuest.question = q.q
                 dumpQuest.ans_intput_type = qInputType == 'ラジオボタン' || qInputType == 'チェックボックス' ? qInputType+'（'+qChoice+'）':qInputType
@@ -136,6 +137,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleDestroyQuestionnaire = async (id) => {
         storeLoading(true)
         const response = await API.questionnaire.destroy(id)
+        console.log(response)
         if(response) {
             storeSuccess(true)
         } else {

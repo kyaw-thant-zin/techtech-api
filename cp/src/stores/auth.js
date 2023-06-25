@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { API } from '@/api/index.js'
+import Cookies from 'js-cookie'
 
 export const useAuthStore = defineStore('auth', () => {
 
@@ -22,6 +23,10 @@ export const useAuthStore = defineStore('auth', () => {
         _success.value = success
     }
 
+    const storeIsAuth = (isAuth) => {
+        _isAuth.value = isAuth
+    }
+
     const storeUser = (user) => {
         _user.value = user
     }
@@ -30,22 +35,33 @@ export const useAuthStore = defineStore('auth', () => {
 
         storeLoading(true)
         const response = await API.auth.signin(formData)
-        if(response.data?.id != undefined) {
-            storeSuccess(true)
-            storeUser(response.data)
-        } else {
+        if(response?.error != undefined) {
+            // fail
             storeError(true)
+            storeIsAuth(false)
+        } else {
+            // success
+            storeSuccess(true)
+            storeUser(response.user)
+            storeIsAuth(true)
+            // set token cookie
+            Cookies.set('auth_tkn', response.token, { sameSite: 'strict' })
         }
         storeLoading(false)
 
     }
 
-    const handleSignOut = async () => {
-        const response = await API.auth.signout()
+    const handleSignOut = async (id) => {
+        const response = await API.auth.signout(id)
+        if(!response.data) {
+            Cookies.remove('auth_tkn', { sameSite: 'strict' })
+            storeIsAuth(false)
+        } 
         return response.data
     }
 
     return {
+        _isAuth,
         _user,
         _loading,
         _success,
@@ -53,7 +69,8 @@ export const useAuthStore = defineStore('auth', () => {
         storeSuccess,
         storeError,
         handleSignIn,
-        handleSignOut
+        handleSignOut,
+        storeUser
     }
 
 })

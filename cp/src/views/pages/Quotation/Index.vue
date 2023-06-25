@@ -8,6 +8,7 @@
   const quoteStore = useQuotationStore()
   quoteStore.handleGetQuotations()
 
+  const filter = ref('')
   const columns = [
     { name: 'id', required: false, label: 'ID', sortable: false },
     {
@@ -23,8 +24,11 @@
     { name: 'action', align: 'center', label: 'アクション', field: 'action' },
   ]
   const visibileColumns = ['name', 'created', 'action']
-
   const rows = []
+  const pagination = {
+    page: 1,
+    rowsPerPage: 10
+  }
 
   watchEffect(() => {
     // set quotation rows
@@ -94,11 +98,20 @@
             <q-card-section class="q-px-none">
               <q-table
                 class="index-table no-shadow"
+                :filter="filter"
                 :rows="rows"
                 :columns="columns"
                 row-key="name"
                 :visible-columns="visibileColumns"
+                :pagination="pagination"
               >
+                <template v-slot:top-right>
+                  <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                    <template v-slot:append>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
+                </template>
                 <template v-slot:body="props">
                   <q-tr :props="props">
                     <q-td key="name" :props="props">{{ props.row.name }}</q-td>

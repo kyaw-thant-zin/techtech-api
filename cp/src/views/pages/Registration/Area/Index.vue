@@ -7,7 +7,7 @@ const $q = useQuasar()
 const areaStore = useAreaStore()
 areaStore.handleAreas()
 
-
+const filter = ref('')
 const columns = [
     { name: 'id', required: false, label: 'ID', sortable: false },
     {
@@ -24,6 +24,10 @@ const columns = [
 ]
 const visibileColumns = ['code', 'name', 'action']
 const rows = ref([])
+const pagination = {
+  page: 1,
+  rowsPerPage: 10
+}
 
 function showConfirmDialog(row) {
     $q.dialog({
@@ -142,11 +146,20 @@ const updateAreaRow = async (r) => {
             <q-card-section class="q-px-none">
               <q-table
                 class="index-table no-shadow"
+                :filter="filter"
                 :rows="rows"
                 :columns="columns"
                 row-key="code"
                 :visible-columns="visibileColumns"
+                :pagination="pagination"
               >
+                <template v-slot:top-right>
+                  <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                    <template v-slot:append>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
+                </template>
                 <template v-slot:body="props">
                     <q-tr :props="props">
                         <q-td key="code" :props="props">

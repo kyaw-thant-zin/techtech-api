@@ -9,23 +9,28 @@ const $q = useQuasar()
 const qStore = useQuestionnaireStore()
 qStore.handleGetQuestionnaires()
 
+const filter = ref('')
 const rows = ref([])
 const columns = [
     { name: 'index', required: false, label: 'INDEX', sortable: false },
     { name: 'id', required: false, label: 'ID', sortable: false },
+    { name: 'qindex', field: 'qindex', align: 'center', required: true, label: '質問番号', sortable: true },
     {
         name: 'question',
         required: true,
         label: '質問',
         align: 'left',
-        field: row => row.question,
-        format: val => `${val}`,
-        sortable: true
+        sortable: true,
+        field: 'question',
     },
     { name: 'ans_intput_type', align: 'center', label: '入力方式', field: 'ans_intput_type', sortable: true },
     { name: 'action', align: 'center', label: 'アクション', field: 'action' },
 ]
-const visibileColumns = ['question', 'ans_intput_type', 'action']
+const visibileColumns = ['qindex', 'question', 'ans_intput_type', 'action']
+const pagination = {
+  page: 1,
+  rowsPerPage: 10
+}
 
 watchEffect(() => {
   // set q rows
@@ -95,14 +100,24 @@ function showConfirmDialog(row) {
             <q-card-section class="q-px-none">
               <q-table
                 class="index-table no-shadow"
+                :filter="filter"
                 :rows="rows"
                 :columns="columns"
-                row-key="code"
+                row-key="id"
                 :visible-columns="visibileColumns"
+                :pagination="pagination"
               >
+                <template v-slot:top-right>
+                  <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                    <template v-slot:append>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
+                </template>
                 <template v-slot:body="props">
                     <q-tr :props="props">
-                      <q-td key="question" :props="props"><span class="text-weight-medium color-orange">Q{{ props.row.index }}.</span> {{ props.row.question }}</q-td>
+                      <q-td key="qindex" :props="props"><div class="text-weight-medium color-orange">{{ props.row.qindex }}</div></q-td>
+                      <q-td key="question" :props="props">{{ props.row.question }}</q-td>
                       <q-td key="ans_intput_type" :props="props">{{ props.row.ans_intput_type }}</q-td>
                       <q-td key="action" :props="props">
                         <div class="row no-wrap justify-center items-center q-gutter-sm">

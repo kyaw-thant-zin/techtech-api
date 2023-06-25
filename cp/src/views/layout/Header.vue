@@ -1,12 +1,11 @@
 <script setup>
   // Import Quasar css
   import 'quasar/dist/quasar.css'
-  import { ref, watchEffect } from 'vue'
+  import { ref, watchEffect, watch } from 'vue'
   import { useRoute } from 'vue-router'
   import { useAuthStore } from '@/stores/Auth'
 
-const authStore = useAuthStore()
-
+  const authStore = useAuthStore()
   const route = useRoute()
   const activeLink = ref()
 
@@ -90,7 +89,7 @@ const authStore = useAuthStore()
 
 
   const signout = async () => {
-    const condi = await authStore.handleSignOut()
+    const condi = await authStore.handleSignOut(authStore._user?.id)
     if(!condi) {
       authStore.router.replace({ name: 'cp.signin' })
     }

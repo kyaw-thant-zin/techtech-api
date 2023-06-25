@@ -1,5 +1,7 @@
 import axios from 'axios'
+import { reactive } from 'vue'
 import { APP } from '@/config.js'
+import Cookies from 'js-cookie'
 
 const apiURL = APP.API.PREFIX
 const baseURL = APP.API.ACTIVE_API_URL
@@ -8,17 +10,26 @@ const headers = {
     'Content-Type': 'application/json',
 }
 
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+axios.defaults.withCredentials = true
 const instance = axios.create({
     baseURL: baseURL,
+})
+
+instance.interceptors.request.use((config) => {
+    const token = Cookies.get('auth_tkn');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    } else {
+      delete config.headers['Authorization']
+    }
+    return config
 })
 
 export const API = {
     "auth": {
         "check": async() => {
             try {
-                const response = await instance.get(apiURL+'/check-auth')
+                const response = await instance.get(apiURL+'/check-auth',  {headers: headers})
                 return response.data
             } catch (error) {
                 return error.response
@@ -29,15 +40,15 @@ export const API = {
                 const response = await instance.get('/sanctum/csrf-cookie')
                 if(response.status == 204) {
                     const response = await instance.post(apiURL+'/cp/sign-in', formData, {headers: headers})
-                    return response
+                    return response.data
                 }
             } catch (error) {
                 return error.response
             }
         },
-        "signout": async () => {
+        "signout": async (id) => {
             try {
-                const response = await instance.post(apiURL+'/sign-out', {headers: headers})
+                const response = await instance.post(apiURL+'/sign-out', {'id': id}, {headers: headers})
                 return response
             } catch (error) {
                 return error.response
@@ -203,6 +214,7 @@ export const API = {
     'dashboard': {
         'getAll': async () => {
             const response = await instance.get(apiURL+'/dashboard', {headers: headers})
+            console.log(response.data)
             return response.data
         },
     }
