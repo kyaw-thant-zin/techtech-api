@@ -89,11 +89,12 @@ export const useQuotationStore = defineStore('quotation', () => {
 
     const storeQuotations = (quotations) => {
         const filteredQ = []
+        const emDash = '\u2014'
         if(quotations.length > 0) {
             quotations.forEach((q, index) => {
                 const dumpQ = {}
                 dumpQ.id = q.id
-                dumpQ.name = q.q_name
+                dumpQ.name = q.parent_id != null ? emDash+q.q_name+' ('+q.parent.q_name+')':q.q_name
                 dumpQ.base_amount = q.base_amount != null ? q.base_amount:0
                 dumpQ.created = dayjs(q.updated_at).fromNow()
                 dumpQ.action = ''
@@ -128,6 +129,7 @@ export const useQuotationStore = defineStore('quotation', () => {
     const handleGetQuotations = async () => {
         storeLoading(true)
         const response = await API.quotation.getAll()
+        console.log(response)
         storeQuotations(response)
         storeLoading(false)
     }
