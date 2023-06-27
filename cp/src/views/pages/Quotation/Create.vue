@@ -26,9 +26,11 @@ const parentSelect = ref([
 ])
 const formData = ref({
     'qName': '',
+    'conditionString': '',
     'totalFormula': '',
     'condition': checkConditions.value,
     'formula': formulas.value,
+    'baseAmount': 0,
     'qParent': parentSelect.value[0],
 })
 
@@ -40,12 +42,32 @@ const addMoreCheckCondition = () => {
     })
     conditionSelectedQqID.value.push([])
     conditionAnsID.value.push([])
+
+    // check the indexs
+    let conditionString = ''
+    for (let index = 0; index < checkConditions.value.length; index++) {
+        conditionString += 'C'+(index + 1)+'&&'
+    }
+    let modifiedStr1 = conditionString.replace(/&&$/, "");
+    let modifiedStr2 = modifiedStr1.replace(/||$/, "");
+
+    formData.value.conditionString = modifiedStr2
 }
 const handleRemoveChechCondition = (cc) => {
     const index = checkConditions.value.indexOf(cc)
     if (index !== -1) {
         checkConditions.value.splice(index, 1);
     }
+    
+    // check the indexs
+    let conditionString = ''
+    for (let index = 0; index < checkConditions.value.length; index++) {
+        conditionString += 'C'+(index + 1)+'&&'
+    }
+    let modifiedStr1 = conditionString.replace(/&&$/, "");
+    let modifiedStr2 = modifiedStr1.replace(/||$/, "");
+
+    formData.value.conditionString = modifiedStr2
 }
 const addMoreFormula = () => {
     formulas.value.push({
@@ -126,7 +148,6 @@ watch(
 // Events
 const setAnsIDByQqID = (index) => {
     const newValue = conditionSelectedQqID.value[index]
-    console.log(newValue)
     if(newValue.length > 0) {
         const filteredAnsID = []
         newValue.forEach((el) => {
@@ -175,29 +196,29 @@ const removeConditionQq = (value, cc) => {
 const updateConditionAnsID = (value, cc) => {
     let foundKey = []
     const targetValue = value
-    for (const key in groupedQas.value) {
-        if (groupedQas.value.hasOwnProperty(key)) {
-            const arr = groupedQas.value[key]
+    const index = checkConditions.value.indexOf(cc)
+    conditionSelectedQqID.value[index].forEach((item) => {
+        if (groupedQas.value.hasOwnProperty('q-'+item)) {
+            const arr = groupedQas.value['q-'+item]
             if (arr.some(item => item.label === targetValue.label)) {
-                foundKey.push(key)
+                foundKey.push('q-'+item)
             }
         }
-    }
+    })
 
     if(foundKey.length > 0) {
         const convertedArray = foundKey.map(item => parseInt(item.split('-')[1]))
         // remove unselected qq
         cc.conQqID = cc.conQqID.filter(item => convertedArray.includes(item.value))
         // remove unselected answers by qq
-        const index = checkConditions.value.indexOf(cc)
         conditionAnsID.value[index] = foundKey.reduce((acc, key) => {
             groupedQas.value[key].forEach(item => {
                 if (!acc.labels[item.label]) {
                     acc.labels[item.label] = true;
                     acc.array.push(item);
                 }
-            });
-            return acc;
+            })
+            return acc
         }, { array: [], labels: {} }).array
     }
 }
@@ -223,6 +244,7 @@ const resetForm = () => {
     conditionAnsID.value = []
     groupedQas.value = []
     conditionSelectedQqID.value = []
+    formData.baseAmount = 0
 }
 
 // submit the form
@@ -287,7 +309,6 @@ const onSubmit = async () => {
             dumpFormData[key1] = dataValue1.value
         }
     })
-
     await quoteStore.handleStoreQuotation(dumpFormData)
 
     // check result
@@ -375,7 +396,7 @@ const onSubmit = async () => {
                                         >
                                             <template v-slot:header>
                                                 <div class="q-item__section column q-item__section--main justify-center">
-                                                    <div class="q-item__label">調子</div><!---->
+                                                    <div class="q-item__label">調子 ( C{{ index + 1 }} )</div><!---->
                                                 </div>
                                                 <div class="q-item__section column q-item__section--side justify-center">
                                                     <q-btn dense size="sm" flat>
@@ -442,6 +463,22 @@ const onSubmit = async () => {
                                 </div>
                                 <div class="col-12 q-mt-sm">
                                     <p class="text-caption text-grey">{{ consitionMessage }}</p>
+                                </div>
+                            </div>
+                            <div class="row q-mt-md">
+                                <div class="col-12">
+                                    <label>確認すべき条件</label>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-2 q-mt-sm q-mt-sm">
+                                    <q-input 
+                                        type="text" 
+                                        outlined 
+                                        class="common-input-text" 
+                                        v-model="formData.conditionString"
+                                        lazy-rules
+                                        dense
+                                    />
+                                    <span class="text-caption text-grey">(「and」は「&&」、「or」は「||」)</span>
                                 </div>
                             </div>
                             <div  class="row q-mt-md">
@@ -562,17 +599,32 @@ const onSubmit = async () => {
                             </div>
                             <div class="row q-mt-md">
                                 <div class="col-12">
-                                    <label>合計の計算式<small class="required-suffix">※必須</small></label>
+                                    <label>合計の計算式 </label>
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-2 q-mt-sm q-mt-sm">
                                     <q-input  
                                         outlined 
                                         class="common-input-text" 
                                         v-model="formData.totalFormula"
+                                        dense
+                                    />
+                                    <span class="text-caption text-grey">( F1+F2 )</span>
+                                </div>
+                            </div>
+                            <div class="row q-mt-md">
+                                <div class="col-12">
+                                    <label>基本額<small class="required-suffix">※必須</small></label>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-2 q-mt-sm q-mt-sm">
+                                    <q-input 
+                                        type="number" 
+                                        outlined 
+                                        class="common-input-text" 
+                                        v-model="formData.baseAmount"
                                         lazy-rules
                                         dense
                                         :rules="[
-                                            val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                            val => val != 0 && val != '' && !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
                                         ]"
                                     />
                                 </div>

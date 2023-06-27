@@ -20,11 +20,12 @@
       format: val => `${val}`,
       sortable: true
     },
+    { name: 'base_amount', align: 'center', label: '基本額', field: 'base_amount' },
     { name: 'created', align: 'center', label: 'で作成された', field: 'created' },
     { name: 'action', align: 'center', label: 'アクション', field: 'action' },
   ]
-  const visibileColumns = ['name', 'created', 'action']
-  const rows = []
+  const visibileColumns = ['name', 'base_amount', 'created', 'action']
+  const rows = ref([])
   const pagination = {
     page: 1,
     rowsPerPage: 10
@@ -115,13 +116,15 @@
                 <template v-slot:body="props">
                   <q-tr :props="props">
                     <q-td key="name" :props="props">{{ props.row.name }}</q-td>
+                    <q-td key="base_amount" :props="props">{{ props.row.base_amount }}</q-td>
                     <q-td key="created" :props="props">{{ props.row.created }}</q-td>
                     <q-td key="action" :props="props">
                       <div class="row no-wrap justify-center items-center q-gutter-sm">
                         <div>
-                          <router-link :to="{ name: 'cp.quotation.detail', params: { id: APP.encryptID(props.row.id) } }">
+                          <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-note-edit-outline"/>
+                          <!-- <router-link :to="{ name: 'cp.quotation.detail', params: { id: APP.encryptID(props.row.id) } }">
                             <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-note-edit-outline"/>
-                          </router-link>
+                          </router-link> -->
                         </div>
                         <div>
                           <q-btn @click="showConfirmDialog(props.row)" size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />

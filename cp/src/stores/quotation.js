@@ -1,10 +1,13 @@
 import { ref } from 'vue'
 import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { defineStore } from 'pinia'
 import { API } from '@/api/index.js'
 
 export const useQuotationStore = defineStore('quotation', () => {
 
+
+    dayjs.extend(relativeTime)
     const _loading = ref(false)
     const _success = ref(false)
     const _error = ref(false)
@@ -91,6 +94,7 @@ export const useQuotationStore = defineStore('quotation', () => {
                 const dumpQ = {}
                 dumpQ.id = q.id
                 dumpQ.name = q.q_name
+                dumpQ.base_amount = q.base_amount != null ? q.base_amount:0
                 dumpQ.created = dayjs(q.updated_at).fromNow()
                 dumpQ.action = ''
                 filteredQ.push(dumpQ)
