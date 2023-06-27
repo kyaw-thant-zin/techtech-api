@@ -199,6 +199,16 @@ export const API = {
             return response.data
         },
     },
+    "inquiry" : {
+        "getAll": async () => {
+            const response = await instance.get(apiURL+'/inquiry', {headers: headers})
+            return response.data
+        },
+        "get": async (id) => {
+            const response = await instance.get(apiURL+'/inquiry/'+id+'/detail', {headers: headers})
+            return response.data
+        },
+    },
     "setting": {
         'getAll': async () => {
             const response = await instance.get(apiURL+'/settings', {headers: headers})

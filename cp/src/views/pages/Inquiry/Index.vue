@@ -1,112 +1,45 @@
 <script setup>
-  import { ref } from 'vue'
+import { useQuasar } from 'quasar'
+import { APP } from '@/config.js'
+import { ref, watchEffect } from 'vue' 
+import { useInquiryStore } from '@/stores/Inquiry'
 
-  const filter = ref('')
-  const columns = [
-    { name: 'status', align: 'center', label: '地位', field: 'status' },
-    {
-      name: 'name',
-      required: true,
-      label: '氏名',
-      align: 'left',
-      field: row => row.name,
-      format: val => `${val}`,
-      sortable: true
-    },
-    { name: 'email', align: 'left', label: 'メールアドレス', field: 'email', sortable: true },
-    { name: 'summry', align: 'center', label: '摘要', field: 'summry', sortable: true },
-    { name: 'total', align: 'center', label: '合計', field: 'total', sortable: true },
-    { name: 'action', align: 'center', label: 'アクション', field: 'action' },
-  ]
+const $q = useQuasar()
+const iQStore = useInquiryStore()
+iQStore.handleGetInquiries()
 
-  const rows = [
-    {
-      status: 2,
-      name: 'Frozen Yogurt',
-      email: 'example@gmail.com',
-      summry: 24,
-      total: '80,0000円(税込)',
-      action: 4.0,
-    },
-    {
-      status: 0,
-      name: 'Ice cream sandwich',
-      email: 'example@gmail.com',
-      total: '110,0000円(税込)',
-      summry: 37,
-      action: 4.0,
-    },
-    {
-      status: 1,
-      name: 'Eclair',
-      email: 'example@gmail.com',
-      total: '60,0000円(税込)',
-      summry: 23,
-      action: 6.0,
-    },
-    {
-      status: 1,
-      name: 'Cupcake',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 67,
-      action: 4.3,
-    },
-    {
-      status: 0,
-      name: 'Gingerbread',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 49,
-      action: 3.9,
-    },
-    {
-      status: 0,
-      name: 'Jelly bean',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 94,
-      action: 0.0,
-    },
-    {
-      status: 2,
-      name: 'Lollipop',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 98,
-      action: 0,
-    },
-    {
-      status: 2,
-      name: 'Honeycomb',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 87,
-      action: 6.5,
-    },
-    {
-      status: 2,
-      name: 'Donut',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 51,
-      action: 4.9,
-    },
-    {
-      status: 2,
-      name: 'KitKat',
-      email: 'example@gmail.com',
-      total: '80,0000円(税込)',
-      summry: 65,
-      action: 7,
-    }
-  ]
-  const pagination = {
-    page: 1,
-    rowsPerPage: 10
+const filter = ref('')
+const columns = [
+  { name: 'id', required: false, label: 'ID', sortable: false },
+  { name: 'status', align: 'center', label: '地位', field: 'status', sortable: true },
+  {
+    name: 'name',
+    required: true,
+    label: '氏名',
+    align: 'left',
+    field: row => row.name,
+    format: val => `${val}`,
+    sortable: true
+  },
+  { name: 'email', align: 'left', label: 'メールアドレス', field: 'email', sortable: true },
+  { name: 'summry', align: 'center', label: '摘要', field: 'summry', sortable: true },
+  { name: 'total', align: 'center', label: '合計', field: 'total', sortable: true },
+  { name: 'action', align: 'center', label: 'アクション', field: 'action' },
+]
+const visibileColumns = ['status', 'name', 'email', 'summry', 'total', 'action']
+const rows = ref([])
+const pagination = {
+  page: 1,
+  rowsPerPage: 10
+}
+
+watchEffect(() => {
+  // set q rows
+  if(iQStore._inquiries !== null) {
+    rows.value = iQStore._inquiries
   }
 
-  const selected = ref([])
+}, [iQStore._inquiries])
 
 </script>
 <template>
@@ -138,8 +71,7 @@
                 :rows="rows"
                 :columns="columns"
                 row-key="name"
-                selection="multiple"
-                v-model:selected="selected"
+                :visible-columns="visibileColumns"
                 :pagination="pagination"
               >
                 <template v-slot:top-right>
@@ -152,11 +84,14 @@
                 <template v-slot:body-cell-status="props">
                   <q-td>
                     <div class="row justify-center">
+                      <div v-if="props.row.status == 3">
+                        <q-chip size="sm" icon="mdi-close-circle-outline" color="accent" text-color="white">合格した</q-chip>
+                      </div>
                       <div v-if="props.row.status == 2">
-                        <q-chip size="sm" icon="mdi-check-circle-outline" color="positive" text-color="white">終了した</q-chip>
+                        <q-chip size="sm" icon="mdi-check-circle-outline" color="positive" text-color="white">確認済み</q-chip>
                       </div>
                       <div v-if="props.row.status == 1">
-                        <q-chip size="sm" icon="mdi-progress-clock" color="warning">進行中</q-chip>
+                        <q-chip size="sm" icon="mdi-progress-clock" color="warning">近すぎる</q-chip>
                       </div>
                       <div v-if="props.row.status == 0">
                         <q-chip size="sm" icon="mdi-account-search-outline" color="negative"  text-color="white">まだ</q-chip>
@@ -167,13 +102,15 @@
                 <template v-slot:body-cell-action="props">
                   <q-td>
                     <div class="row no-wrap justify-center items-center q-gutter-sm">
-                      <div>
-                        <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-eye-outline"/>
-                      </div>
-                      <div>
-                        <q-btn size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
-                      </div>
-                    </div>
+                          <div>
+                            <router-link :to="{ name: 'cp.questionnaire.detail', params: { id: APP.encryptID(props.row.id) } }">
+                              <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-eye-outline"/>
+                            </router-link>
+                          </div>
+                          <div>
+                            <q-btn @click="showConfirmDialog(props.row)" size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
+                          </div>
+                        </div>
                   </q-td>
                 </template>
               </q-table>
