@@ -32,7 +32,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
     }
 
     const storeInquiries = (inquiries) => {
-        console.log(inquiries)
+        // console.log(inquiries)
         const filteredIq = []
         if(inquiries.length > 0) {
             inquiries.forEach((iq) => {
