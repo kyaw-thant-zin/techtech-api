@@ -129,7 +129,6 @@ export const useQuotationStore = defineStore('quotation', () => {
     const handleGetQuotations = async () => {
         storeLoading(true)
         const response = await API.quotation.getAll()
-        console.log(response)
         storeQuotations(response)
         storeLoading(false)
     }
@@ -150,6 +149,7 @@ export const useQuotationStore = defineStore('quotation', () => {
     const handleGetQuotation = async (id) => {
         storeLoading(true)
         const response = await API.quotation.get(id)
+        console.log(response)
         storeQuotation(response)
         storeLoading(false)
     }
@@ -185,6 +185,7 @@ export const useQuotationStore = defineStore('quotation', () => {
         _qas,
         _quotationIDs,
         _quotations,
+        _quotation,
         storeError,
         storeSuccess,
         handleGetAllRequired,

@@ -121,10 +121,9 @@
                     <q-td key="action" :props="props">
                       <div class="row no-wrap justify-center items-center q-gutter-sm">
                         <div>
-                          <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-note-edit-outline"/>
-                          <!-- <router-link :to="{ name: 'cp.quotation.detail', params: { id: APP.encryptID(props.row.id) } }">
+                          <router-link :to="{ name: 'cp.quotation.detail', params: { id: APP.encryptID(props.row.id) } }">
                             <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-note-edit-outline"/>
-                          </router-link> -->
+                          </router-link>
                         </div>
                         <div>
                           <q-btn @click="showConfirmDialog(props.row)" size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />

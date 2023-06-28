@@ -53,11 +53,13 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
                     if(qFormInputType == 'テキスト') {
                         // input text
                         q.textItems.suffix = qT.suffix
+                        q.textItems.id = qT.id
                     } else if(qFormInputType == '選択') {
                         // input select
                         const dumpSelectItem = {
                             'label': qT.label,
                             'unit_price': qT.unit_price,
+                            'id': qT.id
                         }
                         q.selectItems.push(dumpSelectItem)
                     } else if(qFormInputType == '選択肢') {
@@ -67,6 +69,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
                             label: qT.label,
                             imagePath: qT.image != null ? APP.ACTIVE_PUBLIC_SITE_URL+'/'+qT.image:null,
                             unit_price: qT.unit_price,
+                            id: qT.id
                         }
                         q.choiceItems.push(dumpChoiceItem)
                     }
@@ -126,6 +129,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleUpdateQuestionnaire = async (id, formData) => {
         storeLoading(true)
         const response = await API.questionnaire.update(id, formData)
+        console.log(response)
         if(response) {
             storeSuccess(response)
         } else {

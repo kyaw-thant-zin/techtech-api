@@ -41,7 +41,6 @@ const formData = ref({
 watchEffect(() => {
     // set area rows
     if(qStore._questionnaire !== null && qStore._questionnaire?.formData) {
-        console.log(qStore._questionnaire)
         q.value = qStore._questionnaire
         // set formData
         formData.value.question = q.value.formData.question
@@ -75,7 +74,7 @@ const addMoreChoiceItem = () => {
     choiceItems.value.push({
         label: null,
         file: null,
-        unit_price: null
+        unit_price: null,
     })
 }
 const handleRemoveSelectOption = (si) => {
@@ -344,6 +343,10 @@ const onSubmit = async () => {
                                                 outlined 
                                                 v-model="formData.choice" 
                                                 :options="optionsChoice" 
+                                                lazy-rules
+                                                :rules="[
+                                                    val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                                ]"
                                             />
                                         </div>
                                     </div>

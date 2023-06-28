@@ -34,6 +34,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
     const storeInquiries = (inquiries) => {
         // console.log(inquiries)
         const filteredIq = []
+        console.log(inquiries)
         if(inquiries.length > 0) {
             inquiries.forEach((iq) => {
                 if(iq.confirm == 1) {
