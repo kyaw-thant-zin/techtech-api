@@ -65,12 +65,12 @@ const router = createRouter({
           component: InquiryIndex,
           meta: { requiresAuth: true, requiresSuperAdmin: true }
         },
-        {
-          path: 'user',
-          name: 'cp.user',
-          component: UserIndex,
-          meta: { requiresAuth: true, requiresSuperAdmin: true }
-        },
+        // {
+        //   path: 'user',
+        //   name: 'cp.user',
+        //   component: UserIndex,
+        //   meta: { requiresAuth: true, requiresSuperAdmin: true }
+        // },
         {
           path: 'contractor',
           children: [

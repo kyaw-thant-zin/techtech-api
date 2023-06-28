@@ -36,32 +36,35 @@ export const useInquiryStore = defineStore('inquiry', () => {
         const filteredIq = []
         if(inquiries.length > 0) {
             inquiries.forEach((iq) => {
-                const dumpIq = {}
-                dumpIq.id = iq.id
-                if(iq.user_id != null) {
-                    // confirmed by contractor
-                    dumpIq.status = 2
-                }
-                if(iq.user_id == null && dayjs().isAfter(iq.construction_schedule, 'date')) {
-                    // construction date passed
-                    dumpIq.status = 3
-                }
+                if(iq.confirm == 1) {
+                    const dumpIq = {}
+                    dumpIq.id = iq.id
+                    if(iq.user_id != null) {
+                        // confirmed by contractor
+                        dumpIq.status = 2
+                    }
+                    if(iq.user_id == null && dayjs().isAfter(iq.construction_schedule, 'date')) {
+                        // construction date passed
+                        dumpIq.status = 3
+                    }
 
-                const milli = dayjs(iq.construction_schedule).diff(dayjs())
-                const durationObj = dayjs.duration(milli).$d
-                if(iq.user_id == null && durationObj.days < 10) {
-                    // construction date so close
-                    dumpIq.status = 1
+                    const milli = dayjs(iq.construction_schedule).diff(dayjs())
+                    const durationObj = dayjs.duration(milli).$d
+                    if(iq.user_id == null && durationObj.days < 10) {
+                        // construction date so close
+                        dumpIq.status = 1
+                    }
+                    
+                    dumpIq.status = 0
+                    dumpIq.name = iq.name
+                    dumpIq.email = iq.email
+                    dumpIq.summry = iq?.inquiry_quotes?.length
+                    dumpIq.total = formatCurrency(iq.total)+'円(税込)'
+                    dumpIq.action = ''
+
+                    filteredIq.push(dumpIq)
                 }
                 
-                dumpIq.status = 0
-                dumpIq.name = iq.name
-                dumpIq.email = iq.email
-                dumpIq.summry = iq.inquiry_quotes.length
-                dumpIq.total = formatCurrency(iq.total)+'円(税込)'
-                dumpIq.action = ''
-                
-                filteredIq.push(dumpIq)
             })
         }
         _inquiries.value = filteredIq

@@ -41,6 +41,7 @@ const formData = ref({
 watchEffect(() => {
     // set area rows
     if(qStore._questionnaire !== null && qStore._questionnaire?.formData) {
+        console.log(qStore._questionnaire)
         q.value = qStore._questionnaire
         // set formData
         formData.value.question = q.value.formData.question

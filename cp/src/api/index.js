@@ -201,7 +201,7 @@ export const API = {
     },
     "inquiry" : {
         "getAll": async () => {
-            const response = await instance.get(apiURL+'/inquiry', {headers: headers})
+            const response = await instance.get(apiURL+'/inquiry/get-all', {headers: headers})
             return response.data
         },
         "get": async (id) => {

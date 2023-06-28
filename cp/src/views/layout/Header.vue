@@ -21,11 +21,11 @@
       path: '/cp/inquiry',
       icon: 'mdi-card-account-mail-outline',
     },
-    {
-      label: 'ユーザー',
-      path: '/cp/user',
-      icon: 'mdi-account-multiple-outline',
-    },
+    // {
+    //   label: 'ユーザー',
+    //   path: '/cp/user',
+    //   icon: 'mdi-account-multiple-outline',
+    // },
     {
       label: '請負業者',
       path: '/cp/contractor',
