@@ -8,6 +8,7 @@
   const quoteStore = useQuotationStore()
   quoteStore.handleGetQuotations()
 
+  const fixedModal = ref(false)
   const filter = ref('')
   const columns = [
     { name: 'id', required: false, label: 'ID', sortable: false },
@@ -38,6 +39,54 @@
     }
 
   }, [quoteStore._quotations])
+
+
+  const quotat = ref({})
+  const qq = ref([])
+
+  function getIndexById(id) {
+    if(qq.value.length > 0) {
+      const result = qq.value.find(element => element.id === id);
+      return result ? result.index : null;
+    } else {
+      return null
+    }
+  }
+
+  const showDetailDialog = async (id) => {
+    await quoteStore.handleGetQuotation(APP.decryptID(id.toString()))
+    if(quoteStore._quotation != null) {
+      const quote = quoteStore._quotation.quote
+      qq.value = quoteStore._quotation.qqs
+      quotat.value.q_name = quote.q_name
+
+      if(quote?.quotation_conditions_with_all != null) {
+        const groupedConditions = {};
+        for (const item of quote.quotation_conditions_with_all) {
+          const conditionId = item.condition_id;
+          if (!groupedConditions.hasOwnProperty(conditionId)) {
+            groupedConditions[conditionId] = [];
+          }
+          groupedConditions[conditionId].push(item);
+        }
+
+        quotat.value.condition = groupedConditions
+      }
+
+      if(quote?.quotation_formulas_with_all != null) {
+        const groupedFormula = {};
+        for (const item of quote.quotation_formulas_with_all) {
+          const conditionId = item.formula_total_id;
+          if (!groupedFormula.hasOwnProperty(conditionId)) {
+            groupedFormula[conditionId] = [];
+          }
+          groupedFormula[conditionId].push(item);
+        }
+        quotat.value.formula = groupedFormula
+      }
+      fixedModal.value = true
+    }
+  }
 
   const showConfirmDialog = (row) => {
     $q.dialog({
@@ -121,6 +170,9 @@
                     <q-td key="action" :props="props">
                       <div class="row no-wrap justify-center items-center q-gutter-sm">
                         <div>
+                          <q-btn size="sm" padding="sm" round class="p-common-btn" color="info" icon="mdi-eye-outline" @click="showDetailDialog(APP.encryptID(props.row.id))" />
+                        </div>
+                        <div>
                           <router-link :to="{ name: 'cp.quotation.detail', params: { id: APP.encryptID(props.row.id) } }">
                             <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-note-edit-outline"/>
                           </router-link>
@@ -139,6 +191,59 @@
       </div>
     </div>
   </div>
+  <q-dialog v-model="fixedModal">
+      <q-card style="min-width: 350px;">
+        <q-card-section class="row items-center">
+          <div class="text-subtitle1">{{ quotat.q_name }}</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section style="max-height: 50vh" class="scroll">
+          <div>お見積りの条件</div>
+          <q-list v-if="quotat?.condition != null">
+            <q-item class="q-my-sm" v-for="(qC, key, index) in quotat.condition">
+              <q-item-section avatar>
+                <q-avatar size="sm" color="primary" text-color="white">{{ key }}</q-avatar>
+              </q-item-section>
+
+              <q-item-section>
+                <q-item-label>
+                  <template v-for="qCc in qC">
+                    {{ getIndexById(qCc.qq.id) }}, 
+                  </template>
+                </q-item-label>
+                <q-item-label caption>{{ qC[0].math_symbol.jp_name }} ( {{ qC[0].math_symbol.sign }} )</q-item-label>
+                <q-item-label >{{ qC[0].qa.label }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+          <q-separator />
+          <div class="q-mt-md">見積り式</div>
+          <q-list v-if="quotat?.formula != null">
+            <q-item class="q-my-sm" v-for="(qF, key, index) in quotat.formula">
+              <q-item-section avatar>
+                <q-avatar size="sm" color="primary" text-color="white">{{ key }}</q-avatar>
+              </q-item-section>
+
+              <q-item-section>
+                <!-- <q-item-label>
+                  <template v-for="qFf in qF">
+                    {{ getIndexById(qCc.qq.id) }}, 
+                  </template>
+                </q-item-label>
+                <q-item-label caption>{{ qC[0].math_symbol.jp_name }} ( {{ qC[0].math_symbol.sign }} )</q-item-label>
+                <q-item-label >{{ qC[0].qa.label }}</q-item-label> -->
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+
+        <q-separator />
+      </q-card>
+    </q-dialog>
 </template>
 
 <style lang="scss">

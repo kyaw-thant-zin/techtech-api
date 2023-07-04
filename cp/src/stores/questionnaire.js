@@ -117,7 +117,6 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleStoreQuestionnaire = async (formData) => {
         storeLoading(true)
         const response = await API.questionnaire.store(formData)
-        console.log(response)
         if(response) {
             storeSuccess(response)
         } else {
@@ -129,7 +128,6 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleUpdateQuestionnaire = async (id, formData) => {
         storeLoading(true)
         const response = await API.questionnaire.update(id, formData)
-        console.log(response)
         if(response) {
             storeSuccess(response)
         } else {
@@ -141,7 +139,6 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleDestroyQuestionnaire = async (id) => {
         storeLoading(true)
         const response = await API.questionnaire.destroy(id)
-        console.log(response)
         if(response) {
             storeSuccess(true)
         } else {

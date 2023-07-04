@@ -2,18 +2,18 @@
 import { AES } from 'crypto-js'
 import CryptoJS from 'crypto-js'
 
-const LCOAL_SITE_URL = 'http://localhost/gaiko-souba-api/cp'
-const SERVER_SITE_URL = 'https://gaiko-souba-net.icdl.tokyo/cp'
-const LOCAL_PUBLIC_SITE_URL = 'http://localhost/gaiko-souba-api'
-const SERVER_PUBLIC_SITE_URL = 'https://gaiko-souba-net.icdl.tokyo'
+const LCOAL_SITE_URL = 'https://gaiko-souba.net/cp'
+const SERVER_SITE_URL = 'https://gaiko-souba.net/cp'
+const LOCAL_PUBLIC_SITE_URL = 'https://gaiko-souba.net'
+const SERVER_PUBLIC_SITE_URL = 'https://gaiko-souba.net'
 const SECRET_KEY = '+@V0.1'
-const LOCAL_URL = 'http://localhost/gaiko-souba-api/v1'
-const SERVER_URL = 'https://gaiko-souba-net.icdl.tokyo/v1'
+const LOCAL_URL = 'https://gaiko-souba.net'
+const SERVER_URL = 'https://gaiko-souba.net/v1'
 const PREFIX = '/api'
 
 
 export const APP = {
-    'ACTIVE_PUBLIC_SITE_URL': LOCAL_PUBLIC_SITE_URL,
+    'ACTIVE_PUBLIC_SITE_URL': SERVER_PUBLIC_SITE_URL,
     'ACTIVE_SITE_URL': SERVER_SITE_URL,
     'SECRET_KEY': SECRET_KEY,
     'encryptID': (id) => {
@@ -34,6 +34,6 @@ export const APP = {
         'PREFIX': PREFIX,
         'LOCAL_URL': LOCAL_URL,
         'SERVER_URL': SERVER_URL,
-        'ACTIVE_API_URL': LOCAL_URL,
+        'ACTIVE_API_URL': SERVER_URL,
     }
 }

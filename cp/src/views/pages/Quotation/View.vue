@@ -45,10 +45,22 @@ watch(
     if(newValue != null) {
         quote.value = newValue
         formData.value.qName = newValue.q_name
+        formData.value.totalFormula = newValue.formula_total
+        formData.value.baseAmount = newValue.base_amount
         formData.value.conditionString = newValue.condition
         checkConditions.value = newValue.quotation_conditions_with_all
+        formData.value.condition = checkConditions.value
         formulas.value = newValue.quotation_formulas
-        console.log(formData.value)
+
+        if(newValue.parent != null) {
+            formData.value.qParent = {
+                'label': newValue.parent.label,
+                'value': newValue.parent.id
+            }
+        }
+
+        // console.log(newValue.quotation_conditions_with_all)
+        // console.log(checkConditions.value)
     }
   }, {
     deep: true
@@ -271,89 +283,90 @@ const resetForm = () => {
 // submit the form
 const onSubmit = async () => {
     const dumpFormData = {}
-    Object.entries(formData.value).forEach(([key1, dataValue1]) => {
-        if (typeof dataValue1 === "string") { //string
-            dumpFormData[key1] = dataValue1
-        } else if (Array.isArray(dataValue1)) { //array
-            if(key1 == 'condition') { //condition
-                dumpFormData[key1] = []
-                if(dataValue1.length > 0) {
-                    dataValue1.forEach((el1, index1) => {
-                        dumpFormData[key1][index1] = {}
-                        Object.entries(el1).forEach(([key2, dataValue2]) => {
-                            if (typeof dataValue2 === "string") { //string
-                                dumpFormData[key1][index1][key2] = dataValue2
-                            } else if (Array.isArray(dataValue2)) { //array
-                                dumpFormData[key1][index1][key2] = dataValue2.map(item => item.value)
-                            } else { //object
-                                if(key2 == 'conAnsID') {
-                                    dumpFormData[key1][index1][key2] = dataValue2
-                                } else {
-                                    dumpFormData[key1][index1][key2] = dataValue2.value
-                                }
-                            }
-                        })
+    // console.log(formData.value)
+    // Object.entries(formData.value).forEach(([key1, dataValue1]) => {
+    //     if (typeof dataValue1 === "string") { //string
+    //         dumpFormData[key1] = dataValue1
+    //     } else if (Array.isArray(dataValue1)) { //array
+    //         if(key1 == 'condition') { //condition
+    //             dumpFormData[key1] = []
+    //             if(dataValue1.length > 0) {
+    //                 dataValue1.forEach((el1, index1) => {
+    //                     dumpFormData[key1][index1] = {}
+    //                     Object.entries(el1).forEach(([key2, dataValue2]) => {
+    //                         if (typeof dataValue2 === "string") { //string
+    //                             dumpFormData[key1][index1][key2] = dataValue2
+    //                         } else if (Array.isArray(dataValue2)) { //array
+    //                             dumpFormData[key1][index1][key2] = dataValue2.map(item => item.value)
+    //                         } else { //object
+    //                             if(key2 == 'conAnsID') {
+    //                                 dumpFormData[key1][index1][key2] = dataValue2
+    //                             } else {
+    //                                 dumpFormData[key1][index1][key2] = dataValue2.value
+    //                             }
+    //                         }
+    //                     })
                         
-                    })
-                }
-            } else { // formula
-                dumpFormData[key1] = []
-                if(dataValue1.length > 0) {
-                    dataValue1.forEach((el1, index1) => {
-                        dumpFormData[key1][index1] = {}
-                        Object.entries(el1).forEach(([key2, dataValue2]) => {
-                            if (typeof dataValue2 === "string") { //string
-                                dumpFormData[key1][index1][key2] = dataValue2
-                            } else if (Array.isArray(dataValue2)) { //array
-                                dumpFormData[key1][index1][key2] = []
-                                if(dataValue2.length > 0) {
-                                    dataValue2.forEach((el2, index2) => {
-                                        if(typeof el2 === "object" && el2 !== null) { //object
-                                            dumpFormData[key1][index1][key2][index2] = {}
-                                            Object.entries(el2).forEach(([key3, dataValue3]) => {
-                                                if(typeof dataValue3 === "string") { //string
-                                                    dumpFormData[key1][index1][key2][index2][key3] = dataValue3
-                                                } else { // object
-                                                    dumpFormData[key1][index1][key2][index2][key3] = dataValue3.value
-                                                }
-                                            })
-                                        }
-                                    })
-                                }
-                            }
-                        })
+    //                 })
+    //             }
+    //         } else { // formula
+    //             dumpFormData[key1] = []
+    //             if(dataValue1.length > 0) {
+    //                 dataValue1.forEach((el1, index1) => {
+    //                     dumpFormData[key1][index1] = {}
+    //                     Object.entries(el1).forEach(([key2, dataValue2]) => {
+    //                         if (typeof dataValue2 === "string") { //string
+    //                             dumpFormData[key1][index1][key2] = dataValue2
+    //                         } else if (Array.isArray(dataValue2)) { //array
+    //                             dumpFormData[key1][index1][key2] = []
+    //                             if(dataValue2.length > 0) {
+    //                                 dataValue2.forEach((el2, index2) => {
+    //                                     if(typeof el2 === "object" && el2 !== null) { //object
+    //                                         dumpFormData[key1][index1][key2][index2] = {}
+    //                                         Object.entries(el2).forEach(([key3, dataValue3]) => {
+    //                                             if(typeof dataValue3 === "string") { //string
+    //                                                 dumpFormData[key1][index1][key2][index2][key3] = dataValue3
+    //                                             } else { // object
+    //                                                 dumpFormData[key1][index1][key2][index2][key3] = dataValue3.value
+    //                                             }
+    //                                         })
+    //                                     }
+    //                                 })
+    //                             }
+    //                         }
+    //                     })
                         
-                    })
-                }
-            }
-        } else if (typeof dataValue1 === "object" && dataValue1 !== null) { // object
-            dumpFormData[key1] = dataValue1.value
-        }
-    })
-    await quoteStore.handleStoreQuotation(dumpFormData)
+    //                 })
+    //             }
+    //         }
+    //     } else if (typeof dataValue1 === "object" && dataValue1 !== null) { // object
+    //         dumpFormData[key1] = dataValue1.value
+    //     }
+    // })
+    // await quoteStore.handleStoreQuotation(dumpFormData)
 
-    // check result
-    if(quoteStore._success) {
-        $q.notify({
-            caption: '見積書が正常に作成されました',
-            message: '成功！',
-            type: 'positive',
-            timeout: 1000
-        })
-        quoteStore.storeSuccess(false)
-        resetForm()
-        quoteStore.router.replace({ name: 'cp.quotation' })
-    }
+    // // check result
+    // if(quoteStore._success) {
+    //     $q.notify({
+    //         caption: '見積書が正常に作成されました',
+    //         message: '成功！',
+    //         type: 'positive',
+    //         timeout: 1000
+    //     })
+    //     quoteStore.storeSuccess(false)
+    //     resetForm()
+    //     quoteStore.router.replace({ name: 'cp.quotation' })
+    // }
 
-    if(quoteStore._error) {
-        $q.notify({
-            caption: 'エラーが発生しました。後でもう一度お試しください。',
-            message: 'エラー！',
-            type: 'negative',
-            timeout: 1000
-        })
-        quoteStore.storeError(false)
-    }
+    // if(quoteStore._error) {
+    //     $q.notify({
+    //         caption: 'エラーが発生しました。後でもう一度お試しください。',
+    //         message: 'エラー！',
+    //         type: 'negative',
+    //         timeout: 1000
+    //     })
+    //     quoteStore.storeError(false)
+    // }
 }
 
 </script>

@@ -223,7 +223,6 @@ export const API = {
     'dashboard': {
         'getAll': async () => {
             const response = await instance.get(apiURL+'/dashboard', {headers: headers})
-            console.log(response.data)
             return response.data
         },
     }
