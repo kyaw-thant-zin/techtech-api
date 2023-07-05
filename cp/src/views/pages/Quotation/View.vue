@@ -38,19 +38,47 @@ const formData = ref({
     'qParent': parentSelect.value[0],
 })
 
+const qq = ref([])
+
+function getIndexById(id) {
+    if(qq.value.length > 0) {
+      const result = qq.value.find(element => element.id === id);
+      return result ? result.index : null;
+    } else {
+      return null
+    }
+}
+
 // set formDate
 watch(
   () => quoteStore._quotation,
   (newValue, oldValue) => {
     if(newValue != null) {
-        quote.value = newValue
-        formData.value.qName = newValue.q_name
-        formData.value.totalFormula = newValue.formula_total
-        formData.value.baseAmount = newValue.base_amount
-        formData.value.conditionString = newValue.condition
-        checkConditions.value = newValue.quotation_conditions_with_all
-        formData.value.condition = checkConditions.value
-        formulas.value = newValue.quotation_formulas
+        console.log(newValue)
+        quote.value = newValue.quote
+        qq.value = newValue.qqs
+        formData.value.qName = newValue.quote.q_name
+        formData.value.totalFormula = newValue.quote.formula_total
+        formData.value.baseAmount = newValue.quote.base_amount
+        formData.value.conditionString = newValue.quote.condition
+
+        // condition
+        const conditions = newValue.quote.quotation_conditions_with_all
+        if(conditions != null && Object.keys(conditions).length > 0) {
+            conditions.forEach((c) => {
+                const dumpC = {
+                    conQqID: {label: getIndexById(c.qq_id), value: c.qq_id},
+                    conSymbol: c.math_symbol_id,
+                    conAnsID: c.qa_id
+                }
+                checkConditions.value.push(dumpC)
+            })
+        }
+
+        // checkConditions.value = newValue.quotation_conditions_with_all
+        // formData.value.condition = checkConditions.value
+        // formulas.value = newValue.quotation_formulas
+
 
         if(newValue.parent != null) {
             formData.value.qParent = {
@@ -62,6 +90,7 @@ watch(
         // console.log(newValue.quotation_conditions_with_all)
         // console.log(checkConditions.value)
     }
+    console.log(formData.value)
   }, {
     deep: true
   }
