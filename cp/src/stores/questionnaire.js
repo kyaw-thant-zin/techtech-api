@@ -152,7 +152,6 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleUpdateQuestionnaire = async (id, formData) => {
         storeLoading(true)
         const response = await API.questionnaire.update(id, formData)
-        console.log(response)
         if(response) {
             storeSuccess(response)
         } else {
@@ -175,6 +174,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleGetQAndLastQindex = async () => {
         storeLoading(true)
         const response = await API.questionnaire.getQAndLastQindex()
+        console.log(response)
         if(response) {
             storeQindex(response.qLastIndex)
             storeQqs(response.qq)
