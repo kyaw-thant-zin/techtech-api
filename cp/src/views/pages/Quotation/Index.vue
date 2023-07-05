@@ -59,6 +59,8 @@
       const quote = quoteStore._quotation.quote
       qq.value = quoteStore._quotation.qqs
       quotat.value.q_name = quote.q_name
+      quotat.value.formula_total = quote.formula_total
+      quotat.value.base_amount = quote.base_amount
 
       if(quote?.quotation_conditions_with_all != null) {
         const groupedConditions = {};
@@ -202,43 +204,77 @@
         <q-separator />
 
         <q-card-section style="max-height: 50vh" class="scroll">
-          <div>お見積りの条件</div>
-          <q-list v-if="quotat?.condition != null">
-            <q-item class="q-my-sm" v-for="(qC, key, index) in quotat.condition">
-              <q-item-section avatar>
-                <q-avatar size="sm" color="primary" text-color="white">{{ key }}</q-avatar>
-              </q-item-section>
 
-              <q-item-section>
-                <q-item-label>
-                  <template v-for="qCc in qC">
-                    {{ getIndexById(qCc.qq.id) }}, 
-                  </template>
-                </q-item-label>
-                <q-item-label caption>{{ qC[0].math_symbol.jp_name }} ( {{ qC[0].math_symbol.sign }} )</q-item-label>
-                <q-item-label >{{ qC[0].qa.label }}</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <q-separator />
-          <div class="q-mt-md">見積り式</div>
-          <q-list v-if="quotat?.formula != null">
-            <q-item class="q-my-sm" v-for="(qF, key, index) in quotat.formula">
-              <q-item-section avatar>
-                <q-avatar size="sm" color="primary" text-color="white">{{ key }}</q-avatar>
-              </q-item-section>
+          <template v-if="quotat?.condition && Object.keys(quotat.condition).length > 0">
+            <div>お見積りの条件</div>
+            <q-list>
+              <q-item class="q-my-sm" v-for="(qC, key, index) in quotat.condition">
+                <q-item-section avatar>
+                  <q-avatar size="sm" color="primary" text-color="white">{{ key }}</q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    <template v-for="qCc in qC">
+                      {{ getIndexById(qCc.qq.id) }}, 
+                    </template>
+                  </q-item-label>
+                  <q-item-label caption>{{ qC[0].math_symbol.jp_name }} ( {{ qC[0].math_symbol.sign }} )</q-item-label>
+                  <q-item-label >{{ qC[0].qa.label }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <q-separator/>
+          </template>
 
-              <q-item-section>
-                <!-- <q-item-label>
+          <template v-if="quotat?.formula && Object.keys(quotat.formula).length > 0" >
+            <div class="q-mt-md">見積り式</div>
+            <q-list v-if="quotat?.formula && Object.keys(quotat.formula).length > 0">
+              <q-item class="q-my-sm" v-for="(qF, key, index) in quotat.formula">
+                <q-item-section avatar>
+                  <q-avatar size="sm" color="primary" text-color="white">{{ key }}</q-avatar>
+                </q-item-section>
+
+                <q-item-section>
                   <template v-for="qFf in qF">
-                    {{ getIndexById(qCc.qq.id) }}, 
+                    <q-item-label>
+                        {{ qFf.formula }}
+                    </q-item-label>
+                    <template v-if="qFf.quotation_formula_conditions.length > 0">
+                      <q-item-label caption>計算式結果の条件</q-item-label>
+                      <template v-for="qfc in qFf.quotation_formula_conditions">
+                        <q-item-label caption>{{ qfc.math_symbol.jp_name }}({{ qfc.math_symbol.sign }}) {{ qfc.situation }} = {{ qfc.result }}</q-item-label>
+                      </template>
+                    </template>
                   </template>
-                </q-item-label>
-                <q-item-label caption>{{ qC[0].math_symbol.jp_name }} ( {{ qC[0].math_symbol.sign }} )</q-item-label>
-                <q-item-label >{{ qC[0].qa.label }}</q-item-label> -->
-              </q-item-section>
-            </q-item>
-          </q-list>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <q-separator />
+          </template>
+
+          <template v-if="quotat.formula_total != null">
+            <div class="q-mt-md">合計の計算式</div>
+            <q-list>
+              <q-item class="q-my-sm">
+                <q-item-section>
+                  <q-item-label>{{ quotat.formula_total }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <q-separator />
+          </template>
+
+          <template  v-if="quotat.base_amount != null">
+            <div class="q-mt-md">基本額</div>
+            <q-list>
+              <q-item>
+                <q-item-section>
+                  <q-item-label>{{ quotat.base_amount }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </template>
+          
         </q-card-section>
 
         <q-separator />
