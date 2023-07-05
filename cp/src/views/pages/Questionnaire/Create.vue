@@ -5,6 +5,10 @@ import { useQuestionnaireStore } from '@/stores/Questionnaire'
 
 const $q = useQuasar()
 const qStore = useQuestionnaireStore()
+qStore.handleGetQAndLastQindex()
+
+const controlable = ref(false)
+const qqs = ref([])
 const optionsInputs = [
     'テキスト', // text
     '選択', // select
@@ -14,12 +18,13 @@ const optionsChoice = [
     '独身', // single
     '多数' // multiple
 ]
-
+const qIndex = ref('')
 const textItems = ref({
     'suffix': '',
 })
 const choiceItems = ref([])
 const selectItems = ref([])
+const conrtolableItems = ref([])
 const addMoreSelectItem = () => {
     selectItems.value.push({
         label: null,
@@ -50,16 +55,38 @@ const handleRemoveChoiceItemImage = (ci) => {
     ci.file = null
   }
 }
+const addMoreControlableItem = () => {
+    conrtolableItems.value.push({
+        label: '',
+        file: null,
+        unit_price: null,
+        qq_id: null,
+    })
+}
+const handleRemoveControlableItem = (ci) => {
+    const index = conrtolableItems.value.indexOf(ci)
+    if (index !== -1) {
+        conrtolableItems.value.splice(index, 1);
+    }
+}
+const handleRemoveControlableItemImage = (ci) => {
+  if(ci.file && ci.file != null) {
+    ci.file = null
+  }
+}
 
 const formData = ref({
+    qindex: qIndex.value,
     question: '',
     suffix: '',
     inputType: '',
     choice: '独身',
     required: false,
+    controlable: controlable.value,
     textItems: textItems.value, // テキスト
     selectItems: selectItems.value, // 選択
-    choiceItems: choiceItems.value // 選択肢
+    choiceItems: choiceItems.value, // 選択肢
+    controlItems: conrtolableItems.value
 })
 
 const resetForm = () => {
@@ -135,6 +162,7 @@ const getBase64 = (file) => {
   })
 }
 
+// watch the image to set the src
 watch(
   () => choiceItems.value,
   async () => {
@@ -149,6 +177,34 @@ watch(
   },
   { deep: true }
 )
+watch(
+  () => conrtolableItems.value,
+  async () => {
+    if(conrtolableItems.value.length > 0) {
+      for (let index = 0; index < conrtolableItems.value.length; index++) {
+        if(conrtolableItems.value[index].file != null) {
+          const src = await getBase64(conrtolableItems.value[index].file)
+          conrtolableItems.value[index].localSrc = src
+        } 
+      }
+    }
+  },
+  { deep: true }
+)
+
+// watch the qindex
+watchEffect(() => {
+    if(qStore._qindex > 0) {
+        qIndex.value = 'Q'+(qStore._qindex + 1)
+        formData.value.qindex = qIndex.value
+    }
+}, [qStore._qindex])
+watchEffect(() => {
+    if(qStore._qqs != null) {
+        qqs.value = qStore._qqs
+    }
+}, [qStore._qqs])
+
 
 // watch the loading
 watchEffect(() => {
@@ -192,232 +248,360 @@ watchEffect(() => {
                 >
                     <div class="row q-px-lg q-mt-none">
                         <div class="col-12">
-                        <div class="row ">
-                            <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
-                                <label class="">質問</label>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11 form-input">
-                                <q-input 
-                                    name="question" 
-                                    outlined 
-                                    class="common-input-text"  
-                                    v-model="formData.question"
-                                    lazy-rules
-                                    dense
-                                    :rules="[
-                                        val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
-                                    ]"
-                                />
-                                <div class="row q-mt-sm">
-                                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
-                                        <label class="">接尾辞</label>
-                                        <q-input 
-                                            name="suffix" 
-                                            outlined 
-                                            dense
-                                            class="common-input-text"  
-                                            v-model="formData.suffix"
-                                        />
-                                    </div>
+                            <div class="row ">
+                                <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
+                                    <label class="">質問番号</label>
                                 </div>
-                                <div class="row q-mt-md">
-                                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
-                                        <q-checkbox 
-                                            name="required" 
-                                            outlined 
-                                            dense
-                                            label="必須フィールド"
-                                            v-model="formData.required"
-                                        />
-                                    </div>
+                                <div class="col-6 col-sm-4 col-md-2 col-lg-1 col-xl-1 form-input">
+                                    <q-input 
+                                        name="qindex" 
+                                        outlined 
+                                        class="common-input-text"  
+                                        v-model="formData.qindex"
+                                        lazy-rules
+                                        dense
+                                        :rules="[
+                                            val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                        ]"
+                                    />
                                 </div>
                             </div>
-                        </div>
-                        <div class="row  q-mt-xl">
-                            <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
-                            <label class="">回答</label>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11">
-                                <div class="row">
-                                    <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
-                                        <div>
-                                            <div class="text-caption q-mb-xs">入力方式</div>
-                                            <q-select 
-                                                dense 
-                                                outlined 
-                                                v-model="formData.inputType" 
-                                                :options="optionsInputs" 
-                                                lazy-rules
-                                                :rules="[
-                                                    val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
-                                                ]"
-                                            />
-                                        </div>
-                                    </div>
+                            <div class="row q-mt-md">
+                                <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
+                                    <label class="">質問</label>
                                 </div>
-                                <!-- テキスト input text -->
-                                <div class="row q-mt-sm q-col-gutter-md" v-if="formData.inputType == 'テキスト'">
-                                    <div class="col-12 col-sm-4 col-md-2 col-lg-1 col-xl-1">
-                                        <div>
-                                            <div class="text-caption q-mb-xs">接尾辞</div>
+                                <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11 form-input">
+                                    <q-input 
+                                        name="question" 
+                                        outlined 
+                                        class="common-input-text"  
+                                        v-model="formData.question"
+                                        lazy-rules
+                                        dense
+                                        :rules="[
+                                            val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                        ]"
+                                    />
+                                    <div class="row q-mt-sm">
+                                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
+                                            <label class="">接尾辞</label>
                                             <q-input 
-                                                dense 
+                                                name="suffix" 
                                                 outlined 
-                                                v-model="textItems.suffix" 
+                                                dense
+                                                class="common-input-text"  
+                                                v-model="formData.suffix"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="row q-mt-md">
+                                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
+                                            <q-checkbox 
+                                                name="required" 
+                                                outlined 
+                                                dense
+                                                label="必須フィールド"
+                                                v-model="formData.required"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="row q-mt-md">
+                                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
+                                            <q-checkbox 
+                                                name="required" 
+                                                outlined 
+                                                dense
+                                                label="制御可能な質問を作成する"
+                                                v-model="controlable"
                                             />
                                         </div>
                                     </div>
                                 </div>
-                                <!-- 選択 input select -->
-                                <div  class="row q-mt-lg" v-if="formData.inputType == '選択'">
-                                    <div class="col-12 q-mb-sm" v-for="(si, index) in selectItems" :key="index">
-                                        <q-list bordered class="rounded-borders">
-                                            <q-expansion-item
-                                                dense
-                                                dense-toggle
-                                                switch-toggle-side
-                                                expand-icon-toggle
-                                            >
-                                                <template v-slot:header>
-                                                    <div class="q-item__section column q-item__section--main justify-center">
-                                                        <div class="q-item__label">オプション</div><!---->
-                                                    </div>
-                                                    <div class="q-item__section column q-item__section--side justify-center">
-                                                        <q-btn dense size="sm" flat>
-                                                            <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveSelectOption(si)" />
-                                                        </q-btn>
-                                                    </div>
-                                                    
-                                                </template>
-                                                <q-card>
-                                                    <q-card-section>
-                                                        <div>
-                                                            <div>ラベル</div>
-                                                            <q-input 
-                                                                dense 
-                                                                outlined 
-                                                                v-model="si.label" 
-                                                            />
-                                                        </div>
-                                                        <div class="q-mt-sm">
-                                                            <div>決済金額</div>
-                                                            <q-input 
-                                                                type="number"
-                                                                dense 
-                                                                outlined 
-                                                                v-model="si.unit_price" 
-                                                                suffix="円"
-                                                                style="max-width: 300px;"
-                                                            />
-                                                        </div>
-                                                    </q-card-section>
-                                                </q-card>
-                                            </q-expansion-item>
-                                        </q-list>
-                                    </div>
-                                    <div class="col-12 q-mt-sm">
-                                        <q-btn @click="addMoreSelectItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
-                                    </div>
+                            </div>
+                            <!-- Normal answers -->
+                            <div class="row  q-mt-xl" v-if="!controlable">
+                                <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
+                                <label class="">回答</label>
                                 </div>
-                                <!-- 選択肢 radio or checkbox -->
-                                <div class="row q-mt-sm" v-if="formData.inputType == '選択肢'">
-                                    <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
-                                        <div>
-                                            <div class="text-caption q-mb-xs">タイプ</div>
-                                            <q-select 
-                                                dense 
-                                                outlined 
-                                                v-model="formData.choice" 
-                                                :options="optionsChoice" 
-                                            />
+                                <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11">
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
+                                            <div>
+                                                <div class="text-caption q-mb-xs">入力方式</div>
+                                                <q-select 
+                                                    dense 
+                                                    outlined 
+                                                    v-model="formData.inputType" 
+                                                    :options="optionsInputs" 
+                                                    lazy-rules
+                                                    :rules="[
+                                                        val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                                    ]"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div  class="row q-mt-lg" v-if="formData.inputType == '選択肢'">
-                                    <div class="col-12 q-mb-sm" v-for="(ci, index) in choiceItems" :key="index">
-                                        <q-list bordered class="rounded-borders">
-                                            <q-expansion-item
-                                                dense
-                                                dense-toggle
-                                                switch-toggle-side
-                                                expand-icon-toggle
-                                            >
-                                                <template v-slot:header>
-                                                    <div class="q-item__section column q-item__section--main justify-center">
-                                                        <div class="q-item__label">選択肢の選択</div><!---->
-                                                    </div>
-                                                    <div class="q-item__section column q-item__section--side justify-center">
-                                                        <q-btn dense size="sm" flat>
-                                                            <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveChoiceOption(ci)" />
-                                                        </q-btn>
-                                                    </div>
-                                                    
-                                                </template>
-                                                <q-card>
-                                                    <q-card-section>
-                                                        <div>
-                                                            <div>ラベル</div>
-                                                            <q-input 
-                                                                dense 
-                                                                outlined 
-                                                                v-model="ci.label" 
-                                                            />
+                                    <!-- テキスト input text -->
+                                    <div class="row q-mt-sm q-col-gutter-md" v-if="formData.inputType == 'テキスト'">
+                                        <div class="col-12 col-sm-4 col-md-2 col-lg-1 col-xl-1">
+                                            <div>
+                                                <div class="text-caption q-mb-xs">接尾辞</div>
+                                                <q-input 
+                                                    dense 
+                                                    outlined 
+                                                    v-model="textItems.suffix" 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 選択 input select -->
+                                    <div  class="row q-mt-lg" v-if="formData.inputType == '選択'">
+                                        <div class="col-12 q-mb-sm" v-for="(si, index) in selectItems" :key="index">
+                                            <q-list bordered class="rounded-borders">
+                                                <q-expansion-item
+                                                    dense
+                                                    dense-toggle
+                                                    switch-toggle-side
+                                                    expand-icon-toggle
+                                                >
+                                                    <template v-slot:header>
+                                                        <div class="q-item__section column q-item__section--main justify-center">
+                                                            <div class="q-item__label">オプション</div><!---->
                                                         </div>
-                                                        <div class="q-mt-sm">
-                                                            <div>画像</div>
-                                                            <q-file
-                                                                v-model="ci.file"
-                                                                label="画像を選択"
-                                                                outlined
-                                                                dense
-                                                                accept=".jpg,.png, image/*"
-                                                            >
-                                                                <template v-slot:prepend>
-                                                                    <q-icon name="attach_file" />
-                                                                </template>
-                                                            </q-file>
-                                                            <div class="q-mt-sm" v-if="ci.file">
-                                                              <q-img
-                                                                :src="ci.localSrc"
-                                                                loading="lazy"
-                                                                spinner-color="white"
-                                                                style="max-width: 250px; height: 140px;"
-                                                                fit="contain"
-                                                              >
-                                                                <q-btn @click="handleRemoveChoiceItemImage(ci)" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
-                                                              </q-img>
-                                                              
+                                                        <div class="q-item__section column q-item__section--side justify-center">
+                                                            <q-btn dense size="sm" flat>
+                                                                <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveSelectOption(si)" />
+                                                            </q-btn>
+                                                        </div>
+                                                        
+                                                    </template>
+                                                    <q-card>
+                                                        <q-card-section>
+                                                            <div>
+                                                                <div>ラベル</div>
+                                                                <q-input 
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="si.label" 
+                                                                />
                                                             </div>
-                                                        </div>
-                                                        <div class="q-mt-sm">
-                                                            <div>決済金額</div>
-                                                            <q-input 
-                                                                type="number"
-                                                                dense 
-                                                                outlined 
-                                                                v-model="ci.unit_price" 
-                                                                suffix="円"
-                                                                style="max-width: 300px;"
-                                                            />
-                                                        </div>
-                                                    </q-card-section>
-                                                </q-card>
-                                            </q-expansion-item>
-                                        </q-list>
+                                                            <div class="q-mt-sm">
+                                                                <div>決済金額</div>
+                                                                <q-input 
+                                                                    type="number"
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="si.unit_price" 
+                                                                    style="max-width: 300px;"
+                                                                />
+                                                            </div>
+                                                        </q-card-section>
+                                                    </q-card>
+                                                </q-expansion-item>
+                                            </q-list>
+                                        </div>
+                                        <div class="col-12 q-mt-sm">
+                                            <q-btn @click="addMoreSelectItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
+                                        </div>
                                     </div>
-                                    <div class="col-12 q-mt-sm">
-                                        <q-btn @click="addMoreChoiceItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
+                                    <!-- 選択肢 radio or checkbox -->
+                                    <div class="row q-mt-sm" v-if="formData.inputType == '選択肢'">
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
+                                            <div>
+                                                <div class="text-caption q-mb-xs">タイプ</div>
+                                                <q-select 
+                                                    dense 
+                                                    outlined 
+                                                    v-model="formData.choice" 
+                                                    :options="optionsChoice" 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div  class="row q-mt-lg" v-if="formData.inputType == '選択肢'">
+                                        <div class="col-12 q-mb-sm" v-for="(ci, index) in choiceItems" :key="index">
+                                            <q-list bordered class="rounded-borders">
+                                                <q-expansion-item
+                                                    dense
+                                                    dense-toggle
+                                                    switch-toggle-side
+                                                    expand-icon-toggle
+                                                >
+                                                    <template v-slot:header>
+                                                        <div class="q-item__section column q-item__section--main justify-center">
+                                                            <div class="q-item__label">選択肢の選択</div><!---->
+                                                        </div>
+                                                        <div class="q-item__section column q-item__section--side justify-center">
+                                                            <q-btn dense size="sm" flat>
+                                                                <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveChoiceOption(ci)" />
+                                                            </q-btn>
+                                                        </div>
+                                                        
+                                                    </template>
+                                                    <q-card>
+                                                        <q-card-section>
+                                                            <div>
+                                                                <div>ラベル</div>
+                                                                <q-input 
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="ci.label" 
+                                                                />
+                                                            </div>
+                                                            <div class="q-mt-sm">
+                                                                <div>画像</div>
+                                                                <q-file
+                                                                    v-model="ci.file"
+                                                                    label="画像を選択"
+                                                                    outlined
+                                                                    dense
+                                                                    accept=".jpg,.png, image/*"
+                                                                >
+                                                                    <template v-slot:prepend>
+                                                                        <q-icon name="attach_file" />
+                                                                    </template>
+                                                                </q-file>
+                                                                <div class="q-mt-sm" v-if="ci.file">
+                                                                <q-img
+                                                                    :src="ci.localSrc"
+                                                                    loading="lazy"
+                                                                    spinner-color="white"
+                                                                    style="max-width: 250px; height: 140px;"
+                                                                    fit="contain"
+                                                                >
+                                                                    <q-btn @click="handleRemoveChoiceItemImage(ci)" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
+                                                                </q-img>
+                                                                
+                                                                </div>
+                                                            </div>
+                                                            <div class="q-mt-sm">
+                                                                <div>決済金額</div>
+                                                                <q-input 
+                                                                    type="number"
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="ci.unit_price" 
+                                                                    style="max-width: 300px;"
+                                                                />
+                                                            </div>
+                                                        </q-card-section>
+                                                    </q-card>
+                                                </q-expansion-item>
+                                            </q-list>
+                                        </div>
+                                        <div class="col-12 q-mt-sm">
+                                            <q-btn @click="addMoreChoiceItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row ">
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                            <!-- Controlable answers -->
+                            <div class="row  q-mt-xl" v-if="controlable">
+                                <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
+                                <label class="">回答</label>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11">
+                                    <div  class="row">
+                                        <div class="col-12 q-mb-sm" v-for="(ci, index) in conrtolableItems" :key="index">
+                                            <q-list bordered class="rounded-borders">
+                                                <q-expansion-item
+                                                    dense
+                                                    dense-toggle
+                                                    switch-toggle-side
+                                                    expand-icon-toggle
+                                                >
+                                                    <template v-slot:header>
+                                                        <div class="q-item__section column q-item__section--main justify-center">
+                                                            <div class="q-item__label">制御可能な答え</div><!---->
+                                                        </div>
+                                                        <div class="q-item__section column q-item__section--side justify-center">
+                                                            <q-btn dense size="sm" flat>
+                                                                <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveControlableItem(ci)" />
+                                                            </q-btn>
+                                                        </div>
+                                                        
+                                                    </template>
+                                                    <q-card>
+                                                        <q-card-section>
+                                                            <div>
+                                                                <div>ラベル</div>
+                                                                <q-input 
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="ci.label" 
+                                                                    lazy-rules
+                                                                    :rules="[
+                                                                        val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                                                    ]"
+                                                                />
+                                                            </div>
+                                                            <div class="q-mt-sm">
+                                                                <div>画像</div>
+                                                                <q-file
+                                                                    v-model="ci.file"
+                                                                    label="画像を選択"
+                                                                    outlined
+                                                                    dense
+                                                                    accept=".jpg,.png, image/*"
+                                                                >
+                                                                    <template v-slot:prepend>
+                                                                        <q-icon name="attach_file" />
+                                                                    </template>
+                                                                </q-file>
+                                                                <div class="q-mt-sm" v-if="ci.file">
+                                                                <q-img
+                                                                    :src="ci.localSrc"
+                                                                    loading="lazy"
+                                                                    spinner-color="white"
+                                                                    style="max-width: 250px; height: 140px;"
+                                                                    fit="contain"
+                                                                >
+                                                                    <q-btn @click="handleRemoveControlableItemImage(ci)" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
+                                                                </q-img>
+                                                                
+                                                                </div>
+                                                            </div>
+                                                            <div class="q-mt-sm">
+                                                                <div>決済金額</div>
+                                                                <q-input 
+                                                                    type="number"
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="ci.unit_price" 
+                                                                    style="max-width: 300px;"
+                                                                />
+                                                            </div>
+                                                            <div class="q-mt-sm">
+                                                                <div>質問</div>
+                                                                <q-select 
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="formData.inputType" 
+                                                                    :options="qqs" 
+                                                                    lazy-rules
+                                                                    :rules="[
+                                                                        val => !(typeof val !== 'object' || val === null) || 'フィールドは必須項目です', 
+                                                                    ]"
+                                                                />
+                                                            </div>
+                                                        </q-card-section>
+                                                    </q-card>
+                                                </q-expansion-item>
+                                            </q-list>
+                                        </div>
+                                        <div class="col-12 q-mt-sm">
+                                            <q-btn @click="addMoreControlableItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input q-mt-xl">
-                                <q-btn type="submit" class="p-common-btn" label="新規作成" />
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input q-mt-xl">
+                                    <q-btn type="submit" class="p-common-btn" label="新規作成" />
+                                </div>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </q-form>

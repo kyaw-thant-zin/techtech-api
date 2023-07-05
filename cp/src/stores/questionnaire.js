@@ -10,6 +10,28 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const _error = ref(false)
     const _questionnaires = ref(null)
     const _questionnaire = ref(null)
+    // for create and edit
+    const _qindex = ref(0)
+    const _qqs = ref(null)
+
+    const storeQindex = (qindex) => {
+        _qindex.value = qindex
+    }
+
+    const storeQqs = (qqs) => {
+        let dumpQqs = null
+        if(qqs.length > 0) {
+            dumpQqs = []
+            qqs.forEach((q) => {
+                const dQq = {
+                    'label': 'Q'+q.qindex+'.'+q.q,
+                    'value': q.id
+                }
+                dumpQqs.push(dQq)
+            })
+        }
+        _qqs.value = dumpQqs
+    }
 
     const storeLoading = (loading) => {
         _loading.value = loading
@@ -26,6 +48,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const storeQuestionnaire = (questionnaire) => {
         const q = {
             'formData': {
+                'qindex': '',
                 'question': '',
                 'suffix': '',
                 'inputType': '',
@@ -41,6 +64,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
 
         if(questionnaire != null) {
             // set formData
+            q.formData.qindex = 'Q'+questionnaire.qindex
             q.formData.question = questionnaire.q
             q.formData.suffix = questionnaire.suffix
             q.formData.required = questionnaire.required == 1 ? true:false
@@ -88,8 +112,8 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
                 const dumpQuest = {}
                 const qInputType = q.q_ans_input_type.type
                 const qChoice = q.q_ans_input_type.type == 'ラジオボタン' ? '独身':'多数'
-                dumpQuest.index = questionnaires.length - index
-                dumpQuest.qindex = 'Q'+(questionnaires.length - index)
+                dumpQuest.index = q.qindex
+                dumpQuest.qindex = 'Q'+q.qindex
                 dumpQuest.id = q.id
                 dumpQuest.question = q.q
                 dumpQuest.ans_intput_type = qInputType == 'ラジオボタン' || qInputType == 'チェックボックス' ? qInputType+'（'+qChoice+'）':qInputType
@@ -128,6 +152,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleUpdateQuestionnaire = async (id, formData) => {
         storeLoading(true)
         const response = await API.questionnaire.update(id, formData)
+        console.log(response)
         if(response) {
             storeSuccess(response)
         } else {
@@ -147,7 +172,24 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
         storeLoading(false)
     }
 
+    const handleGetQAndLastQindex = async () => {
+        storeLoading(true)
+        const response = await API.questionnaire.getQAndLastQindex()
+        if(response) {
+            storeQindex(response.qLastIndex)
+            storeQqs(response.qq)
+            storeSuccess(true)
+            storeError(false)
+        } else {
+            storeSuccess(false)
+            storeError(true)
+        }
+        storeLoading(false)
+    }
+
     return {
+        _qqs,
+        _qindex,
         _error,
         _loading,
         _success,
@@ -159,7 +201,8 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
         handleGetQuestionnaires,
         handleStoreQuestionnaire,
         handleUpdateQuestionnaire,
-        handleDestroyQuestionnaire
+        handleDestroyQuestionnaire,
+        handleGetQAndLastQindex
     }
 
 })

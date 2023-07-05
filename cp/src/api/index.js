@@ -172,6 +172,10 @@ export const API = {
             const response = await instance.delete(apiURL+'/questionnaire/'+id+'/destroy', {headers: headers})
             return response.data
         },
+        'getQAndLastQindex': async () => {
+            const response = await instance.get(apiURL+'/questionnaire/get-last-qindex', {headers: headers})
+            return response.data
+        }
     },
     "quotation": {
         "getAll": async () => {
