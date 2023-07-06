@@ -59,6 +59,7 @@
       const quote = quoteStore._quotation.quote
       qq.value = quoteStore._quotation.qqs
       quotat.value.q_name = quote.q_name
+      quotat.value.condition_string = quote.condition
       quotat.value.formula_total = quote.formula_total
       quotat.value.base_amount = quote.base_amount
 
@@ -221,6 +222,21 @@
                   </q-item-label>
                   <q-item-label caption>{{ qC[0].math_symbol.jp_name }} ( {{ qC[0].math_symbol.sign }} )</q-item-label>
                   <q-item-label >{{ qC[0].qa.label }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <q-separator/>
+          </template>
+
+          <template v-if="quotat.condition_string != null">
+            <div class="q-mt-md">確認すべき条件</div>
+            <q-list>
+              <q-item class="q-my-sm">
+                <q-item-section avatar>
+                  <q-avatar size="sm" color="primary" text-color="white">C</q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ quotat.condition_string }}</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
