@@ -175,9 +175,10 @@
                           <q-btn size="sm" padding="sm" round class="p-common-btn" color="info" icon="mdi-eye-outline" @click="showDetailDialog(APP.encryptID(props.row.id))" />
                         </div>
                         <div>
-                          <router-link :to="{ name: 'cp.quotation.detail', params: { id: APP.encryptID(props.row.id) } }">
+                          <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-note-edit-outline"/>
+                          <!-- <router-link :to="{ name: 'cp.quotation.detail', params: { id: APP.encryptID(props.row.id) } }">
                             <q-btn size="sm" padding="sm" round class="p-common-bg" icon="mdi-note-edit-outline"/>
-                          </router-link>
+                          </router-link> -->
                         </div>
                         <div>
                           <q-btn @click="showConfirmDialog(props.row)" size="sm" padding="sm" round class="p-common-btn" icon="mdi-trash-can-outline" />
