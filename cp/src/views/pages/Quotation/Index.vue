@@ -12,7 +12,7 @@
   const filter = ref('')
   const columns = [
     { name: 'id', required: false, label: 'ID', sortable: false },
-    {
+    { 
       name: 'name',
       required: true,
       label: '氏名',
@@ -40,24 +40,12 @@
 
   }, [quoteStore._quotations])
 
-
   const quotat = ref({})
-  const qq = ref([])
-
-  function getIndexById(id) {
-    if(qq.value.length > 0) {
-      const result = qq.value.find(element => element.id === id);
-      return result ? result.index : null;
-    } else {
-      return null
-    }
-  }
 
   const showDetailDialog = async (id) => {
     await quoteStore.handleGetQuotation(APP.decryptID(id.toString()))
     if(quoteStore._quotation != null) {
-      const quote = quoteStore._quotation.quote
-      qq.value = quoteStore._quotation.qqs
+      const quote = quoteStore._quotation
       quotat.value.q_name = quote.q_name
       quotat.value.condition_string = quote.condition
       quotat.value.formula_total = quote.formula_total
@@ -194,6 +182,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal -->
   <q-dialog v-model="fixedModal">
       <q-card style="min-width: 350px;">
         <q-card-section class="row items-center">
@@ -216,7 +206,7 @@
                 <q-item-section>
                   <q-item-label>
                     <template v-for="qCc in qC">
-                      {{ getIndexById(qCc.qq.id) }}, 
+                      {{ 'Q'+qCc.qq.qindex }}, 
                     </template>
                   </q-item-label>
                   <q-item-label caption>{{ qC[0].math_symbol.jp_name }} ( {{ qC[0].math_symbol.sign }} )</q-item-label>

@@ -28,6 +28,7 @@ const formulas = ref([])
 const parentSelect = ref([
     {label: 'なし', value: 0},
 ])
+const parentSelectRef = ref({label: 'なし', value: 0})
 const formData = ref({
     'qName': '',
     'conditionString': '',
@@ -35,62 +36,85 @@ const formData = ref({
     'condition': checkConditions.value,
     'formula': formulas.value,
     'baseAmount': 0,
-    'qParent': parentSelect.value[0],
+    'qParent': parentSelectRef.value,
 })
 
-const qq = ref([])
-
-function getIndexById(id) {
-    if(qq.value.length > 0) {
-      const result = qq.value.find(element => element.id === id);
-      return result ? result.index : null;
-    } else {
-      return null
-    }
-}
-
-// set formDate
+// set formData
 watch(
   () => quoteStore._quotation,
   (newValue, oldValue) => {
     if(newValue != null) {
-        console.log(newValue)
-        quote.value = newValue.quote
-        qq.value = newValue.qqs
-        formData.value.qName = newValue.quote.q_name
-        formData.value.totalFormula = newValue.quote.formula_total
-        formData.value.baseAmount = newValue.quote.base_amount
-        formData.value.conditionString = newValue.quote.condition
+        quote.value = newValue
+        formData.value.qName = newValue.q_name
+        formData.value.totalFormula = newValue.formula_total
+        formData.value.baseAmount = newValue.base_amount
+        formData.value.conditionString = newValue.condition
 
         // condition
-        const conditions = newValue.quote.quotation_conditions_with_all
+        const conditions = newValue.quotation_conditions_with_all
         if(conditions != null && Object.keys(conditions).length > 0) {
-            conditions.forEach((c) => {
-                const dumpC = {
-                    conQqID: {label: getIndexById(c.qq_id), value: c.qq_id},
-                    conSymbol: c.math_symbol_id,
-                    conAnsID: c.qa_id
+            const groupedData = conditions.reduce((groups, item) => {
+                const { condition_id } = item
+                if (!groups[condition_id]) {
+                    groups[condition_id] = []
+                }
+                groups[condition_id].push(item)
+                return groups
+            }, {})
+            Object.keys(groupedData).forEach(condition_id => {
+                const group = groupedData[condition_id]
+                const dumpC = {}
+                if(group.length > 0) {
+                    group.forEach((g) => {
+                        if (dumpC.hasOwnProperty('conQqID')) {
+                            dumpC.id.push({value: g.id})
+                            dumpC.conQqID.push({ label: 'Q' + g.qq.qindex, value: g.qq_id })
+                        } else {
+                            dumpC.id = [{value: g.id}]
+                            dumpC.conQqID = [{ label: 'Q' + g.qq.qindex, value: g.qq_id }]
+                        }
+                        dumpC.conSymbol = { label: g.math_symbol.jp_name, value: g.math_symbol_id }
+                        dumpC.conAnsID = { label: g.qa.label, value: g.qa_id }
+                    })
                 }
                 checkConditions.value.push(dumpC)
             })
         }
+        formData.value.condition = checkConditions.value
 
-        // checkConditions.value = newValue.quotation_conditions_with_all
-        // formData.value.condition = checkConditions.value
-        // formulas.value = newValue.quotation_formulas
-
+        // formula
+        const dFormulas = newValue.quotation_formulas_with_all
+        if(dFormulas != null && Object.keys(dFormulas).length > 0) {
+            dFormulas.forEach(dF => {
+                const dumpDF = {}
+                dumpDF.id = dF.id
+                dumpDF.text = dF.formula
+                dumpDF.fcondition = []
+                if(dF.quotation_formula_conditions != null && dF.quotation_formula_conditions.length > 0) {
+                    const dumpDFCondition = dF.quotation_formula_conditions
+                    dumpDFCondition.forEach((dfc) => {
+                        const dumpDFC = {}
+                        dumpDFC.id = dfc.id
+                        dumpDFC.fconSymbol = { label: dfc.math_symbol.jp_name, value: dfc.math_symbol_id }
+                        dumpDFC.fconSituation = dfc.situation
+                        dumpDFC.fconResult = dfc.result
+                        dumpDF.fcondition.push(dumpDFC)
+                    })
+                }
+                formulas.value.push(dumpDF)
+            })
+            
+        }
+        formData.value.formula = formulas.value
 
         if(newValue.parent != null) {
-            formData.value.qParent = {
-                'label': newValue.parent.label,
+            parentSelectRef.value = {
+                'label': newValue.parent.q_name,
                 'value': newValue.parent.id
             }
+            formData.value.qParent = parentSelectRef.value
         }
-
-        // console.log(newValue.quotation_conditions_with_all)
-        // console.log(checkConditions.value)
     }
-    console.log(formData.value)
   }, {
     deep: true
   }
@@ -98,6 +122,7 @@ watch(
 
 const addMoreCheckCondition = () => {
     checkConditions.value.push({
+        id: null,
         conQqID: null,
         conSymbol: null,
         conAnsID: null
@@ -133,6 +158,7 @@ const handleRemoveChechCondition = (cc) => {
 }
 const addMoreFormula = () => {
     formulas.value.push({
+        id: null,
         text: null,
         fcondition: [],
     })
@@ -151,6 +177,7 @@ const handleRemoveFormula = (f) => {
 }
 const addMoreFormulaResultCondition = (fCondition) => {
     fCondition.push({
+        id: null,
         fconSymbol: '',
         fconSituation: '',
         fconResult: ''
@@ -312,90 +339,101 @@ const resetForm = () => {
 // submit the form
 const onSubmit = async () => {
     const dumpFormData = {}
-    // console.log(formData.value)
-    // Object.entries(formData.value).forEach(([key1, dataValue1]) => {
-    //     if (typeof dataValue1 === "string") { //string
-    //         dumpFormData[key1] = dataValue1
-    //     } else if (Array.isArray(dataValue1)) { //array
-    //         if(key1 == 'condition') { //condition
-    //             dumpFormData[key1] = []
-    //             if(dataValue1.length > 0) {
-    //                 dataValue1.forEach((el1, index1) => {
-    //                     dumpFormData[key1][index1] = {}
-    //                     Object.entries(el1).forEach(([key2, dataValue2]) => {
-    //                         if (typeof dataValue2 === "string") { //string
-    //                             dumpFormData[key1][index1][key2] = dataValue2
-    //                         } else if (Array.isArray(dataValue2)) { //array
-    //                             dumpFormData[key1][index1][key2] = dataValue2.map(item => item.value)
-    //                         } else { //object
-    //                             if(key2 == 'conAnsID') {
-    //                                 dumpFormData[key1][index1][key2] = dataValue2
-    //                             } else {
-    //                                 dumpFormData[key1][index1][key2] = dataValue2.value
-    //                             }
-    //                         }
-    //                     })
+    Object.entries(formData.value).forEach(([key1, dataValue1]) => {
+        if (typeof dataValue1 === "string") { //string
+            dumpFormData[key1] = dataValue1
+        } else if (Array.isArray(dataValue1)) { //array
+            if(key1 == 'condition') { //condition
+                dumpFormData[key1] = []
+                if(dataValue1.length > 0) {
+                    dataValue1.forEach((el1, index1) => {
+                        dumpFormData[key1][index1] = {}
+                        Object.entries(el1).forEach(([key2, dataValue2]) => {
+                            if (typeof dataValue2 === "string") { //string
+                                dumpFormData[key1][index1][key2] = dataValue2
+                            } else if (Array.isArray(dataValue2)) { //array
+                                dumpFormData[key1][index1][key2] = dataValue2.map(item => item.value)
+                            } else { //object
+                                if(key2 == 'conAnsID') {
+                                    dumpFormData[key1][index1][key2] = dataValue2
+                                } else {
+                                    if(dataValue2 != null) {
+                                        dumpFormData[key1][index1][key2] = dataValue2.value
+                                    } else {
+                                        dumpFormData[key1][index1][key2] = dataValue2
+                                    }
+                                }
+                            }
+                        })
                         
-    //                 })
-    //             }
-    //         } else { // formula
-    //             dumpFormData[key1] = []
-    //             if(dataValue1.length > 0) {
-    //                 dataValue1.forEach((el1, index1) => {
-    //                     dumpFormData[key1][index1] = {}
-    //                     Object.entries(el1).forEach(([key2, dataValue2]) => {
-    //                         if (typeof dataValue2 === "string") { //string
-    //                             dumpFormData[key1][index1][key2] = dataValue2
-    //                         } else if (Array.isArray(dataValue2)) { //array
-    //                             dumpFormData[key1][index1][key2] = []
-    //                             if(dataValue2.length > 0) {
-    //                                 dataValue2.forEach((el2, index2) => {
-    //                                     if(typeof el2 === "object" && el2 !== null) { //object
-    //                                         dumpFormData[key1][index1][key2][index2] = {}
-    //                                         Object.entries(el2).forEach(([key3, dataValue3]) => {
-    //                                             if(typeof dataValue3 === "string") { //string
-    //                                                 dumpFormData[key1][index1][key2][index2][key3] = dataValue3
-    //                                             } else { // object
-    //                                                 dumpFormData[key1][index1][key2][index2][key3] = dataValue3.value
-    //                                             }
-    //                                         })
-    //                                     }
-    //                                 })
-    //                             }
-    //                         }
-    //                     })
+                    })
+                }
+            } else { // formula
+                dumpFormData[key1] = []
+                if(dataValue1.length > 0) {
+                    dataValue1.forEach((el1, index1) => {
+                        dumpFormData[key1][index1] = {}
+                        Object.entries(el1).forEach(([key2, dataValue2]) => {
+                            if (typeof dataValue2 === "string") { //string
+                                dumpFormData[key1][index1][key2] = dataValue2
+                            } else if (Array.isArray(dataValue2)) { //array
+                                dumpFormData[key1][index1][key2] = []
+                                if(dataValue2.length > 0) {
+                                    dataValue2.forEach((el2, index2) => {
+                                        if(typeof el2 === "object" && el2 !== null) { //object
+                                            dumpFormData[key1][index1][key2][index2] = {}
+                                            Object.entries(el2).forEach(([key3, dataValue3]) => {
+                                                if(typeof dataValue3 === "object") { //string
+                                                    dumpFormData[key1][index1][key2][index2][key3] = dataValue3.value
+                                                } else { // object
+                                                    dumpFormData[key1][index1][key2][index2][key3] = dataValue3
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            } else {
+                                dumpFormData[key1][index1][key2] = dataValue2
+                            }
+                        })
                         
-    //                 })
-    //             }
-    //         }
-    //     } else if (typeof dataValue1 === "object" && dataValue1 !== null) { // object
-    //         dumpFormData[key1] = dataValue1.value
-    //     }
-    // })
-    // await quoteStore.handleStoreQuotation(dumpFormData)
+                    })
+                }
+            }
+        } else if (typeof dataValue1 === "object" && dataValue1 !== null) { // object
+            dumpFormData[key1] = dataValue1.value
+        }
+    })
 
-    // // check result
-    // if(quoteStore._success) {
-    //     $q.notify({
-    //         caption: '見積書が正常に作成されました',
-    //         message: '成功！',
-    //         type: 'positive',
-    //         timeout: 1000
-    //     })
-    //     quoteStore.storeSuccess(false)
-    //     resetForm()
-    //     quoteStore.router.replace({ name: 'cp.quotation' })
-    // }
 
-    // if(quoteStore._error) {
-    //     $q.notify({
-    //         caption: 'エラーが発生しました。後でもう一度お試しください。',
-    //         message: 'エラー！',
-    //         type: 'negative',
-    //         timeout: 1000
-    //     })
-    //     quoteStore.storeError(false)
-    // }
+    await quoteStore.handleUpdateQuotation(id.value, dumpFormData)
+
+    // check result
+    if(quoteStore._success) {
+        $q.notify({
+            caption: '見積書が正常に作成されました',
+            message: '成功！',
+            type: 'positive',
+            timeout: 1000
+        })
+        quoteStore.storeSuccess(false)
+        quoteStore.reset()
+        await quoteStore.handleGetAllRequired()
+        await quoteStore.handleGetQuotation(id.value)
+
+        // resetForm()
+        // quoteStore.router.replace({ name: 'cp.quotation' })
+    }
+
+    if(quoteStore._error) {
+        $q.notify({
+            caption: 'エラーが発生しました。後でもう一度お試しください。',
+            message: 'エラー！',
+            type: 'negative',
+            timeout: 1000
+        })
+        quoteStore.storeError(false)
+    }
 }
 
 </script>

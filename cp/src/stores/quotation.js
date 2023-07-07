@@ -49,7 +49,7 @@ export const useQuotationStore = defineStore('quotation', () => {
         if(qqs.length > 0) {
             qqs.forEach((q, index) => {
                 const dumpQ = {
-                    'label': 'Q'+(index + 1),
+                    'label': 'Q'+q.qindex,
                     'value': q.id
                 }
                 dumpQqs.push(dumpQ)
@@ -74,7 +74,7 @@ export const useQuotationStore = defineStore('quotation', () => {
     }
 
     const storeQuotationIDs = (q) => {
-        const dumpQs = []
+        const dumpQs = [{label: 'なし', value: 0}]
         if(q.length > 0) {
             q.forEach((qu, index) => {
                 const dumpQ = {
@@ -175,6 +175,15 @@ export const useQuotationStore = defineStore('quotation', () => {
         storeLoading(false)
     }
 
+    const reset = () => {
+        _symbols.value = []
+        _qqs.value = []
+        _qas.value = []
+        _quotationIDs.value = []
+        _quotations.value = []
+        _quotation.value = null
+    }
+
     return {
         _success,
         _error,
@@ -185,6 +194,7 @@ export const useQuotationStore = defineStore('quotation', () => {
         _quotationIDs,
         _quotations,
         _quotation,
+        reset,
         storeError,
         storeSuccess,
         handleGetAllRequired,
