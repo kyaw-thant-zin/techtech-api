@@ -61,6 +61,7 @@ const addMoreControlableItem = () => {
         file: null,
         unit_price: null,
         qq_id: null,
+        controlled_id: null
     })
 }
 const handleRemoveControlableItem = (ci) => {
@@ -82,12 +83,18 @@ const formData = ref({
     inputType: '',
     choice: '独身',
     required: false,
-    controlable: controlable.value,
+    controllable: controlable.value,
     textItems: textItems.value, // テキスト
     selectItems: selectItems.value, // 選択
     choiceItems: choiceItems.value, // 選択肢
     controlItems: conrtolableItems.value
 })
+
+watchEffect(() => {
+    if(controlable.value != null) {
+        formData.value.controllable = controlable.value
+    }
+}, [controlable.value])
 
 const resetForm = () => {
     formData.value.question = ''
@@ -103,49 +110,60 @@ const resetForm = () => {
 
 // create new questionnaire
 const onSubmit = async () => {
-    // check the input type and remove others
-    if(formData.value.inputType == 'テキスト') {
-        // text
-        delete formData.value.choiceItems
-        delete formData.value.selectItems
-        delete formData.value.choice
-    } else if(formData.value.inputType == '選択') {
-        // select
+    
+    // check controlable or not
+    if(formData.value.controllable) {
         delete formData.value.textItems
+        delete formData.value.selectItems
         delete formData.value.choiceItems
-        delete formData.value.choice
     } else {
-        // choice
-        delete formData.value.textItems
-        delete formData.value.selectItems
-        
+        // check the input type and remove others
+        if(formData.value.inputType == 'テキスト') {
+            // text
+            delete formData.value.choiceItems
+            delete formData.value.selectItems
+            delete formData.value.choice
+            delete formData.value.controlItems
+        } else if(formData.value.inputType == '選択') {
+            // select
+            delete formData.value.textItems
+            delete formData.value.choiceItems
+            delete formData.value.choice
+            delete formData.value.controlItems
+        } else {
+            // choice
+            delete formData.value.textItems
+            delete formData.value.selectItems
+            delete formData.value.controlItems
+            
+        }
     }
 
     // send API
     await qStore.handleStoreQuestionnaire(formData.value)
 
     // check result
-    if(qStore._success) {
-        $q.notify({
-            caption: 'アンケートが正常に追加されました',
-            message: '成功！',
-            type: 'positive',
-            timeout: 1000
-        })
-        qStore.storeSuccess(false)
-        resetForm()
-        qStore.router.replace({ name: 'cp.questionnaire' })
-    }
+    // if(qStore._success) {
+    //     $q.notify({
+    //         caption: 'アンケートが正常に追加されました',
+    //         message: '成功！',
+    //         type: 'positive',
+    //         timeout: 1000
+    //     })
+    //     qStore.storeSuccess(false)
+    //     resetForm()
+    //     qStore.router.replace({ name: 'cp.questionnaire' })
+    // }
 
-    if(qStore._error) {
-        $q.notify({
-            caption: 'エラーが発生しました。後でもう一度お試しください。',
-            message: 'エラー！',
-            type: 'negative',
-            timeout: 1000
-        })
-        qStore.storeError(false)
-    }
+    // if(qStore._error) {
+    //     $q.notify({
+    //         caption: 'エラーが発生しました。後でもう一度お試しください。',
+    //         message: 'エラー！',
+    //         type: 'negative',
+    //         timeout: 1000
+    //     })
+    //     qStore.storeError(false)
+    // }
 }
 
 const getBase64 = (file) => {
@@ -576,7 +594,7 @@ watchEffect(() => {
                                                                 <q-select 
                                                                     dense 
                                                                     outlined 
-                                                                    v-model="formData.inputType" 
+                                                                    v-model="ci.controlled_id" 
                                                                     :options="qqs" 
                                                                     lazy-rules
                                                                     :rules="[

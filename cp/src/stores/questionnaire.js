@@ -141,6 +141,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleStoreQuestionnaire = async (formData) => {
         storeLoading(true)
         const response = await API.questionnaire.store(formData)
+        console.log(response)
         if(response) {
             storeSuccess(response)
         } else {
