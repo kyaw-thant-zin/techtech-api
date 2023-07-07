@@ -53,13 +53,15 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
                 'suffix': '',
                 'inputType': '',
                 'required': '',
+                'controllable': '',
                 'choice': ''
             },
             'textItems': {
                 'suffix': '',
             },
             'selectItems': [],
-            'choiceItems': []
+            'choiceItems': [],
+            'controlItems': [],
         }
 
         if(questionnaire != null) {
@@ -68,34 +70,49 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
             q.formData.question = questionnaire.q
             q.formData.suffix = questionnaire.suffix
             q.formData.required = questionnaire.required == 1 ? true:false
+            q.formData.controllable = questionnaire.control == 1 ? true:false
             
             const qFormInputType = questionnaire.q_ans_input_type.type
             q.formData.inputType = qFormInputType 
             const qAll = questionnaire.qas
             if(qAll != null && qAll.length > 0) {
                 qAll.forEach(qT => {
-                    if(qFormInputType == 'テキスト') {
-                        // input text
-                        q.textItems.suffix = qT.suffix
-                        q.textItems.id = qT.id
-                    } else if(qFormInputType == '選択') {
-                        // input select
-                        const dumpSelectItem = {
-                            'label': qT.label,
-                            'unit_price': qT.unit_price,
-                            'id': qT.id
+                    if(questionnaire.control != 1) { // normal answer
+                        if(qFormInputType == 'テキスト') {
+                            // input text
+                            q.textItems.suffix = qT.suffix
+                            q.textItems.id = qT.id
+                        } else if(qFormInputType == '選択') {
+                            // input select
+                            const dumpSelectItem = {
+                                'label': qT.label,
+                                'unit_price': qT.unit_price,
+                                'id': qT.id
+                            }
+                            q.selectItems.push(dumpSelectItem)
+                        } else if(qFormInputType == '選択肢') {
+                            // input choice
+                            q.formData.choice = questionnaire.choice == 1 ? '独身':'多数'
+                            const dumpChoiceItem = {
+                                label: qT.label,
+                                imagePath: qT.image != null ? APP.ACTIVE_PUBLIC_SITE_URL+'/'+qT.image:null,
+                                unit_price: qT.unit_price,
+                                id: qT.id
+                            }
+                            q.choiceItems.push(dumpChoiceItem)
                         }
-                        q.selectItems.push(dumpSelectItem)
-                    } else if(qFormInputType == '選択肢') {
-                        // input choice
-                        q.formData.choice = questionnaire.choice == 1 ? '独身':'多数'
+                    } else { // control answer
                         const dumpChoiceItem = {
                             label: qT.label,
                             imagePath: qT.image != null ? APP.ACTIVE_PUBLIC_SITE_URL+'/'+qT.image:null,
                             unit_price: qT.unit_price,
-                            id: qT.id
+                            id: qT.id,
+                            controlled_id: {
+                                'label': 'Q'+qT?.controlled?.qindex+'.'+qT?.controlled?.q,
+                                'value': qT?.controlled?.id
+                            }
                         }
-                        q.choiceItems.push(dumpChoiceItem)
+                        q.controlItems.push(dumpChoiceItem)
                     }
                 });
             } else {
@@ -141,7 +158,6 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const handleStoreQuestionnaire = async (formData) => {
         storeLoading(true)
         const response = await API.questionnaire.store(formData)
-        console.log(response)
         if(response) {
             storeSuccess(response)
         } else {

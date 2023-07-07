@@ -8,9 +8,11 @@ const $q = useQuasar()
 const qStore = useQuestionnaireStore()
 const id = computed(() => APP.decryptID(qStore.router.currentRoute._value.params.id.toString()))
 qStore.handleGetQuestionnaire(id)
+qStore.handleGetQAndLastQindex()
 
 const q = ref(null)
-
+const qqs = ref([])
+const controlable = ref(false)
 const optionsInputs = [
     'テキスト', // text
     '選択', // select
@@ -20,46 +22,63 @@ const optionsChoice = [
     '独身', // single
     '多数' // multiple
 ]
-
+const qIndex = ref('')
 const textItems = ref({
     'suffix': '',
 })
 const selectItems = ref([])
 const choiceItems = ref([])
-
+const controlableItems = ref([])
 const formData = ref({
-    qindex: 'Q0',
+    qindex: qIndex.value,
     question: '',
     suffix: '',
     inputType: '',
     choice: '独身',
     required: false,
+    controllable: controlable.value,
     textItems: textItems.value, // テキスト
     selectItems: selectItems.value, // 選択
-    choiceItems: choiceItems.value // 選択肢
+    choiceItems: choiceItems.value, // 選択肢
+    controlItems: controlableItems.value
 })
+
+watchEffect(() => {
+    if(controlable.value != null) {
+        formData.value.controllable = controlable.value
+    }
+}, [controlable.value])
 
 watchEffect(() => {
     // set area rows
     if(qStore._questionnaire !== null && qStore._questionnaire?.formData) {
         q.value = qStore._questionnaire
         // set formData
+        
         formData.value.qindex = q.value.formData.qindex
         formData.value.question = q.value.formData.question
         formData.value.suffix = q.value.formData.suffix
         formData.value.inputType = q.value.formData.inputType
         formData.value.required = q.value.formData.required
+        formData.value.controllable = q.value.formData.controllable
+        controlable.value = q.value.formData.controllable
         formData.value.choice = q.value.formData.choice != undefined ? q.value.formData.choice:'独身'
-        if(q.value.formData.inputType == 'テキスト') {
-            // set textItems
-            textItems.value.suffix = q.value.textItems.suffix
-        } else if(q.value.formData.inputType == '選択') {
-            // set selectItems
-            selectItems.value = q.value.selectItems
-        } else if(q.value.formData.inputType == '選択肢') {
-            // set choiceItems
-            choiceItems.value = q.value.choiceItems
+        
+        if(!formData.value.controllable) {
+            if(q.value.formData.inputType == 'テキスト') {
+                // set textItems
+                textItems.value.suffix = q.value.textItems.suffix
+            } else if(q.value.formData.inputType == '選択') {
+                // set selectItems
+                selectItems.value = q.value.selectItems
+            } else if(q.value.formData.inputType == '選択肢') {
+                // set choiceItems
+                choiceItems.value = q.value.choiceItems
+            }
+        } else {
+            controlableItems.value = q.value.controlItems
         }
+
     } else {
         q.value = null 
     }
@@ -100,6 +119,26 @@ const handleRemoveChoiceItemImage = (ci) => {
     ci.file = null
   }
 }
+const addMoreControlableItem = () => {
+    controlableItems.value.push({
+        label: '',
+        file: null,
+        unit_price: null,
+        qq_id: null,
+        controlled_id: null
+    })
+}
+const handleRemoveControlableItem = (ci) => {
+    const index = controlableItems.value.indexOf(ci)
+    if (index !== -1) {
+        controlableItems.value.splice(index, 1);
+    }
+}
+const handleRemoveControlableItemImage = (ci) => {
+  if(ci.file && ci.file != null) {
+    ci.file = null
+  }
+}
 
 const getBase64 = (file) => {
   return new Promise((resolve, reject) => {
@@ -129,6 +168,33 @@ watch(
   },
   { deep: true }
 )
+watch(
+  () => controlableItems.value,
+  async () => {
+    if(controlableItems.value.length > 0) {
+      for (let index = 0; index < controlableItems.value.length; index++) {
+        if(controlableItems.value[index].file != null) {
+          const src = await getBase64(controlableItems.value[index].file)
+          controlableItems.value[index].localSrc = src
+        } 
+      }
+    }
+  },
+  { deep: true }
+)
+
+// watch the qindex
+watchEffect(() => {
+    if(qStore._qindex > 0) {
+        qIndex.value = 'Q'+(qStore._qindex + 1)
+        formData.value.qindex = qIndex.value
+    }
+}, [qStore._qindex])
+watchEffect(() => {
+    if(qStore._qqs != null) {
+        qqs.value = qStore._qqs
+    }
+}, [qStore._qqs])
 
 // update questionnaire
 const onSubmit = async () => {
@@ -137,21 +203,35 @@ const onSubmit = async () => {
     formData.value.textItems = textItems.value
     formData.value.selectItems = selectItems.value
     formData.value.choiceItems = choiceItems.value
+    formData.value.controlItems = controlableItems.value
 
     // check the input type and remove others
-    if(formData.value.inputType == 'テキスト') {
-        delete formData.value.choiceItems
-        delete formData.value.selectItems
-        delete formData.value.choice
-    } else if(formData.value.inputType == '選択') {
+    if(formData.value.controllable) {
         delete formData.value.textItems
+        delete formData.value.selectItems
         delete formData.value.choiceItems
-        delete formData.value.choice
     } else {
-        // choice
-        delete formData.value.textItems
-        delete formData.value.selectItems
-    } 
+        // check the input type and remove others
+        if(formData.value.inputType == 'テキスト') {
+            // text
+            delete formData.value.choiceItems
+            delete formData.value.selectItems
+            delete formData.value.choice
+            delete formData.value.controlItems
+        } else if(formData.value.inputType == '選択') {
+            // select
+            delete formData.value.textItems
+            delete formData.value.choiceItems
+            delete formData.value.choice
+            delete formData.value.controlItems
+        } else {
+            // choice
+            delete formData.value.textItems
+            delete formData.value.selectItems
+            delete formData.value.controlItems
+            
+        }
+    }
 
     // send API
     await qStore.handleUpdateQuestionnaire( id, formData.value)
@@ -236,16 +316,16 @@ const onSubmit = async () => {
                                 <label class="">質問</label>
                                 </div>
                                 <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11 form-input">
-                                <q-input 
-                                    name="question" 
-                                    outlined 
-                                    class="common-input-text"  
-                                    v-model="formData.question"
-                                    lazy-rules
-                                    :rules="[
-                                    val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
-                                    ]"
-                                />
+                                    <q-input 
+                                        name="question" 
+                                        outlined 
+                                        class="common-input-text"  
+                                        v-model="formData.question"
+                                        lazy-rules
+                                        :rules="[
+                                        val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                        ]"
+                                    />
                                     <div class="row q-mt-sm">
                                         <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
                                             <label class="">接頭語</label>
@@ -268,9 +348,21 @@ const onSubmit = async () => {
                                             />
                                         </div>
                                     </div>
+                                    <div class="row q-mt-md">
+                                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
+                                            <q-checkbox 
+                                                name="required" 
+                                                outlined 
+                                                dense
+                                                label="制御可能な質問を作成する"
+                                                v-model="controlable"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row  q-mt-xl">
+                            <!-- Normal answers -->
+                            <div class="row  q-mt-xl" v-if="!controlable">
                                 <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
                                 <label class="">回答</label>
                                 </div>
@@ -415,15 +507,15 @@ const onSubmit = async () => {
                                                                     </template>
                                                                 </q-file>
                                                                 <div class="q-mt-sm" v-if="ci.imagePath != null || ci.file">
-                                                                <q-img
-                                                                    :src="ci.file != null ? ci.localSrc:ci.imagePath"
-                                                                    loading="lazy"
-                                                                    spinner-color="grey"
-                                                                    style="max-width: 250px; height: 140px;"
-                                                                    fit="contain"
-                                                                >
-                                                                    <q-btn @click="handleRemoveChoiceItemImage(ci)" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
-                                                                </q-img>
+                                                                    <q-img
+                                                                        :src="ci.file != null ? ci.localSrc:ci.imagePath"
+                                                                        loading="lazy"
+                                                                        spinner-color="grey"
+                                                                        style="max-width: 250px; height: 140px;"
+                                                                        fit="contain"
+                                                                    >
+                                                                        <q-btn @click="handleRemoveChoiceItemImage(ci)" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
+                                                                    </q-img>
                                                                 </div>
                                                             </div>
                                                             <div class="q-mt-sm">
@@ -443,6 +535,105 @@ const onSubmit = async () => {
                                         </div>
                                         <div class="col-12 q-mt-sm">
                                             <q-btn @click="addMoreChoiceItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Controlable answers -->
+                            <div class="row  q-mt-xl" v-if="controlable">
+                                <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
+                                <label class="">回答</label>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11">
+                                    <div  class="row">
+                                        <div class="col-12 q-mb-sm" v-for="(ci, index) in controlableItems" :key="index">
+                                            <q-list bordered class="rounded-borders">
+                                                <q-expansion-item
+                                                    dense
+                                                    dense-toggle
+                                                    switch-toggle-side
+                                                    expand-icon-toggle
+                                                >
+                                                    <template v-slot:header>
+                                                        <div class="q-item__section column q-item__section--main justify-center">
+                                                            <div class="q-item__label">制御可能な答え</div><!---->
+                                                        </div>
+                                                        <div class="q-item__section column q-item__section--side justify-center">
+                                                            <q-btn dense size="sm" flat>
+                                                                <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveControlableItem(ci)" />
+                                                            </q-btn>
+                                                        </div>
+                                                        
+                                                    </template>
+                                                    <q-card>
+                                                        <q-card-section>
+                                                            <div>
+                                                                <div>ラベル</div>
+                                                                <q-input 
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="ci.label" 
+                                                                    lazy-rules
+                                                                    :rules="[
+                                                                        val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
+                                                                    ]"
+                                                                />
+                                                            </div>
+                                                            <div class="q-mt-sm">
+                                                                <div>画像</div>
+                                                                <q-file
+                                                                    v-model="ci.file"
+                                                                    label="画像を選択"
+                                                                    outlined
+                                                                    dense
+                                                                    accept=".jpg,.png, image/*"
+                                                                >
+                                                                    <template v-slot:prepend>
+                                                                        <q-icon name="attach_file" />
+                                                                    </template>
+                                                                </q-file>
+                                                                <div class="q-mt-sm" v-if="ci.imagePath != null || ci.file">
+                                                                    <q-img
+                                                                        :src="ci.file != null ? ci.localSrc:ci.imagePath"
+                                                                        loading="lazy"
+                                                                        spinner-color="grey"
+                                                                        style="max-width: 250px; height: 140px;"
+                                                                        fit="contain"
+                                                                    >
+                                                                        <q-btn @click="handleRemoveControlableItemImage(ci)" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
+                                                                    </q-img>
+                                                                </div>
+                                                            </div>
+                                                            <div class="q-mt-sm">
+                                                                <div>決済金額</div>
+                                                                <q-input 
+                                                                    type="number"
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="ci.unit_price" 
+                                                                    style="max-width: 300px;"
+                                                                />
+                                                            </div>
+                                                            <div class="q-mt-sm">
+                                                                <div>質問</div>
+                                                                <q-select 
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="ci.controlled_id" 
+                                                                    :options="qqs" 
+                                                                    lazy-rules
+                                                                    :rules="[
+                                                                        val => !(typeof val !== 'object' || val === null) || 'フィールドは必須項目です', 
+                                                                    ]"
+                                                                />
+                                                            </div>
+                                                        </q-card-section>
+                                                    </q-card>
+                                                </q-expansion-item>
+                                            </q-list>
+                                        </div>
+                                        <div class="col-12 q-mt-sm">
+                                            <q-btn @click="addMoreControlableItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
                                         </div>
                                     </div>
                                 </div>

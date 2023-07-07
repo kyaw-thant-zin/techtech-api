@@ -24,7 +24,7 @@ const textItems = ref({
 })
 const choiceItems = ref([])
 const selectItems = ref([])
-const conrtolableItems = ref([])
+const controlableItems = ref([])
 const addMoreSelectItem = () => {
     selectItems.value.push({
         label: null,
@@ -56,7 +56,7 @@ const handleRemoveChoiceItemImage = (ci) => {
   }
 }
 const addMoreControlableItem = () => {
-    conrtolableItems.value.push({
+    controlableItems.value.push({
         label: '',
         file: null,
         unit_price: null,
@@ -65,9 +65,9 @@ const addMoreControlableItem = () => {
     })
 }
 const handleRemoveControlableItem = (ci) => {
-    const index = conrtolableItems.value.indexOf(ci)
+    const index = controlableItems.value.indexOf(ci)
     if (index !== -1) {
-        conrtolableItems.value.splice(index, 1);
+        controlableItems.value.splice(index, 1);
     }
 }
 const handleRemoveControlableItemImage = (ci) => {
@@ -87,7 +87,7 @@ const formData = ref({
     textItems: textItems.value, // テキスト
     selectItems: selectItems.value, // 選択
     choiceItems: choiceItems.value, // 選択肢
-    controlItems: conrtolableItems.value
+    controlItems: controlableItems.value
 })
 
 watchEffect(() => {
@@ -196,13 +196,13 @@ watch(
   { deep: true }
 )
 watch(
-  () => conrtolableItems.value,
+  () => controlableItems.value,
   async () => {
-    if(conrtolableItems.value.length > 0) {
-      for (let index = 0; index < conrtolableItems.value.length; index++) {
-        if(conrtolableItems.value[index].file != null) {
-          const src = await getBase64(conrtolableItems.value[index].file)
-          conrtolableItems.value[index].localSrc = src
+    if(controlableItems.value.length > 0) {
+      for (let index = 0; index < controlableItems.value.length; index++) {
+        if(controlableItems.value[index].file != null) {
+          const src = await getBase64(controlableItems.value[index].file)
+          controlableItems.value[index].localSrc = src
         } 
       }
     }
@@ -520,7 +520,7 @@ watchEffect(() => {
                                 </div>
                                 <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11">
                                     <div  class="row">
-                                        <div class="col-12 q-mb-sm" v-for="(ci, index) in conrtolableItems" :key="index">
+                                        <div class="col-12 q-mb-sm" v-for="(ci, index) in controlableItems" :key="index">
                                             <q-list bordered class="rounded-borders">
                                                 <q-expansion-item
                                                     dense
