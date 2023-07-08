@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { APP } from '@/config.js'
 import { API } from '@/api/index.js'
+import { useLocalStorage } from '@vueuse/core'
 
 export const useQuestionnaireStore = defineStore('questionnaire', () => {
 
@@ -10,6 +11,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const _error = ref(false)
     const _questionnaires = ref(null)
     const _questionnaire = ref(null)
+    const _questionnaireTablePage = ref(useLocalStorage('questionnaire_table_page', 1))
     // for create and edit
     const _qindex = ref(0)
     const _qqs = ref(null)
@@ -23,6 +25,10 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
         // for create and edit
         _qindex.value = 0
         _qqs.value = null
+    }
+
+    const storeTablePagiPage = (pNumber) => {
+        _questionnaireTablePage.value = pNumber
     }
 
     const storeQindex = (qindex) => {
@@ -223,6 +229,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
         _success,
         _questionnaire,
         _questionnaires,
+        _questionnaireTablePage,
         reset,
         storeError,
         storeSuccess,
@@ -231,7 +238,8 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
         handleStoreQuestionnaire,
         handleUpdateQuestionnaire,
         handleDestroyQuestionnaire,
-        handleGetQAndLastQindex
+        handleGetQAndLastQindex,
+        storeTablePagiPage
     }
 
 })

@@ -115,7 +115,7 @@
             <template v-for="(menuItem, index) in menuList" :key="index">
               <div v-if="!menuItem?.hasChild">
                 <router-link :to="menuItem.path" class="p-menu-color">
-                <q-item  class="q-mt-md" clickable :active="activeLink === menuItem.path" @click="activeLink = menuItem.path" active-class="active-sb" v-ripple>
+                <q-item :data-activeLink="activeLink" :data-path="menuItem.path"  class="q-mt-md" clickable :active="activeLink.includes(menuItem.path)" @click="activeLink = menuItem.path" active-class="active-sb" v-ripple>
                   <q-item-section avatar>
                     <q-icon :name="menuItem.icon" />
                   </q-item-section>

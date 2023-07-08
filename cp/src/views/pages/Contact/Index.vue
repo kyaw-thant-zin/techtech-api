@@ -3,7 +3,8 @@
   import { APP } from '@/config.js'
   import { useQuasar } from 'quasar'
   import { ref, watchEffect } from 'vue'
-  import { useContactStore } from '@/stores/contact';
+  import { useContactStore } from '@/stores/contact'
+  import { onBeforeRouteLeave } from 'vue-router'
 
   const $q = useQuasar()
   const contactStore = useContactStore()
@@ -30,10 +31,23 @@
   ]
   const visibileColumns = ['direction', 'company', 'name', 'email', 'tel', 'action']
   const rows = ref([])
-  const pagination = {
-    page: 1,
+  const pagination = ref({
+    page: contactStore._contactTablePage,
     rowsPerPage: 10
+  })
+
+  const changePagination = (newPagination) => {
+    const pageNumber = newPagination.page
+    pagination.value.page = pageNumber
+    contactStore.storeTablePagiPage(pageNumber)
   }
+
+  onBeforeRouteLeave((to, from, next) => {
+    if(!to.name.includes(from.name)) {
+      contactStore.storeTablePagiPage(1)
+    }
+    next()
+  })
 
   watchEffect(() => {
     // set contacts rows
@@ -108,6 +122,7 @@
                 row-key="name"
                 :visible-columns="visibileColumns"
                 :pagination="pagination"
+                @update:pagination="changePagination"
               >
                 <template v-slot:top-right>
                   <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">

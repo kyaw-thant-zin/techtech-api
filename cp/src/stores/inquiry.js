@@ -4,6 +4,7 @@ import { API } from '@/api/index.js'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
+import { useLocalStorage } from '@vueuse/core'
 
 export const useInquiryStore = defineStore('inquiry', () => {
 
@@ -13,6 +14,11 @@ export const useInquiryStore = defineStore('inquiry', () => {
     const _success = ref(false)
     const _error = ref(false)
     const _inquiries = ref(null)
+    const _inquiryTablePage = ref(useLocalStorage('inquiry_table_page', 1))
+
+    const storeTablePagiPage = (pNumber) => {
+        _inquiryTablePage.value = pNumber
+    }
 
     const formatCurrency = (value) => {
         const number = Number(value)
@@ -83,9 +89,11 @@ export const useInquiryStore = defineStore('inquiry', () => {
         _success,
         _error,
         _loading,
+        _inquiryTablePage,
         storeError,
         storeSuccess,
-        handleGetInquiries
+        handleGetInquiries,
+        storeTablePagiPage
     }
 
 })

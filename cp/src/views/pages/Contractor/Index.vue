@@ -3,6 +3,7 @@
   import { APP } from '@/config.js'
   import { ref, watchEffect } from 'vue'
   import { useContractorStore } from '@/stores/contractor'
+  import { onBeforeRouteLeave } from 'vue-router'
 
   const $q = useQuasar()
   const contractorStore = useContractorStore()
@@ -29,10 +30,23 @@
   ]
   const visibileColumns = ['status', 'name', 'email', 'company', 'area', 'work', 'workdone', 'action']
   const rows = ref([])
-  const pagination = {
-    page: 1,
+  const pagination = ref({
+    page: contractorStore._contractorTablePage,
     rowsPerPage: 10
+  })
+
+  const changePagination = (newPagination) => {
+    const pageNumber = newPagination.page
+    pagination.value.page = pageNumber
+    contractorStore.storeTablePagiPage(pageNumber)
   }
+
+  onBeforeRouteLeave((to, from, next) => {
+    if(!to.name.includes(from.name)) {
+      contractorStore.storeTablePagiPage(1)
+    }
+    next()
+  })
 
   watchEffect(() => {
     // set area rows
@@ -106,6 +120,7 @@
                 row-key="name"
                 :visible-columns="visibileColumns"
                 :pagination="pagination"
+                @update:pagination="changePagination"
               >
                 <template v-slot:top-right>
                   <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">

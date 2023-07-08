@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { API } from '@/api/index.js'
+import { useLocalStorage } from '@vueuse/core'
 
 export const useContactStore = defineStore('contact', () => {
 
@@ -9,6 +10,11 @@ export const useContactStore = defineStore('contact', () => {
     const _error = ref(false)
     const _contacts = ref(null)
     const _contact = ref(null)
+    const _contactTablePage = ref(useLocalStorage('contact_table_page', 1))
+
+    const storeTablePagiPage = (pNumber) => {
+        _contactTablePage.value = pNumber
+    }
 
     const storeLoading = (loading) => {
         _loading.value = loading
@@ -87,12 +93,14 @@ export const useContactStore = defineStore('contact', () => {
         _loading,
         _success,
         _error,
+        _contactTablePage,
         storeSuccess,
         storeError,
         handleGetContacts,
         handleGetContact,
         handleUpdateContactNew,
-        handleDestroyContact
+        handleDestroyContact,
+        storeTablePagiPage
     }
 
 })

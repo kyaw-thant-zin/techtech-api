@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { API } from '@/api/index.js'
+import { useLocalStorage } from '@vueuse/core'
 
 export const useContractorStore = defineStore('contractor', () => {
 
@@ -9,6 +10,11 @@ export const useContractorStore = defineStore('contractor', () => {
     const _error = ref(false)
     const _contractors = ref(null)
     const _contractor = ref(null)
+    const _contractorTablePage = ref(useLocalStorage('contractor_table_page', 1))
+
+    const storeTablePagiPage = (pNumber) => {
+        _contractorTablePage.value = pNumber
+    }
 
     const storeLoading = (loading) => {
         _loading.value = loading
@@ -81,11 +87,13 @@ export const useContractorStore = defineStore('contractor', () => {
         _success,
         _error,
         _loading,
+        _contractorTablePage,
         storeError,
         storeSuccess,
         handleContractors,
         handleContractor,
-        handleDeactivateContractor
+        handleDeactivateContractor,
+        storeTablePagiPage
     }
 
 })

@@ -3,6 +3,7 @@ import { useQuasar } from 'quasar'
 import { APP } from '@/config.js'
 import { ref, watchEffect } from 'vue' 
 import { useInquiryStore } from '@/stores/Inquiry'
+import { onBeforeRouteLeave } from 'vue-router'
 
 const $q = useQuasar()
 const iQStore = useInquiryStore()
@@ -28,10 +29,23 @@ const columns = [
 ]
 const visibileColumns = ['status', 'name', 'email', 'summry', 'total', 'action']
 const rows = ref([])
-const pagination = {
-  page: 1,
+const pagination = ref({
+  page: iQStore._inquiryTablePage,
   rowsPerPage: 10
+})
+
+const changePagination = (newPagination) => {
+  const pageNumber = newPagination.page
+  pagination.value.page = pageNumber
+  iQStore.storeTablePagiPage(pageNumber)
 }
+
+onBeforeRouteLeave((to, from, next) => {
+  if(!to.name.includes(from.name)) {
+    iQStore.storeTablePagiPage(1)
+  }
+  next()
+})
 
 watchEffect(() => {
   // set q rows
@@ -73,6 +87,7 @@ watchEffect(() => {
                 row-key="name"
                 :visible-columns="visibileColumns"
                 :pagination="pagination"
+                @update:pagination="changePagination"
               >
                 <template v-slot:top-right>
                   <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">

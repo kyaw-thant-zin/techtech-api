@@ -3,6 +3,7 @@
   import { APP } from '@/config.js'
   import { ref, watch, watchEffect } from 'vue' 
   import { useQuotationStore } from '@/stores/quotation'
+  import { onBeforeRouteLeave } from 'vue-router'
 
   const $q = useQuasar()
   const quoteStore = useQuotationStore()
@@ -28,10 +29,23 @@
   ]
   const visibileColumns = ['name', 'base_amount', 'created', 'action']
   const rows = ref([])
-  const pagination = {
-    page: 1,
+  const pagination = ref({
+    page: quoteStore._quotationTablePage,
     rowsPerPage: 10
+  })
+
+  const changePagination = (newPagination) => {
+    const pageNumber = newPagination.page
+    pagination.value.page = pageNumber
+    quoteStore.storeTablePagiPage(pageNumber)
   }
+
+  onBeforeRouteLeave((to, from, next) => {
+    if(!to.name.includes(from.name)) {
+      quoteStore.storeTablePagiPage(1)
+    }
+    next()
+  })
 
   watchEffect(() => {
     // set quotation rows
@@ -146,6 +160,7 @@
                 row-key="name"
                 :visible-columns="visibileColumns"
                 :pagination="pagination"
+                @update:pagination="changePagination"
               >
                 <template v-slot:top-right>
                   <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">

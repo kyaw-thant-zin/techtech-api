@@ -4,6 +4,7 @@ import { useQuasar } from 'quasar'
 import { APP } from '@/config.js'
 import { ref, watchEffect } from 'vue' 
 import { useQuestionnaireStore } from '@/stores/Questionnaire'
+import { onBeforeRouteLeave } from 'vue-router'
 
 const $q = useQuasar()
 const qStore = useQuestionnaireStore()
@@ -28,10 +29,23 @@ const columns = [
     { name: 'action', align: 'center', label: 'アクション', field: 'action' },
 ]
 const visibileColumns = ['qindex', 'question', 'ans_intput_type', 'action']
-const pagination = {
-  page: 1,
+const pagination = ref({
+  page: qStore._questionnaireTablePage,
   rowsPerPage: 10
+})
+
+const changePagination = (newPagination) => {
+  const pageNumber = newPagination.page
+  pagination.value.page = pageNumber
+  qStore.storeTablePagiPage(pageNumber)
 }
+
+onBeforeRouteLeave((to, from, next) => {
+  if(!to.name.includes(from.name)) {
+    qStore.storeTablePagiPage(1)
+  }
+  next()
+})
 
 watchEffect(() => {
   // set q rows
@@ -107,6 +121,7 @@ function showConfirmDialog(row) {
                 row-key="id"
                 :visible-columns="visibileColumns"
                 :pagination="pagination"
+                @update:pagination="changePagination"
               >
                 <template v-slot:top-right>
                   <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">

@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { API } from '@/api/index.js'
+import { useLocalStorage } from '@vueuse/core'
 
 export const usePMStore = defineStore('pm', () => {
 
@@ -8,6 +9,11 @@ export const usePMStore = defineStore('pm', () => {
     const _success = ref(false)
     const _error = ref(false)
     const _pms = ref(null)
+    const _pmTablePage = ref(useLocalStorage('pm_table_page', 1))
+
+    const storeTablePagiPage = (pNumber) => {
+        _pmTablePage.value = pNumber
+    }
 
     const storeLoading = (loading) => {
         _loading.value = loading
@@ -81,12 +87,14 @@ export const usePMStore = defineStore('pm', () => {
         _success,
         _error,
         _loading,
+        _pmTablePage,
         storeError,
         storeSuccess,
         handlePMs,
         handleStorePM,
         handelUpdatePM,
-        handleDestroyPM
+        handleDestroyPM,
+        storeTablePagiPage
     }
 
 })

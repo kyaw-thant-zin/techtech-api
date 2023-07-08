@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { defineStore } from 'pinia'
 import { API } from '@/api/index.js'
+import { useLocalStorage } from '@vueuse/core'
 
 export const useQuotationStore = defineStore('quotation', () => {
 
@@ -17,6 +18,11 @@ export const useQuotationStore = defineStore('quotation', () => {
     const _quotationIDs = ref([])
     const _quotations = ref([])
     const _quotation = ref(null)
+    const _quotationTablePage = ref(useLocalStorage('quotation_table_page', 1))
+
+    const storeTablePagiPage = (pNumber) => {
+        _quotationTablePage.value = pNumber
+    }
 
     const storeLoading = (loading) => {
         _loading.value = loading
@@ -194,6 +200,7 @@ export const useQuotationStore = defineStore('quotation', () => {
         _quotationIDs,
         _quotations,
         _quotation,
+        _quotationTablePage,
         reset,
         storeError,
         storeSuccess,
@@ -202,7 +209,8 @@ export const useQuotationStore = defineStore('quotation', () => {
         handleGetQuotations,
         handleGetQuotation,
         handleUpdateQuotation,
-        handleDestroyQuotation
+        handleDestroyQuotation,
+        storeTablePagiPage
     }
 
 })
