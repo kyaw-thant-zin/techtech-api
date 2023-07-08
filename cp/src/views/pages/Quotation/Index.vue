@@ -6,6 +6,7 @@
 
   const $q = useQuasar()
   const quoteStore = useQuotationStore()
+  quoteStore.reset()
   quoteStore.handleGetQuotations()
 
   const fixedModal = ref(false)

@@ -7,7 +7,6 @@ const $q = useQuasar()
 const qStore = useQuestionnaireStore()
 qStore.handleGetQAndLastQindex()
 
-const controlable = ref(false)
 const qqs = ref([])
 const optionsInputs = [
     'テキスト', // text
@@ -21,21 +20,26 @@ const optionsChoice = [
 const qIndex = ref('')
 const textItems = ref({
     'suffix': '',
+    'controllable': false,
+    'controlled_id': null
 })
 const choiceItems = ref([])
 const selectItems = ref([])
-const controlableItems = ref([])
 const addMoreSelectItem = () => {
     selectItems.value.push({
         label: null,
         unit_price: null,
+        controllable: false,
+        controlled_id: null,
     })
 }
 const addMoreChoiceItem = () => {
     choiceItems.value.push({
         label: null,
         file: null,
-        unit_price: null
+        unit_price: null,
+        controllable: false,
+        controlled_id: null,
     })
 }
 const handleRemoveSelectOption = (si) => {
@@ -55,26 +59,6 @@ const handleRemoveChoiceItemImage = (ci) => {
     ci.file = null
   }
 }
-const addMoreControlableItem = () => {
-    controlableItems.value.push({
-        label: '',
-        file: null,
-        unit_price: null,
-        qq_id: null,
-        controlled_id: null
-    })
-}
-const handleRemoveControlableItem = (ci) => {
-    const index = controlableItems.value.indexOf(ci)
-    if (index !== -1) {
-        controlableItems.value.splice(index, 1);
-    }
-}
-const handleRemoveControlableItemImage = (ci) => {
-  if(ci.file && ci.file != null) {
-    ci.file = null
-  }
-}
 
 const formData = ref({
     qindex: qIndex.value,
@@ -83,18 +67,10 @@ const formData = ref({
     inputType: '',
     choice: '独身',
     required: false,
-    controllable: controlable.value,
     textItems: textItems.value, // テキスト
     selectItems: selectItems.value, // 選択
     choiceItems: choiceItems.value, // 選択肢
-    controlItems: controlableItems.value
 })
-
-watchEffect(() => {
-    if(controlable.value != null) {
-        formData.value.controllable = controlable.value
-    }
-}, [controlable.value])
 
 const resetForm = () => {
     formData.value.question = ''
@@ -111,32 +87,27 @@ const resetForm = () => {
 // create new questionnaire
 const onSubmit = async () => {
     
-    // check controlable or not
-    if(formData.value.controllable) {
+    // set formData
+    formData.value.textItems = textItems.value
+    formData.value.selectItems = selectItems.value
+    formData.value.choiceItems = choiceItems.value
+
+    // check the input type and remove others
+    if(formData.value.inputType == 'テキスト') {
+        // text
+        delete formData.value.choiceItems
+        delete formData.value.selectItems
+        delete formData.value.choice
+
+    } else if(formData.value.inputType == '選択') {
+        // select
+        delete formData.value.textItems
+        delete formData.value.choiceItems
+        delete formData.value.choice
+    } else {
+        // choice
         delete formData.value.textItems
         delete formData.value.selectItems
-        delete formData.value.choiceItems
-    } else {
-        // check the input type and remove others
-        if(formData.value.inputType == 'テキスト') {
-            // text
-            delete formData.value.choiceItems
-            delete formData.value.selectItems
-            delete formData.value.choice
-            delete formData.value.controlItems
-        } else if(formData.value.inputType == '選択') {
-            // select
-            delete formData.value.textItems
-            delete formData.value.choiceItems
-            delete formData.value.choice
-            delete formData.value.controlItems
-        } else {
-            // choice
-            delete formData.value.textItems
-            delete formData.value.selectItems
-            delete formData.value.controlItems
-            
-        }
     }
 
     // send API
@@ -189,20 +160,6 @@ watch(
         if(choiceItems.value[index].file != null) {
           const src = await getBase64(choiceItems.value[index].file)
           choiceItems.value[index].localSrc = src
-        } 
-      }
-    }
-  },
-  { deep: true }
-)
-watch(
-  () => controlableItems.value,
-  async () => {
-    if(controlableItems.value.length > 0) {
-      for (let index = 0; index < controlableItems.value.length; index++) {
-        if(controlableItems.value[index].file != null) {
-          const src = await getBase64(controlableItems.value[index].file)
-          controlableItems.value[index].localSrc = src
         } 
       }
     }
@@ -323,21 +280,10 @@ watchEffect(() => {
                                             />
                                         </div>
                                     </div>
-                                    <div class="row q-mt-md">
-                                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
-                                            <q-checkbox 
-                                                name="required" 
-                                                outlined 
-                                                dense
-                                                label="制御可能な質問を作成する"
-                                                v-model="controlable"
-                                            />
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <!-- Normal answers -->
-                            <div class="row  q-mt-xl" v-if="!controlable">
+                            <div class="row  q-mt-xl">
                                 <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
                                 <label class="">回答</label>
                                 </div>
@@ -368,6 +314,35 @@ watchEffect(() => {
                                                     dense 
                                                     outlined 
                                                     v-model="textItems.suffix" 
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="row q-mt-md">
+                                                <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 form-input">
+                                                    <q-checkbox 
+                                                        name="required" 
+                                                        outlined 
+                                                        dense
+                                                        label="制御可能な答えを作成する"
+                                                        v-model="textItems.controllable"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div  class="col-10">
+                                            <div class=""  v-if="textItems.controllable">
+                                                <div>質問</div>
+                                                <q-select 
+                                                    dense 
+                                                    outlined 
+                                                    v-model="textItems.controlled_id" 
+                                                    :options="qqs" 
+                                                    lazy-rules
+                                                    :rules="[
+                                                        val => !(typeof val !== 'object' || val === null) || 'フィールドは必須項目です', 
+                                                    ]"
                                                 />
                                             </div>
                                         </div>
@@ -411,6 +386,28 @@ watchEffect(() => {
                                                                     outlined 
                                                                     v-model="si.unit_price" 
                                                                     style="max-width: 300px;"
+                                                                />
+                                                            </div>
+                                                            <div class="q-mt-sm">
+                                                                <q-checkbox 
+                                                                    name="required" 
+                                                                    outlined 
+                                                                    dense
+                                                                    label="制御可能な答えを作成する"
+                                                                    v-model="si.controllable"
+                                                                />
+                                                            </div>
+                                                            <div class="q-mt-sm"  v-if="si.controllable">
+                                                                <div>質問</div>
+                                                                <q-select 
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="si.controlled_id" 
+                                                                    :options="qqs" 
+                                                                    lazy-rules
+                                                                    :rules="[
+                                                                        val => !(typeof val !== 'object' || val === null) || 'フィールドは必須項目です', 
+                                                                    ]"
                                                                 />
                                                             </div>
                                                         </q-card-section>
@@ -502,94 +499,16 @@ watchEffect(() => {
                                                                     style="max-width: 300px;"
                                                                 />
                                                             </div>
-                                                        </q-card-section>
-                                                    </q-card>
-                                                </q-expansion-item>
-                                            </q-list>
-                                        </div>
-                                        <div class="col-12 q-mt-sm">
-                                            <q-btn @click="addMoreChoiceItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Controlable answers -->
-                            <div class="row  q-mt-xl" v-if="controlable">
-                                <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1">
-                                <label class="">回答</label>
-                                </div>
-                                <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11">
-                                    <div  class="row">
-                                        <div class="col-12 q-mb-sm" v-for="(ci, index) in controlableItems" :key="index">
-                                            <q-list bordered class="rounded-borders">
-                                                <q-expansion-item
-                                                    dense
-                                                    dense-toggle
-                                                    switch-toggle-side
-                                                    expand-icon-toggle
-                                                >
-                                                    <template v-slot:header>
-                                                        <div class="q-item__section column q-item__section--main justify-center">
-                                                            <div class="q-item__label">制御可能な答え</div><!---->
-                                                        </div>
-                                                        <div class="q-item__section column q-item__section--side justify-center">
-                                                            <q-btn dense size="sm" flat>
-                                                                <q-icon color="negative" name="mdi-trash-can-outline" @click="handleRemoveControlableItem(ci)" />
-                                                            </q-btn>
-                                                        </div>
-                                                        
-                                                    </template>
-                                                    <q-card>
-                                                        <q-card-section>
-                                                            <div>
-                                                                <div>ラベル</div>
-                                                                <q-input 
-                                                                    dense 
-                                                                    outlined 
-                                                                    v-model="ci.label" 
-                                                                    lazy-rules
-                                                                    :rules="[
-                                                                        val => !!val.replace(/\s/g, '') || 'フィールドは必須項目です', 
-                                                                    ]"
-                                                                />
-                                                            </div>
                                                             <div class="q-mt-sm">
-                                                                <div>画像</div>
-                                                                <q-file
-                                                                    v-model="ci.file"
-                                                                    label="画像を選択"
-                                                                    outlined
+                                                                <q-checkbox 
+                                                                    name="required" 
+                                                                    outlined 
                                                                     dense
-                                                                    accept=".jpg,.png, image/*"
-                                                                >
-                                                                    <template v-slot:prepend>
-                                                                        <q-icon name="attach_file" />
-                                                                    </template>
-                                                                </q-file>
-                                                                <div class="q-mt-sm" v-if="ci.file">
-                                                                <q-img
-                                                                    :src="ci.localSrc"
-                                                                    loading="lazy"
-                                                                    spinner-color="white"
-                                                                    style="max-width: 250px; height: 140px;"
-                                                                    fit="contain"
-                                                                >
-                                                                    <q-btn @click="handleRemoveControlableItemImage(ci)" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
-                                                                </q-img>
-                                                                
-                                                                </div>
-                                                            </div>
-                                                            <div class="q-mt-sm">
-                                                                <div>決済金額</div>
-                                                                <q-input 
-                                                                    type="number"
-                                                                    dense 
-                                                                    outlined 
-                                                                    v-model="ci.unit_price" 
-                                                                    style="max-width: 300px;"
+                                                                    label="制御可能な答えを作成する"
+                                                                    v-model="ci.controllable"
                                                                 />
                                                             </div>
-                                                            <div class="q-mt-sm">
+                                                            <div class="q-mt-sm"  v-if="ci.controllable">
                                                                 <div>質問</div>
                                                                 <q-select 
                                                                     dense 
@@ -608,7 +527,7 @@ watchEffect(() => {
                                             </q-list>
                                         </div>
                                         <div class="col-12 q-mt-sm">
-                                            <q-btn @click="addMoreControlableItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
+                                            <q-btn @click="addMoreChoiceItem" flat size="md" color="primary" icon="mdi-plus" label="回答を追加" />
                                         </div>
                                     </div>
                                 </div>

@@ -14,6 +14,17 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
     const _qindex = ref(0)
     const _qqs = ref(null)
 
+    const reset = () => {
+        _loading.value = false
+        _success.value = false
+        _error.value = false
+        _questionnaires.value = null
+        _questionnaire.value = null
+        // for create and edit
+        _qindex.value = 0
+        _qqs.value = null
+    }
+
     const storeQindex = (qindex) => {
         _qindex.value = qindex
     }
@@ -53,15 +64,16 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
                 'suffix': '',
                 'inputType': '',
                 'required': '',
-                'controllable': '',
                 'choice': ''
             },
             'textItems': {
+                'id': null,
                 'suffix': '',
+                'controllable': false,
+                'controlled_id': null
             },
             'selectItems': [],
             'choiceItems': [],
-            'controlItems': [],
         }
 
         if(questionnaire != null) {
@@ -70,49 +82,49 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
             q.formData.question = questionnaire.q
             q.formData.suffix = questionnaire.suffix
             q.formData.required = questionnaire.required == 1 ? true:false
-            q.formData.controllable = questionnaire.control == 1 ? true:false
             
             const qFormInputType = questionnaire.q_ans_input_type.type
             q.formData.inputType = qFormInputType 
             const qAll = questionnaire.qas
             if(qAll != null && qAll.length > 0) {
                 qAll.forEach(qT => {
-                    if(questionnaire.control != 1) { // normal answer
-                        if(qFormInputType == 'テキスト') {
-                            // input text
-                            q.textItems.suffix = qT.suffix
-                            q.textItems.id = qT.id
-                        } else if(qFormInputType == '選択') {
-                            // input select
-                            const dumpSelectItem = {
-                                'label': qT.label,
-                                'unit_price': qT.unit_price,
-                                'id': qT.id
-                            }
-                            q.selectItems.push(dumpSelectItem)
-                        } else if(qFormInputType == '選択肢') {
-                            // input choice
-                            q.formData.choice = questionnaire.choice == 1 ? '独身':'多数'
-                            const dumpChoiceItem = {
-                                label: qT.label,
-                                imagePath: qT.image != null ? APP.ACTIVE_PUBLIC_SITE_URL+'/'+qT.image:null,
-                                unit_price: qT.unit_price,
-                                id: qT.id
-                            }
-                            q.choiceItems.push(dumpChoiceItem)
+                    if(qFormInputType == 'テキスト') {
+                        // input text
+                        q.textItems.suffix = qT.suffix
+                        q.textItems.id = qT.id
+                        q.textItems.controllable = qT.control == 1 ? true:false
+                        q.textItems.controlled_id = qT?.controlled != null ? {
+                            'label': 'Q'+qT?.controlled?.qindex+'.'+qT?.controlled?.q,
+                            'value': qT?.controlled?.id
+                        } : null
+                    } else if(qFormInputType == '選択') {
+                        // input select
+                        const dumpSelectItem = {
+                            'label': qT.label,
+                            'unit_price': qT.unit_price,
+                            'id': qT.id,
+                            'controllable': qT.control == 1 ? true:false,
+                            'controlled_id': qT?.controlled != null ? {
+                                'label': 'Q'+qT?.controlled?.qindex+'.'+qT?.controlled?.q,
+                                'value': qT?.controlled?.id
+                            } : null
                         }
-                    } else { // control answer
+                        q.selectItems.push(dumpSelectItem)
+                    } else if(qFormInputType == '選択肢') {
+                        // input choice
+                        q.formData.choice = questionnaire.choice == 1 ? '独身':'多数'
                         const dumpChoiceItem = {
                             label: qT.label,
                             imagePath: qT.image != null ? APP.ACTIVE_PUBLIC_SITE_URL+'/'+qT.image:null,
                             unit_price: qT.unit_price,
                             id: qT.id,
-                            controlled_id: {
+                            controllable: qT.control == 1 ? true:false,
+                            controlled_id: qT?.controlled != null ? {
                                 'label': 'Q'+qT?.controlled?.qindex+'.'+qT?.controlled?.q,
                                 'value': qT?.controlled?.id
-                            }
+                            } : null
                         }
-                        q.controlItems.push(dumpChoiceItem)
+                        q.choiceItems.push(dumpChoiceItem)
                     }
                 });
             } else {
@@ -211,6 +223,7 @@ export const useQuestionnaireStore = defineStore('questionnaire', () => {
         _success,
         _questionnaire,
         _questionnaires,
+        reset,
         storeError,
         storeSuccess,
         handleGetQuestionnaire,

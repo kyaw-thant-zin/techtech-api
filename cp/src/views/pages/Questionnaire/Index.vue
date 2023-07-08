@@ -7,6 +7,7 @@ import { useQuestionnaireStore } from '@/stores/Questionnaire'
 
 const $q = useQuasar()
 const qStore = useQuestionnaireStore()
+qStore.reset()
 qStore.handleGetQuestionnaires()
 
 const filter = ref('')
