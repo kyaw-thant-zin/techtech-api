@@ -12,6 +12,9 @@ export const useSettingStore = defineStore('setting', () => {
     const _seos = ref(null)
     const _siteSize = ref(null)
     const _cacheSize = ref(null)
+    const _itemPerPage = ref(1)
+
+    const _head = ref({})
 
     const storeLoading = (loading) => {
         _loading.value = loading
@@ -25,6 +28,17 @@ export const useSettingStore = defineStore('setting', () => {
         _success.value = success
     }
 
+    const storeHead = (head) => {
+        if(head != null) {
+            const dumpHead = head
+            const url = APP.ACTIVE_PUBLIC_SITE_URL+'/'
+            dumpHead.setting.site_logo = url+dumpHead.setting.site_logo
+            dumpHead.setting.icon = url+dumpHead.setting.icon
+            dumpHead.seo.og_image = url+dumpHead.seo.og_image
+            _head.value = dumpHead
+        }
+    }
+
     const storeSettings = (setting) => {
         const settings = {
             'site_name': setting.site_name,
@@ -35,8 +49,10 @@ export const useSettingStore = defineStore('setting', () => {
             'icon': null,
             'icon_local_src': setting.icon != null ? APP.ACTIVE_PUBLIC_SITE_URL+'/'+setting.icon:null,
             'email': setting.email,
-            'footer_text': setting.footer_text
+            'footer_text': setting.footer_text,
+            'itemPerPage': setting.item_per_page
         }
+        _itemPerPage.value = setting.item_per_page
         _siteSize.value = setting.site_size
         _cacheSize.value = setting.cache_size
         _settings.value = settings
@@ -60,6 +76,7 @@ export const useSettingStore = defineStore('setting', () => {
     const handleGetSettings = async () => {
         storeLoading(true)
         const response = await API.setting.getAll()
+        storeHead(response)
         storeSettings(response.setting)
         storeSeos(response.seo)
         storeLoading(false)
@@ -68,7 +85,6 @@ export const useSettingStore = defineStore('setting', () => {
     const handleUpdateSettings = async (id, formData) => {
         storeLoading(true)
         const response = await API.setting.update(id, formData)
-        console.log(response)
         if(response) {
             storeSuccess(true)
         } else {
@@ -79,14 +95,16 @@ export const useSettingStore = defineStore('setting', () => {
 
     const handleClearCache = async () => {
         storeLoading(true)
+        const response = await API.setting.clearCache()
         storeLoading(false)
         return 1
-
     }
 
     return {
+        _head,
         _siteSize,
         _cacheSize,
+        _itemPerPage,
         _seos,
         _settings,
         _success,

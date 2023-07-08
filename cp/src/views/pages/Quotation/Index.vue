@@ -5,6 +5,9 @@
   import { useQuotationStore } from '@/stores/quotation'
   import { onBeforeRouteLeave } from 'vue-router'
 
+  import { useSettingStore } from '@/stores/setting'
+  const settingStore = useSettingStore()
+
   const $q = useQuasar()
   const quoteStore = useQuotationStore()
   quoteStore.reset()
@@ -31,7 +34,7 @@
   const rows = ref([])
   const pagination = ref({
     page: quoteStore._quotationTablePage,
-    rowsPerPage: 10
+    rowsPerPage: settingStore._itemPerPage
   })
 
   const changePagination = (newPagination) => {

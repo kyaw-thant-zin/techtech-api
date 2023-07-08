@@ -4,10 +4,55 @@
   import { ref, watchEffect, watch } from 'vue'
   import { useRoute } from 'vue-router'
   import { useAuthStore } from '@/stores/Auth'
+  import { useSettingStore } from '@/stores/setting'
+  import { useSeoMeta, useHead } from 'unhead'
 
   const authStore = useAuthStore()
+  const settingStore = useSettingStore()
   const route = useRoute()
   const activeLink = ref()
+
+  settingStore.handleGetSettings()
+
+  const settingHead = ref(null)
+  const settingSeo = ref(null)
+  watch(
+    () => settingStore._head,
+    () => {
+      if(settingStore._head?.setting) {
+        settingHead.value = settingStore._head.setting
+      }
+
+      if(settingStore._head?.seo) {
+        settingSeo.value = settingStore._head.seo
+      }
+
+      useSeoMeta({
+        title: settingHead.value.site_name,
+        description: settingHead.value.description,
+        keywords: settingHead.value.keywords,
+        ogTitle: settingSeo.value.og_title,
+        ogDescription: settingSeo.value.og_description,
+        ogUrl: settingSeo.value.og_url,
+        ogType: settingSeo.value.og_type,
+        ogLocale: settingSeo.value.og_locale,
+        ogImage: settingSeo.value.og_image,
+        ogImageWidth: settingSeo.value.og_image_width,
+        ogImageHeight: settingSeo.value.og_image_height
+      })
+
+      useHead({
+        link: {
+          rel: 'icon',
+          type: 'image/png',
+          href: settingHead.value.icon
+        }
+      })
+    },
+    {
+      deep: true
+    }
+  )
 
   // sidebar nav menu list
   const menuList = [
@@ -95,6 +140,7 @@
     }
   }
 
+
 </script>
 
 <template>
@@ -102,7 +148,12 @@
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
         <q-toolbar-title>
-          <img src="@/assets/img/logo.png" alt="logo" class="hd-logo">
+          <template v-if="settingHead != null && settingHead?.site_logo != null">
+              <img :src="settingHead?.site_logo" alt="LOGO" class="hd-logo" />
+            </template>
+            <template v-else>
+              <img src="@/assets/img/logo.png" alt="logo" class="hd-logo" />
+            </template>
         </q-toolbar-title>
         <q-space />
         <q-btn size="md" flat class="q-ml-md" @click="signout()" icon="mdi-logout-variant"></q-btn>

@@ -4,6 +4,9 @@ import { ref, watchEffect } from 'vue'
 import { usePMStore } from '@/stores/pm'
 import { onBeforeRouteLeave } from 'vue-router'
 
+import { useSettingStore } from '@/stores/setting'
+const settingStore = useSettingStore()
+
 const $q = useQuasar()
 const pmStore = usePMStore()
 pmStore.handlePMs()
@@ -27,7 +30,7 @@ const visibileColumns = ['code', 'name', 'action']
 const rows = ref([])
 const pagination = ref({
   page: pmStore._pmTablePage,
-  rowsPerPage: 10
+  rowsPerPage: settingStore._itemPerPage
 })
 
 const changePagination = (newPagination) => {

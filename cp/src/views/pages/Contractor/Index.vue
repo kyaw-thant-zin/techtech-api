@@ -5,6 +5,9 @@
   import { useContractorStore } from '@/stores/contractor'
   import { onBeforeRouteLeave } from 'vue-router'
 
+  import { useSettingStore } from '@/stores/setting'
+  const settingStore = useSettingStore()
+
   const $q = useQuasar()
   const contractorStore = useContractorStore()
   contractorStore.handleContractors()
@@ -32,7 +35,7 @@
   const rows = ref([])
   const pagination = ref({
     page: contractorStore._contractorTablePage,
-    rowsPerPage: 10
+    rowsPerPage: settingStore._itemPerPage
   })
 
   const changePagination = (newPagination) => {

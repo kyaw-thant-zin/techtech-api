@@ -33,7 +33,8 @@ const formDataSetting = ref({
   'icon': null,
   'icon_local_src': null,
   'email': null,
-  'footer_text': null
+  'footer_text': null,
+  'itemPerPage': 10
 })
 
 const formDataSEO = ref({
@@ -77,13 +78,22 @@ const onSubmitSEO = async () => {
   
   await settingStore.handleUpdateSettings('seo', formDataSEO.value)
   if(settingStore._success) {
-
+    $q.notify({
+      caption: 'コンテンツが正常に更新されました',
+      message: '成功！',
+      type: 'positive',
+      timeout: 1000
+    })
     settingStore.storeSuccess(false)
   }
 
   if(settingStore._error) {
-
-
+    $q.notify({
+      caption: 'エラーが発生しました。後でもう一度お試しください。',
+      message: 'エラー！',
+      type: 'negative',
+      timeout: 1000
+    })
     settingStore.storeError(false)
   }
 }
@@ -137,8 +147,7 @@ const handleRemoveImage = (key) => {
   }
 }
 
-
-onMounted(async () => {
+const setSettingAndSeo = async () => {
   await settingStore.handleGetSettings()
   if(settingStore._settings != null) {
     formDataSetting.value = settingStore._settings
@@ -150,6 +159,12 @@ onMounted(async () => {
 
   siteSize.value = settingStore._siteSize
   cacheSize.value = settingStore._cacheSize
+}
+
+
+onMounted(async () => {
+  
+  setSettingAndSeo()
 
 })
 
@@ -159,6 +174,15 @@ const navPass = async (id) => {
 
 const clearCache = async () => {
   const res = await settingStore.handleClearCache()
+  if(res) {
+    setSettingAndSeo()
+    $q.notify({
+      caption: 'キャッシュは正常に消去されました',
+      message: '成功！',
+      type: 'positive',
+      timeout: 1000
+    })
+  }
 }
 
 </script>
@@ -207,137 +231,173 @@ const clearCache = async () => {
                       class="q-gutter-md"
                     >
                       <div class="row q-px-lg q-mt-none">
-                        <div class="col-12 col-sm-12 col-md-8 col-lg-6 col-xl-6">
-                          <div class="row items-top items-center">
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
-                              <label class="">ウェブサイト名</label>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
-                              <q-input  
-                                name="site_name"
-                                outlined 
-                                dense
-                                class="common-input-text" 
-                                v-model="formDataSetting.site_name"
-                              />
-                            </div>
-                          </div>
-                          <div class="row items-top q-mt-md items-center">
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
-                              <label class="">の説明</label>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-8 col-lg-8">
-                              <div>
-                                <q-input 
-                                  type="textarea"
-                                  name="title" 
-                                  outlined 
-                                  dense
-                                  v-model="formDataSetting.description"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div class="row items-top q-mt-md items-center">
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
-                              <label class="">キーワード</label>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
-                              <q-input  
-                                outlined 
-                                dense
-                                class="common-input-text" 
-                                v-model="formDataSetting.keywords"
-                              />
-                            </div>
-                          </div>
-                          <div class="row items-top q-mt-md items-center">
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
-                              <label class="">サイトのロゴ</label>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
-                              <q-file
-                                v-model="formDataSetting.site_logo"
-                                label="画像を選択"
-                                outlined
-                                dense
-                                accept=".jpg,.png, image/*"
-                              >
-                                <template v-slot:prepend>
-                                  <q-icon name="attach_file" />
-                                </template>
-                              </q-file>
-                              <div class="q-mt-sm" v-if="formDataSetting.site_logo_local_src != null">
-                                <q-img
-                                  :src="formDataSetting.site_logo_local_src"
-                                  loading="lazy"
-                                  spinner-color="white"
-                                  style="max-width: 250px; height: 140px;"
-                                  fit="contain"
-                                >
-                                  <q-btn @click="handleRemoveImage('setting_site_logo')" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
-                                </q-img>                    
-                              </div>
-                            </div>
-                          </div>
-                          <div class="row items-top q-mt-md items-center">
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
-                              <label class="">アイコン</label>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
-                              <q-file
-                                v-model="formDataSetting.icon"
-                                label="画像を選択"
-                                outlined
-                                dense
-                                accept=".jpg,.png, image/*"
-                              >
-                                <template v-slot:prepend>
-                                  <q-icon name="attach_file" />
-                                </template>
-                              </q-file>
-                              <div class="q-mt-sm" v-if="formDataSetting.icon_local_src != null">
-                                <q-img
-                                  :src="formDataSetting.icon_local_src"
-                                  loading="lazy"
-                                  spinner-color="white"
-                                  style="max-width: 250px; height: 140px;"
-                                  fit="contain"
-                                >
-                                  <q-btn @click="handleRemoveImage('setting_icon')" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
-                                </q-img>                    
-                              </div>
-                            </div>
-                          </div>
-                          <div class="row items-top q-mt-md items-center">
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
-                              <label class="">メール</label>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
-                              <q-input 
-                                v-model="formDataSetting.email"
-                                dense
-                                outlined 
-                                class="common-input-text" 
-                              />
-                            </div>
-                          </div>
-                          <div class="row items-top q-mt-md items-center">
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
-                              <label class="">フッターテキスト</label>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-8 col-lg-8 ">
-                              <q-input
-                                type="textarea" 
-                                v-model="formDataSetting.footer_text"
-                                dense
-                                outlined 
-                              />
-                            </div>
-                          </div>
+                        <div class="col-12">
+                          <q-list bordered class="rounded-borders full-width">
+                            <q-expansion-item
+                              expand-separator
+                              label="全般的"
+                              header-class="bg-grey-2"
+                            >
+                              <q-card>
+                                <q-card-section>
+                                  <div class="row items-top items-center">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                      <label class="">ウェブサイト名</label>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
+                                      <q-input  
+                                        name="site_name"
+                                        outlined 
+                                        dense
+                                        class="common-input-text" 
+                                        v-model="formDataSetting.site_name"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div class="row items-top q-mt-md items-center">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                      <label class="">の説明</label>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-8">
+                                      <div>
+                                        <q-input 
+                                          type="textarea"
+                                          name="title" 
+                                          outlined 
+                                          dense
+                                          v-model="formDataSetting.description"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="row items-top q-mt-md items-center">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                      <label class="">キーワード</label>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
+                                      <q-input  
+                                        outlined 
+                                        dense
+                                        class="common-input-text" 
+                                        v-model="formDataSetting.keywords"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div class="row items-top q-mt-md items-center">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                      <label class="">サイトのロゴ</label>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
+                                      <q-file
+                                        v-model="formDataSetting.site_logo"
+                                        label="画像を選択"
+                                        outlined
+                                        dense
+                                        accept=".jpg,.png, image/*"
+                                      >
+                                        <template v-slot:prepend>
+                                          <q-icon name="attach_file" />
+                                        </template>
+                                      </q-file>
+                                      <div class="q-mt-sm" v-if="formDataSetting.site_logo_local_src != null">
+                                        <q-img
+                                          :src="formDataSetting.site_logo_local_src"
+                                          loading="lazy"
+                                          spinner-color="white"
+                                          style="max-width: 250px; height: 140px;"
+                                          fit="contain"
+                                        >
+                                          <q-btn @click="handleRemoveImage('setting_site_logo')" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
+                                        </q-img>                    
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="row items-top q-mt-md items-center">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                      <label class="">アイコン</label>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
+                                      <q-file
+                                        v-model="formDataSetting.icon"
+                                        label="画像を選択"
+                                        outlined
+                                        dense
+                                        accept=".jpg,.png, image/*"
+                                      >
+                                        <template v-slot:prepend>
+                                          <q-icon name="attach_file" />
+                                        </template>
+                                      </q-file>
+                                      <div class="q-mt-sm" v-if="formDataSetting.icon_local_src != null">
+                                        <q-img
+                                          :src="formDataSetting.icon_local_src"
+                                          loading="lazy"
+                                          spinner-color="white"
+                                          style="max-width: 250px; height: 140px;"
+                                          fit="contain"
+                                        >
+                                          <q-btn @click="handleRemoveImage('setting_icon')" class="absolute-top-right all-pointer-events" size="xs" round color="negative" icon="mdi-close" />
+                                        </q-img>                    
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="row items-top q-mt-md items-center">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                      <label class="">メール</label>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
+                                      <q-input 
+                                        v-model="formDataSetting.email"
+                                        dense
+                                        outlined 
+                                        class="common-input-text" 
+                                      />
+                                    </div>
+                                  </div>
+                                  <div class="row items-top q-mt-md items-center">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                      <label class="">フッターテキスト</label>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 ">
+                                      <q-input
+                                        type="textarea" 
+                                        v-model="formDataSetting.footer_text"
+                                        dense
+                                        outlined 
+                                      />
+                                    </div>
+                                  </div>
+                                </q-card-section>
+                              </q-card>
+                            </q-expansion-item>
+                            <q-separator />
+                            <q-expansion-item
+                              expand-separator
+                              label="読書"
+                              header-class="bg-grey-2"
+                            >
+                              <q-card>
+                                <q-card-section>
+                                  <div class="row items-top">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                      <label class="">ページごとの項目</label>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
+                                      <q-input 
+                                        type="number"
+                                        v-model="formDataSetting.itemPerPage"
+                                        dense
+                                        outlined 
+                                        class="common-input-text" 
+                                        :rules="[ val => val >= 1 || '必須フィールドであり、0 より大きい']"
+                                      />
+                                    </div>
+                                  </div>
+                                </q-card-section>
+                              </q-card>
+                            </q-expansion-item>
+                          </q-list>
                           <div class="row items-top q-mt-md">
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
-                            </div>
                             <div class="col-12 col-sm-12 col-md-8 col-lg-8 form-input">
                               <q-btn type="submit" class="p-common-btn" label="変更を保存" />
                             </div>

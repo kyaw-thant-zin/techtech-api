@@ -4,6 +4,9 @@ import { ref, watchEffect } from 'vue'
 import { useConstructionStore } from '@/stores/construction'
 import { onBeforeRouteLeave } from 'vue-router'
 
+import { useSettingStore } from '@/stores/setting'
+const settingStore = useSettingStore()
+
 const $q = useQuasar()
 const constructionStore = useConstructionStore()
 constructionStore.handleConstructions()
@@ -27,7 +30,7 @@ const visibileColumns = ['code', 'name', 'action']
 const rows = ref([])
 const pagination = ref({
   page: constructionStore._constructionTablePage,
-  rowsPerPage: 10
+  rowsPerPage: settingStore._itemPerPage
 })
 
 const changePagination = (newPagination) => {

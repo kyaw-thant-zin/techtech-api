@@ -5,6 +5,9 @@ import { ref, watchEffect } from 'vue'
 import { useInquiryStore } from '@/stores/Inquiry'
 import { onBeforeRouteLeave } from 'vue-router'
 
+import { useSettingStore } from '@/stores/setting'
+const settingStore = useSettingStore()
+
 const $q = useQuasar()
 const iQStore = useInquiryStore()
 iQStore.handleGetInquiries()
@@ -31,7 +34,7 @@ const visibileColumns = ['status', 'name', 'email', 'summry', 'total', 'action']
 const rows = ref([])
 const pagination = ref({
   page: iQStore._inquiryTablePage,
-  rowsPerPage: 10
+  rowsPerPage: settingStore._itemPerPage
 })
 
 const changePagination = (newPagination) => {

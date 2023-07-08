@@ -223,6 +223,10 @@ export const API = {
             const response = await instance.post(apiURL+'/settings/'+id+'/update', formData, {headers: headers})
             return response.data
         },
+        'clearCache': async () => {
+            const response = await instance.get(apiURL+'/settings/clear-cache', {headers: headers})
+            return response.data
+        }
     },
     'dashboard': {
         'getAll': async () => {

@@ -2,6 +2,10 @@
 import { useQuasar } from 'quasar'
 import { ref, watchEffect } from 'vue'
 import { useAreaStore } from '@/stores/area'
+import { onBeforeRouteLeave } from 'vue-router'
+
+import { useSettingStore } from '@/stores/setting'
+const settingStore = useSettingStore()
 
 const $q = useQuasar()
 const areaStore = useAreaStore()
@@ -24,10 +28,23 @@ const columns = [
 ]
 const visibileColumns = ['code', 'name', 'action']
 const rows = ref([])
-const pagination = {
-  page: 1,
-  rowsPerPage: 10
+const pagination = ref({
+  page: areaStore._areaTablePage,
+  rowsPerPage: settingStore._itemPerPage
+})
+
+const changePagination = (newPagination) => {
+  const pageNumber = newPagination.page
+  pagination.value.page = pageNumber
+  areaStore.storeTablePagiPage(pageNumber)
 }
+
+onBeforeRouteLeave((to, from, next) => {
+  if(!to.name.includes(from.name)) {
+    areaStore.storeTablePagiPage(1)
+  }
+  next()
+})
 
 function showConfirmDialog(row) {
     $q.dialog({
@@ -152,6 +169,7 @@ const updateAreaRow = async (r) => {
                 row-key="code"
                 :visible-columns="visibileColumns"
                 :pagination="pagination"
+                @update:pagination="changePagination"
               >
                 <template v-slot:top-right>
                   <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">

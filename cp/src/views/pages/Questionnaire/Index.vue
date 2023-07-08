@@ -4,10 +4,12 @@ import { useQuasar } from 'quasar'
 import { APP } from '@/config.js'
 import { ref, watchEffect } from 'vue' 
 import { useQuestionnaireStore } from '@/stores/Questionnaire'
+import { useSettingStore } from '@/stores/setting'
 import { onBeforeRouteLeave } from 'vue-router'
 
 const $q = useQuasar()
 const qStore = useQuestionnaireStore()
+const settingStore = useSettingStore()
 qStore.reset()
 qStore.handleGetQuestionnaires()
 
@@ -31,7 +33,7 @@ const columns = [
 const visibileColumns = ['qindex', 'question', 'ans_intput_type', 'action']
 const pagination = ref({
   page: qStore._questionnaireTablePage,
-  rowsPerPage: 10
+  rowsPerPage: settingStore._itemPerPage
 })
 
 const changePagination = (newPagination) => {
