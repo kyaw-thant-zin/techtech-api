@@ -44,12 +44,6 @@ const formData = ref({
 })
 
 watchEffect(() => {
-    if(controlable.value != null) {
-        formData.value.controllable = controlable.value
-    }
-}, [controlable.value])
-
-watchEffect(() => {
     // set area rows
     if(qStore._questionnaire !== null && qStore._questionnaire?.formData) {
         q.value = qStore._questionnaire

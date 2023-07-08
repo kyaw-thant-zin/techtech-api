@@ -143,27 +143,27 @@ const onSubmit = async () => {
     await qStore.handleStoreQuestionnaire(formData.value)
 
     // check result
-    // if(qStore._success) {
-    //     $q.notify({
-    //         caption: 'アンケートが正常に追加されました',
-    //         message: '成功！',
-    //         type: 'positive',
-    //         timeout: 1000
-    //     })
-    //     qStore.storeSuccess(false)
-    //     resetForm()
-    //     qStore.router.replace({ name: 'cp.questionnaire' })
-    // }
+    if(qStore._success) {
+        $q.notify({
+            caption: 'アンケートが正常に追加されました',
+            message: '成功！',
+            type: 'positive',
+            timeout: 1000
+        })
+        qStore.storeSuccess(false)
+        resetForm()
+        qStore.router.replace({ name: 'cp.questionnaire' })
+    }
 
-    // if(qStore._error) {
-    //     $q.notify({
-    //         caption: 'エラーが発生しました。後でもう一度お試しください。',
-    //         message: 'エラー！',
-    //         type: 'negative',
-    //         timeout: 1000
-    //     })
-    //     qStore.storeError(false)
-    // }
+    if(qStore._error) {
+        $q.notify({
+            caption: 'エラーが発生しました。後でもう一度お試しください。',
+            message: 'エラー！',
+            type: 'negative',
+            timeout: 1000
+        })
+        qStore.storeError(false)
+    }
 }
 
 const getBase64 = (file) => {
