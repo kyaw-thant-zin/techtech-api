@@ -1,7 +1,7 @@
 <script setup>
   // Import Quasar css
   import 'quasar/dist/quasar.css'
-  import { ref, watchEffect, watch } from 'vue'
+  import { ref, watchEffect, onBeforeMount } from 'vue'
   import { useRoute } from 'vue-router'
   import { useAuthStore } from '@/stores/Auth'
   import { useSettingStore } from '@/stores/setting'
@@ -12,14 +12,12 @@
   const route = useRoute()
   const activeLink = ref()
 
-  settingStore.handleGetSettings()
-
   const settingHead = ref(null)
   const settingSeo = ref(null)
-  watch(
-    () => settingStore._head,
-    () => {
-      if(settingStore._head?.setting) {
+
+  const setHeadAndSeo = () => {
+
+    if(settingStore._head?.setting) {
         settingHead.value = settingStore._head.setting
       }
 
@@ -48,11 +46,14 @@
           href: settingHead.value.icon
         }
       })
-    },
-    {
-      deep: true
-    }
-  )
+  }
+
+  onBeforeMount( async () => {
+    await settingStore.handleGetSettings()
+    setHeadAndSeo()
+  })
+
+  
 
   // sidebar nav menu list
   const menuList = [

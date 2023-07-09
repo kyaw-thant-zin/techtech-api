@@ -30,8 +30,12 @@ const visibileColumns = ['code', 'name', 'action']
 const rows = ref([])
 const pagination = ref({
   page: constructionStore._constructionTablePage,
-  rowsPerPage: settingStore._itemPerPage
-})
+    rowsPerPage: 1
+  })
+  
+  watchEffect(() => {
+    pagination.value.rowsPerPage = settingStore._itemPerPage
+  }, [settingStore._itemPerPage])
 
 const changePagination = (newPagination) => {
   const pageNumber = newPagination.page

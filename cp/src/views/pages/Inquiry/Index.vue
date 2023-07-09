@@ -34,8 +34,12 @@ const visibileColumns = ['status', 'name', 'email', 'summry', 'total', 'action']
 const rows = ref([])
 const pagination = ref({
   page: iQStore._inquiryTablePage,
-  rowsPerPage: settingStore._itemPerPage
-})
+    rowsPerPage: 1
+  })
+  
+  watchEffect(() => {
+    pagination.value.rowsPerPage = settingStore._itemPerPage
+  }, [settingStore._itemPerPage])
 
 const changePagination = (newPagination) => {
   const pageNumber = newPagination.page

@@ -60,6 +60,7 @@ const onSubmit = async () => {
       timeout: 1000
     })
     settingStore.storeSuccess(false)
+    setSettingAndSeo()
   }
 
   if(settingStore._error) {
@@ -70,6 +71,7 @@ const onSubmit = async () => {
       timeout: 1000
     })
     settingStore.storeError(false)
+    setSettingAndSeo()
   }
 
 }
@@ -168,7 +170,7 @@ onMounted(async () => {
 
 })
 
-const navPass = async (id) => {
+const navPass = async () => {
   await settingStore.handleGetSettings()
 }
 
