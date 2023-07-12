@@ -81,7 +81,6 @@ export const useInquiryStore = defineStore('inquiry', () => {
         let dumpIq = null
         if(iq != null) {
             dumpIq = {}
-            console.log(iq)
             dumpIq.name = iq.name
             dumpIq.kata_name = iq.kata_name
             dumpIq.email = iq.email
@@ -119,7 +118,6 @@ export const useInquiryStore = defineStore('inquiry', () => {
                 })
             }
         }
-        console.log(dumpIq)
         _inquiriy.value = dumpIq
     }
 

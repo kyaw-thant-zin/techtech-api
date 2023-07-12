@@ -250,7 +250,6 @@ const resetForm = () => {
 // submit the form
 const onSubmit = async () => {
     const dumpFormData = {}
-    console.log(formData.value)
     Object.entries(formData.value).forEach(([key1, dataValue1]) => {
         if (typeof dataValue1 === "string") { //string
             dumpFormData[key1] = dataValue1

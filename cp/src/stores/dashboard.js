@@ -37,7 +37,6 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
 
     const storeInquiries = (inquiries) => {
-        console.log(inquiries)
         const filteredIq = []
         if(inquiries.length > 0) {
             inquiries.forEach((iq) => {
@@ -71,7 +70,6 @@ export const useDashboardStore = defineStore('dashboard', () => {
                 }
             })
         }
-        console.log(filteredIq)
         _inquiries.value = filteredIq
     }
 
