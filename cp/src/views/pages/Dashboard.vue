@@ -34,36 +34,6 @@ const redirectToDetail = (routeName, routeParams) => {
     dashboardStore.router.replace({name: routeName, params: { id: routeParams}})
 }
 
-// chart
-const chartData = {
-    labels: [
-        '1月',
-        '2月',
-        '3月',
-        '4月',
-        '5月',
-        '6月',
-        '7月',
-        '8月',
-        '9月',
-        '10月',
-        '11月',
-        '12月'
-    ],
-    datasets: [
-        {
-        label: '問い合わせ',
-        backgroundColor: '#f87979',
-        data: [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11]
-        }
-    ]
-}
-
-const options = {
-  responsive: true,
-  maintainAspectRatio: false
-}
-
 </script>
 <template>
     <div class="full-width  q-mb-xl">
@@ -82,7 +52,7 @@ const options = {
       </div>
       <div class="full-width row q-px-md q-mt-sm">
         <div class="col-12">
-            <div class="row q-gap-md">
+            <div class="row q-col-gutter-md">
                 <div class="col-12 col-sm-5 col-md-3 col-lg-3 col-xl-3">
                     <q-card class="common-card">
                         <q-card-section horizontal>
@@ -130,14 +100,7 @@ const options = {
                     </q-card>
                 </div>
             </div>
-            <div class="row q-mt-md q-col-gutter-xl">
-                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                    <Bar
-                        id="my-chart-id"
-                        :data="chartData"
-                        :options="options"
-                    />
-                </div>
+            <div class="row q-mt-md q-col-gutter-md">
                 <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
                     <div class="">
                         <q-card>
@@ -147,7 +110,7 @@ const options = {
                             <q-card-section>
                                 <q-list v-if="inquiries != null && inquiries.length > 0">
                                     <template  v-for="(iq, index) in inquiries">
-                                        <q-item v-ripple clickable>
+                                        <q-item v-ripple clickable @click="redirectToDetail( 'cp.inquiry.detail', APP.encryptID(iq.id))">
                                             <q-item-section>
                                                 <q-item-label>{{ iq.name }}</q-item-label>
                                                 <q-item-label caption>{{ iq.email }}</q-item-label>
@@ -167,6 +130,7 @@ const options = {
                         </q-card>
                     </div>
                 </div>
+                <div class="col-12"></div>
                 <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
                     <div class="">
                         <q-card>

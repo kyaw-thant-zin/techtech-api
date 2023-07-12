@@ -6,7 +6,9 @@ import Cookies from 'js-cookie'
 // CP
 import SignIn from '@/views/pages/auth/SignIn.vue'
 import Dashboard from '@/views/pages/Dashboard.vue'
+// Inquiry
 import InquiryIndex from '@/views/pages/Inquiry/Index.vue'
+import InquiryView from '@/views/pages/Inquiry/View.vue'
 import UserIndex from '@/views/pages/User/Index.vue'
 // Contractor
 import ContractorIndex from '@/views/pages/Contractor/Index.vue'
@@ -61,9 +63,20 @@ const router = createRouter({
         },
         {
           path: 'inquiry',
-          name: 'cp.inquiry',
-          component: InquiryIndex,
-          meta: { requiresAuth: true, requiresSuperAdmin: true }
+          children: [
+            {
+              path: '',
+              name: 'cp.inquiry',
+              component: InquiryIndex,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: ':id/detail',
+              name: 'cp.inquiry.detail',
+              component: InquiryView,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+          ]
         },
         // {
         //   path: 'user',

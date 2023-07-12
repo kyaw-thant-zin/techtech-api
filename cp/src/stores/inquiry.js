@@ -14,6 +14,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
     const _success = ref(false)
     const _error = ref(false)
     const _inquiries = ref(null)
+    const _inquiriy = ref(null)
     const _inquiryTablePage = ref(useLocalStorage('inquiry_table_page', 1))
 
     const storeTablePagiPage = (pNumber) => {
@@ -73,8 +74,53 @@ export const useInquiryStore = defineStore('inquiry', () => {
                 
             })
         }
-        console.log(filteredIq)
         _inquiries.value = filteredIq
+    }
+
+    const storeInquirie = (iq) => {
+        let dumpIq = null
+        if(iq != null) {
+            dumpIq = {}
+            console.log(iq)
+            dumpIq.name = iq.name
+            dumpIq.kata_name = iq.kata_name
+            dumpIq.email = iq.email
+            dumpIq.tel = iq.tel
+            dumpIq.company_name = iq.company_name
+            dumpIq.area = iq.area
+            dumpIq.city = iq.city
+            dumpIq.address02 = iq.address02
+            dumpIq.construction_schedule = iq.construction_schedule
+
+            dumpIq.total = formatCurrency(iq.total)+'円(税込)'
+            const iQQuotes = iq.inquiry_quotes
+            dumpIq.quotes = []
+            if(iQQuotes != null && iQQuotes.length > 0) {
+                iQQuotes.forEach((dIq) => {
+                    const dumpDiq = {}
+                    dumpDiq.q_name = dIq.quotation.q_name
+                    dumpDiq.quantity = dIq.quantity
+                    dumpDiq.unit_price = dIq.unit_price
+                    dumpDiq.amount = dIq.amount
+                    dumpIq.quotes.push(dumpDiq)
+                })
+            }
+            dumpIq.qa_ans = []
+            if(iq?.inquiry_qa_ans.length > 0) {
+                iq.inquiry_qa_ans.forEach((iqa) => {
+                    const dumpIqa = {}
+                    dumpIqa.q = iqa.q_only.q
+                    if(iqa?.qa != null) {
+                        dumpIqa.ans = iqa.qa.label
+                    } else {
+                        dumpIqa.ans = iqa.qa_value
+                    }
+                    dumpIq.qa_ans.push(dumpIqa)
+                })
+            }
+        }
+        console.log(dumpIq)
+        _inquiriy.value = dumpIq
     }
 
     const handleGetInquiries = async () => {
@@ -84,8 +130,16 @@ export const useInquiryStore = defineStore('inquiry', () => {
         storeLoading(false)
     }
 
+    const handleGetInquirie = async (id) => {
+        storeLoading(true)
+        const response = await API.inquiry.get(id)
+        storeInquirie(response)
+        storeLoading(false)
+    }
+
     return {
         _inquiries,
+        _inquiriy,
         _success,
         _error,
         _loading,
@@ -93,7 +147,8 @@ export const useInquiryStore = defineStore('inquiry', () => {
         storeError,
         storeSuccess,
         handleGetInquiries,
-        storeTablePagiPage
+        storeTablePagiPage,
+        handleGetInquirie
     }
 
 })
