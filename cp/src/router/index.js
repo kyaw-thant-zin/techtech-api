@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { API } from '../api'
 import { useAuthStore } from '../stores/auth'
+import { useSettingStore } from '@/stores/setting'
 import Cookies from 'js-cookie'
 
 // CP
@@ -13,6 +14,12 @@ import UserIndex from '@/views/pages/User/Index.vue'
 // Contractor
 import ContractorIndex from '@/views/pages/Contractor/Index.vue'
 import ContractorView from '@/views/pages/Contractor/View.vue'
+// Withdrawal
+import WithDrawalIndex from '@/views/pages/Withdrawal/Index.vue'
+import WithDrawalView from '@/views/pages/Withdrawal/View.vue'
+// LeavingReason
+import LeavingReasonIndex from '@/views/pages/LeavingReason/Index.vue'
+import LeavingReasonCreate from '@/views/pages/LeavingReason/Create.vue'
 // Payment Method
 import PMIndex from '@/views/pages/Registration/Method/Index.vue'
 import PMCreate from '@/views/pages/Registration/Method/Create.vue'
@@ -97,6 +104,40 @@ const router = createRouter({
               path: ':id/detail',
               name: 'cp.contractor.detail',
               component: ContractorView,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+          ]
+        },
+        {
+          path: 'withdrawal-request',
+          children: [
+            {
+              path: '',
+              name: 'cp.withdrawal',
+              component: WithDrawalIndex,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: ':id/detail',
+              name: 'cp.withdrawal.detail',
+              component: WithDrawalView,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+          ]
+        },
+        {
+          path: 'leaving-reason',
+          children: [
+            {
+              path: '',
+              name: 'cp.leaving-reason',
+              component: LeavingReasonIndex,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: 'create',
+              name: 'cp.leaving-reason.create',
+              component: LeavingReasonCreate,
               meta: { requiresAuth: true, requiresSuperAdmin: true }
             },
           ]
@@ -256,6 +297,8 @@ router.beforeEach( async (to, from, next) => {
     if(isAuthUser && checkCookie != undefined) {
       const user = authStore._user
       if(to.matched.some(record => record.meta.requiresSuperAdmin) && user.role_id == 3) {
+        const settingStore = useSettingStore()
+        settingStore._activeLink = to.fullPath
         next()
         return
       } else {

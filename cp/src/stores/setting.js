@@ -13,6 +13,7 @@ export const useSettingStore = defineStore('setting', () => {
     const _siteSize = ref(null)
     const _cacheSize = ref(null)
     const _itemPerPage = ref(1)
+    const _activeLink = ref('')
 
     const _head = ref({})
 
@@ -101,6 +102,7 @@ export const useSettingStore = defineStore('setting', () => {
     }
 
     return {
+        _activeLink,
         _head,
         _siteSize,
         _cacheSize,

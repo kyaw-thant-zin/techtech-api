@@ -233,5 +233,37 @@ export const API = {
             const response = await instance.get(apiURL+'/dashboard', {headers: headers})
             return response.data
         },
+    },
+    'leavingReason': {
+        'getAll': async () => {
+            const response = await instance.get(apiURL+'/leaving-reason', {headers: headers})
+            return response.data
+        },
+        "store": async (formData) => {
+            const response = await instance.post(apiURL+'/leaving-reason/store', formData, {headers: headers})
+            return response.data
+        },
+        "update": async (id, formData) => {
+            const response = await instance.put(apiURL+'/leaving-reason/'+id+'/update', formData, {headers: headers})
+            return response.data
+        },
+        'destroy': async (id) => {
+            const response = await instance.delete(apiURL+'/leaving-reason/'+id+'/destroy', {headers: headers})
+            return response.data
+        },
+    },
+    'withdrawal': {
+        'getAll': async () => {
+            const response = await instance.get(apiURL+'/withdrawal', {headers: headers})
+            return response.data
+        },
+        "detail": async (id) => {
+            const response = await instance.get(apiURL+'/withdrawal/'+id+'/detail', {headers: headers})
+            return response.data
+        },
+        "confirm": async (id) => {
+            const response = await instance.post(apiURL+'/withdrawal/'+id+'/confirm', {headers: headers})
+            return response.data
+        },
     }
 }
