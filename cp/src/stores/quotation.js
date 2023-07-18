@@ -121,7 +121,6 @@ export const useQuotationStore = defineStore('quotation', () => {
             storeSymbols(response.symbols)
         }
         if(response?.qqs) {
-            console.log(response.qqs)
             storeQqs(response.qqs)
         }
         if(response?.qas) {

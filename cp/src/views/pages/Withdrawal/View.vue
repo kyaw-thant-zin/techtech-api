@@ -32,7 +32,7 @@ function showConfirmDialog() {
       persistent: true,
       html: true,
     }).onOk( async () => {
-        await wStore.confirm(id)
+        await wStore.confirm(id.value)
         if(wStore._success) {
             $q.notify({
                 caption: '出金要求が正常に確認されました',
@@ -40,6 +40,7 @@ function showConfirmDialog() {
                 type: 'positive',
                 timeout: 1000
             })
+            await wStore.handleGetWithdrawal(id.value)
             wStore.storeSuccess(false)
         }
 
@@ -83,7 +84,7 @@ function showConfirmDialog() {
                                 <div class="col-auto" v-if="withdrawal != null && withdrawal.user_id != null">
                                     <q-btn class="shadow-3 p-common-btn" icon="mdi-card-account-details-outline" label="" :to="{ name: 'cp.contractor.detail', params: { id: APP.encryptID(withdrawal.user_id) }}" no-caps />
                                 </div>
-                                <div class="col-auto">
+                                <div class="col-auto" v-if="withdrawal?.status">
                                     <q-btn color="positive" class="shadow-3" size="md" icon="mdi-check" label="" @click="showConfirmDialog()" />
                                 </div>
                             </div>
