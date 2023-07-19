@@ -44,6 +44,7 @@ watch(
   () => quoteStore._quotation,
   (newValue, oldValue) => {
     if(newValue != null) {
+        resetForm()
         quote.value = newValue
         formData.value.qName = newValue.q_name
         formData.value.totalFormula = newValue.formula_total

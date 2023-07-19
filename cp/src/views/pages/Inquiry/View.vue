@@ -99,7 +99,7 @@ onMounted( async () => {
                                     </tr>
                                     <tr>
                                         <td class="text-left"><span  class="text-subtitle2 text-weight-normal">住所</span></td>
-                                        <td class="text-left"><span  class="text-subtitle2 text-weight-normal">{{ inquiry.area }} ({{ inquiry.city }}) <br/> {{ inquiry.address02 }}</span></td>
+                                        <td class="text-left"><span  class="text-subtitle2 text-weight-normal">{{ inquiry.area }} <span v-if="inquiry.city != '' && inquiry.city != null">({{ inquiry.city }})</span> <br/> {{ inquiry.address02 }}</span></td>
                                     </tr>
                                     <tr>
                                         <td class="text-left"><span  class="text-subtitle2 text-weight-normal">会社名</span></td>

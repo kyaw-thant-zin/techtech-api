@@ -311,28 +311,28 @@ const onSubmit = async () => {
     })
     await quoteStore.handleStoreQuotation(dumpFormData)
 
-    // // check result
-    // if(quoteStore._success) {
-    //     $q.notify({
-    //         caption: '見積書が正常に作成されました',
-    //         message: '成功！',
-    //         type: 'positive',
-    //         timeout: 1000
-    //     })
-    //     quoteStore.storeSuccess(false)
-    //     resetForm()
-    //     quoteStore.router.replace({ name: 'cp.quotation' })
-    // }
+    // check result
+    if(quoteStore._success) {
+        $q.notify({
+            caption: '見積書が正常に作成されました',
+            message: '成功！',
+            type: 'positive',
+            timeout: 1000
+        })
+        quoteStore.storeSuccess(false)
+        resetForm()
+        quoteStore.router.replace({ name: 'cp.quotation' })
+    }
 
-    // if(quoteStore._error) {
-    //     $q.notify({
-    //         caption: 'エラーが発生しました。後でもう一度お試しください。',
-    //         message: 'エラー！',
-    //         type: 'negative',
-    //         timeout: 1000
-    //     })
-    //     quoteStore.storeError(false)
-    // }
+    if(quoteStore._error) {
+        $q.notify({
+            caption: 'エラーが発生しました。後でもう一度お試しください。',
+            message: 'エラー！',
+            type: 'negative',
+            timeout: 1000
+        })
+        quoteStore.storeError(false)
+    }
 }
 
 </script>
