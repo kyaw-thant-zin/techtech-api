@@ -15,6 +15,8 @@ const formulaMessage = ref('何も計算式を追加しない場合、この見�
 const conditionQqID = ref([])
 const conditionSymbols = ref([])
 const conditionAnsID = ref([])
+const conditionAnsFirstItem = {'label': 'どれでも', 'value': -1}
+const conditionAnsSelectOrText = ref([])
 
 const groupedQas = ref([])
 const conditionSelectedQqID = ref([])
@@ -35,10 +37,14 @@ const formData = ref({
 })
 
 const addMoreCheckCondition = () => {
+
+    conditionAnsSelectOrText.value.push(false)
+
     checkConditions.value.push({
         conQqID: null,
         conSymbol: null,
-        conAnsID: null
+        conAnsID: null,
+        conAnsValue: null
     })
     conditionSelectedQqID.value.push([])
     conditionAnsID.value.push([])
@@ -57,6 +63,7 @@ const handleRemoveChechCondition = (cc) => {
     const index = checkConditions.value.indexOf(cc)
     if (index !== -1) {
         checkConditions.value.splice(index, 1);
+        conditionAnsSelectOrText.value.splice(index, 1)
     }
     
     // check the indexs
@@ -146,20 +153,36 @@ watch(
 )
 
 // Events
-const setAnsIDByQqID = (index) => {
+const setAnsIDByQqID = (index, cc) => {
     const newValue = conditionSelectedQqID.value[index]
+    console.log(newValue)
     if(newValue.length > 0) {
-        const filteredAnsID = []
+        const filteredAnsID = [
+            conditionAnsFirstItem
+        ]
         newValue.forEach((el) => {
             const key = 'q-'+el
+            console.log(key)
             if(groupedQas.value[key] != undefined) {
                 groupedQas.value[key].forEach((el) => {
-                    if (!filteredAnsID.some(fAID => fAID.label === el.label)) {
-                        const dumpEl = {
-                            'label': el.label,
-                            'value': el.value
+                    if(el.label != null) {
+                        conditionAnsSelectOrText.value[index] = false
+                        if (!filteredAnsID.some(fAID => fAID.label === el.label)) {
+                            const dumpEl = {
+                                'label': el.label,
+                                'value': el.value
+                            }
+                            filteredAnsID.push(dumpEl)
                         }
-                        filteredAnsID.push(dumpEl)
+                    } else {
+                        conditionAnsSelectOrText.value[index] = true
+                        if(cc.conQqID.length > 1) {
+                            cc.conQqID = [cc.conQqID[cc.conQqID.length - 1]]
+                            conditionSelectedQqID.value[index] = []
+                            cc.conQqID.forEach((el, i) => {
+                                conditionSelectedQqID.value[index].push(el.value)
+                            })
+                        }
                     }
                 })
             }
@@ -176,10 +199,10 @@ const updateConditionQq = (value, cc) => {
     const index = checkConditions.value.indexOf(cc)
     if(value.length > 0) {
         conditionSelectedQqID.value[index] = []
-        value.forEach((el) => {
+        value.forEach((el, i) => {
             conditionSelectedQqID.value[index].push(el.value)
         })
-        setAnsIDByQqID(index)
+        setAnsIDByQqID(index, cc)
     }
 }
 const removeConditionQq = (value, cc) => {
@@ -193,34 +216,43 @@ const removeConditionQq = (value, cc) => {
         checkConditions.value[indexCC].conAnsID = null
     }
 }
-const updateConditionAnsID = (value, cc) => {
-    let foundKey = []
-    const targetValue = value
-    const index = checkConditions.value.indexOf(cc)
-    conditionSelectedQqID.value[index].forEach((item) => {
-        if (groupedQas.value.hasOwnProperty('q-'+item)) {
-            const arr = groupedQas.value['q-'+item]
-            if (arr.some(item => item.label === targetValue.label)) {
-                foundKey.push('q-'+item)
-            }
-        }
-    })
-
-    if(foundKey.length > 0) {
-        const convertedArray = foundKey.map(item => parseInt(item.split('-')[1]))
-        // remove unselected qq
-        cc.conQqID = cc.conQqID.filter(item => convertedArray.includes(item.value))
-        // remove unselected answers by qq
-        conditionAnsID.value[index] = foundKey.reduce((acc, key) => {
-            groupedQas.value[key].forEach(item => {
-                if (!acc.labels[item.label]) {
-                    acc.labels[item.label] = true;
-                    acc.array.push(item);
+const updateConditionAnsID = (value, cc, type) => {
+    if(type == 'select') {
+        let foundKey = []
+        const targetValue = value
+        const index = checkConditions.value.indexOf(cc)
+        conditionSelectedQqID.value[index].forEach((item) => {
+            if (groupedQas.value.hasOwnProperty('q-'+item)) {
+                const arr = groupedQas.value['q-'+item]
+                if(targetValue.value == -1) {
+                    foundKey.push('q-'+item)
+                } else {
+                    if (arr.some(item => item.label === targetValue.label)) {
+                        foundKey.push('q-'+item)
+                    }
                 }
-            })
-            return acc
-        }, { array: [], labels: {} }).array
+            }
+        })
+
+        if(foundKey.length > 0) {
+            const convertedArray = foundKey.map(item => parseInt(item.split('-')[1]))
+            // remove unselected qq
+            cc.conQqID = cc.conQqID.filter(item => convertedArray.includes(item.value))
+            // remove unselected answers by qq
+            conditionAnsID.value[index] = foundKey.reduce((acc, key) => {
+                groupedQas.value[key].forEach(item => {
+                    if (!acc.labels[item.label]) {
+                        acc.labels[item.label] = true;
+                        acc.array.push(item);
+                    }
+                })
+                return acc
+            }, { array: [], labels: {} }).array
+            
+            conditionAnsID.value[index].unshift(conditionAnsFirstItem)
+        }
     }
+
 }
 
 // watch the loading
@@ -267,6 +299,8 @@ const onSubmit = async () => {
                             } else { //object
                                 if(key2 == 'conAnsID') {
                                     dumpFormData[key1][index1][key2] = dataValue2
+                                } else if(key2 == 'conAnsValue') {
+                                    dumpFormData[key1][index1][key2] = dataValue2
                                 } else {
                                     dumpFormData[key1][index1][key2] = dataValue2.value
                                 }
@@ -309,6 +343,9 @@ const onSubmit = async () => {
             dumpFormData[key1] = dataValue1.value
         }
     })
+
+    console.log(dumpFormData)
+
     await quoteStore.handleStoreQuotation(dumpFormData)
 
     // check result
@@ -409,7 +446,7 @@ const onSubmit = async () => {
                                                 <q-card-section>
                                                     <div class="row q-col-gutter-md">
                                                         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
-                                                            <div>ラベル</div>
+                                                            <div>質問</div>
                                                             <q-select 
                                                                 multiple
                                                                 use-chips
@@ -439,18 +476,33 @@ const onSubmit = async () => {
                                                             />
                                                         </div>
                                                         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
-                                                            <div>ラベル</div>
-                                                            <q-select 
-                                                                dense 
-                                                                outlined 
-                                                                v-model="cc.conAnsID" 
-                                                                :options="conditionAnsID[index]"
-                                                                @update:model-value="(value) => updateConditionAnsID(value, cc)"
-                                                                lazy-rules
-                                                                :rules="[
-                                                                    val => val != null || 'フィールドは必須項目です', 
-                                                                ]"
-                                                            />
+                                                            <div>答え</div>
+                                                            <template v-if="conditionAnsSelectOrText[index]">
+                                                                <q-input  
+                                                                    outlined 
+                                                                    class="common-input-text" 
+                                                                    v-model="cc.conAnsValue"
+                                                                    @update:model-value="(value) => updateConditionAnsID(value, cc, 'text')"
+                                                                    lazy-rules
+                                                                    dense
+                                                                    :rules="[
+                                                                        val => (val != null) || 'フィールドは必須項目です', 
+                                                                    ]"
+                                                                />
+                                                            </template>
+                                                            <template v-else>
+                                                                <q-select 
+                                                                    dense 
+                                                                    outlined 
+                                                                    v-model="cc.conAnsID" 
+                                                                    :options="conditionAnsID[index]"
+                                                                    @update:model-value="(value) => updateConditionAnsID(value, cc, 'select')"
+                                                                    lazy-rules
+                                                                    :rules="[
+                                                                        val => val != null || 'フィールドは必須項目です', 
+                                                                    ]"
+                                                                />
+                                                            </template>
                                                         </div>
                                                     </div>
                                                     </q-card-section>

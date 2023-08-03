@@ -15,6 +15,8 @@ const formulaMessage = ref('何も計算式を追加しない場合、この見�
 const conditionQqID = ref([])
 const conditionSymbols = ref([])
 const conditionAnsID = ref([])
+const conditionAnsFirstItem = {'label': 'どれでも', 'value': -1}
+const conditionAnsSelectOrText = ref([])
 
 const groupedQas = ref([])
 const conditionSelectedQqID = ref([])
@@ -68,7 +70,13 @@ const setFormData = () => {
                         dumpC.conQqID = [{ label: 'Q' + g.qq.qindex, value: g.qq_id }]
                     }
                     dumpC.conSymbol = { label: g.math_symbol.jp_name, value: g.math_symbol_id }
-                    dumpC.conAnsID = { label: g.qa.label, value: g.qa_id }
+                    if(g.qa != null) {
+                        dumpC.conAnsID = { label: g.qa.label, value: g.qa_id }
+                    } else if(g.qa_any == 1) {
+                        dumpC.conAnsID = { label: 'どれでも', value: -1 }
+                    } else if(g.qa_value != null) {
+                        dumpC.conAnsValue = g.qa_value
+                    }
                 })
             }
             checkConditions.value.push(dumpC)
@@ -132,6 +140,61 @@ const setFormData = () => {
         })
     }
 
+
+    if(conditionSelectedQqID.value.length > 0) {
+        if(conditionSelectedQqID.value.length > 0) {
+            conditionSelectedQqID.value.forEach((el, index) => {
+                const filteredAnsID = []
+                
+                if(el.length > 1) { 
+                    filteredAnsID.push(conditionAnsFirstItem)
+                    el.forEach((ee) => {
+                        const key = 'q-'+ee
+                        if(groupedQas.value[key] != undefined) {
+                            groupedQas.value[key].forEach((eg, i) => {
+                                if (!filteredAnsID.some(fAID => fAID.label === eg.label)) {
+                                    const dumpEl = {
+                                        'label': eg.label,
+                                        'value': eg.value
+                                    }
+                                    filteredAnsID.push(dumpEl)
+                                }
+                            })
+                        }
+                    })
+                    conditionAnsID.value[index] = filteredAnsID 
+                } else {
+                    const key = 'q-'+el
+                    if(groupedQas.value[key] != undefined) {
+                        groupedQas.value[key].forEach((el, i) => {
+                            if(el.label != null) {
+                                conditionAnsSelectOrText.value[index] = false
+                                if(i == 0) {
+                                    filteredAnsID.push(conditionAnsFirstItem)
+                                }
+                                if (!filteredAnsID.some(fAID => fAID.label === el.label)) {
+                                    const dumpEl = {
+                                        'label': el.label,
+                                        'value': el.value
+                                    }
+                                    filteredAnsID.push(dumpEl)
+                                }
+                            } else {
+                                conditionAnsSelectOrText.value[index] = true
+                            }
+                        })
+                        conditionAnsID.value[index] = filteredAnsID 
+
+                    }else {
+                        conditionAnsID.value[index] = []
+                    }
+                }
+
+                
+            })
+        } 
+    }
+
 }
 
 // set formData
@@ -154,11 +217,13 @@ onMounted(async () => {
 })
 
 const addMoreCheckCondition = () => {
+
+    conditionAnsSelectOrText.value.push(false)
     checkConditions.value.push({
-        id: null,
         conQqID: null,
         conSymbol: null,
-        conAnsID: null
+        conAnsID: null,
+        conAnsValue: null
     })
     conditionSelectedQqID.value.push([])
     conditionAnsID.value.push([])
@@ -177,6 +242,7 @@ const handleRemoveChechCondition = (cc) => {
     const index = checkConditions.value.indexOf(cc)
     if (index !== -1) {
         checkConditions.value.splice(index, 1);
+        conditionAnsSelectOrText.value.splice(index, 1)
     }
 
     // check the indexs
@@ -253,18 +319,18 @@ watch(
     }
 )
 watch(
-    () => conditionSelectedQqID.value,
-    (newValue, oldValue) => {
-        if (newValue.length > 0) {
-            newValue.forEach((el, index) => {
-                if (el.length <= 0) {
-                    conditionAnsID.value[index] = null
-                }
-            })
-        }
-    }, {
+  () => conditionSelectedQqID.value,
+  (newValue, oldValue) => {
+    if(newValue.length > 0) {
+        newValue.forEach((el, index) => {
+            if(el.length <= 0) {
+                conditionAnsID.value[index] = null
+            }
+        })
+    }
+  }, {
     deep: true
-}
+  }
 )
 
 // Events
@@ -279,20 +345,34 @@ function checkMainArray(mainArray, checkArray) {
         return false;
     })
 }
-const setAnsIDByQqID = (index) => {
+const setAnsIDByQqID = (index, cc) => {
     const newValue = conditionSelectedQqID.value[index]
     if (newValue.length > 0) {
-        const filteredAnsID = []
+        const filteredAnsID = [
+            conditionAnsFirstItem
+        ]
         newValue.forEach((el) => {
             const key = 'q-' + el
             if (groupedQas.value[key] != undefined) {
                 groupedQas.value[key].forEach((el) => {
-                    if (!filteredAnsID.some(fAID => fAID.label === el.label)) {
-                        const dumpEl = {
-                            'label': el.label,
-                            'value': el.value
+                    if(el.label != null) {
+                        conditionAnsSelectOrText.value[index] = false
+                        if (!filteredAnsID.some(fAID => fAID.label === el.label)) {
+                            const dumpEl = {
+                                'label': el.label,
+                                'value': el.value
+                            }
+                            filteredAnsID.push(dumpEl)
                         }
-                        filteredAnsID.push(dumpEl)
+                    } else {
+                        conditionAnsSelectOrText.value[index] = true
+                        if(cc.conQqID.length > 1) {
+                            cc.conQqID = [cc.conQqID[cc.conQqID.length - 1]]
+                            conditionSelectedQqID.value[index] = []
+                            cc.conQqID.forEach((el, i) => {
+                                conditionSelectedQqID.value[index].push(el.value)
+                            })
+                        }
                     }
                 })
             }
@@ -312,7 +392,7 @@ const updateConditionQq = (value, cc) => {
         value.forEach((el) => {
             conditionSelectedQqID.value[index].push(el.value)
         })
-        setAnsIDByQqID(index)
+        setAnsIDByQqID(index, cc)
     }
 }
 const removeConditionQq = (value, cc) => {
@@ -331,7 +411,7 @@ const removeConditionQq = (value, cc) => {
     const filteredMain = checkMainArray(checkConditions.value[indexCC], conditionSelectedQqID.value)
     checkConditions.value[indexCC].id = filteredMain
 }
-const updateConditionAnsID = (value, cc) => {
+const updateConditionAnsID = (value, cc, type) => {
     let foundKey = []
     const targetValue = value
     const index = checkConditions.value.indexOf(cc)
@@ -403,7 +483,9 @@ const onSubmit = async () => {
                             } else if (Array.isArray(dataValue2)) { //array
                                 dumpFormData[key1][index1][key2] = dataValue2.map(item => item.value)
                             } else { //object
-                                if (key2 == 'conAnsID') {
+                                if(key2 == 'conAnsID') {
+                                    dumpFormData[key1][index1][key2] = dataValue2
+                                } else if(key2 == 'conAnsValue') {
                                     dumpFormData[key1][index1][key2] = dataValue2
                                 } else {
                                     if (dataValue2 != null) {
@@ -456,37 +538,38 @@ const onSubmit = async () => {
         }
     })
 
+    console.log(dumpFormData)
     await quoteStore.handleUpdateQuotation(id.value, dumpFormData)
 
     // check result
-    if (quoteStore._success) {
-        await quoteStore.handleGetAllRequired()
-        await quoteStore.handleGetQuotation(id.value)
-        setFormData()
-        $q.notify({
-            caption: '見積書が正常に作成されました',
-            message: '成功！',
-            type: 'positive',
-            timeout: 1000
-        })
-        quoteStore.storeSuccess(false)
-        quoteStore.reset()
-        await quoteStore.handleGetAllRequired()
-        await quoteStore.handleGetQuotation(id.value)
+    // if (quoteStore._success) {
+    //     await quoteStore.handleGetAllRequired()
+    //     await quoteStore.handleGetQuotation(id.value)
+    //     setFormData()
+    //     $q.notify({
+    //         caption: '見積書が正常に作成されました',
+    //         message: '成功！',
+    //         type: 'positive',
+    //         timeout: 1000
+    //     })
+    //     quoteStore.storeSuccess(false)
+    //     quoteStore.reset()
+    //     await quoteStore.handleGetAllRequired()
+    //     await quoteStore.handleGetQuotation(id.value)
 
-        // resetForm()
-        // quoteStore.router.replace({ name: 'cp.quotation' })
-    }
+    //     // resetForm()
+    //     // quoteStore.router.replace({ name: 'cp.quotation' })
+    // }
 
-    if (quoteStore._error) {
-        $q.notify({
-            caption: 'エラーが発生しました。後でもう一度お試しください。',
-            message: 'エラー！',
-            type: 'negative',
-            timeout: 1000
-        })
-        quoteStore.storeError(false)
-    }
+    // if (quoteStore._error) {
+    //     $q.notify({
+    //         caption: 'エラーが発生しました。後でもう一度お試しください。',
+    //         message: 'エラー！',
+    //         type: 'negative',
+    //         timeout: 1000
+    //     })
+    //     quoteStore.storeError(false)
+    // }
 }
 
 </script>
@@ -555,7 +638,7 @@ const onSubmit = async () => {
                                                                 <div class="row q-col-gutter-md">
                                                                     <div
                                                                         class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
-                                                                        <div>ラベル</div>
+                                                                        <div>質問</div>
                                                                         <q-select multiple use-chips dense outlined
                                                                             v-model="cc.conQqID" :options="conditionQqID"
                                                                             @update:model-value="(value) => updateConditionQq(value, cc)"
@@ -574,13 +657,28 @@ const onSubmit = async () => {
                                                                     </div>
                                                                     <div
                                                                         class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
-                                                                        <div>ラベル</div>
-                                                                        <q-select dense outlined v-model="cc.conAnsID"
+                                                                        <div>答え</div>
+                                                                        <template v-if="conditionAnsSelectOrText[index]">
+                                                                            <q-input  
+                                                                                outlined 
+                                                                                class="common-input-text" 
+                                                                                v-model="cc.conAnsValue"
+                                                                                @update:model-value="(value) => updateConditionAnsID(value, cc, 'text')"
+                                                                                lazy-rules
+                                                                                dense
+                                                                                :rules="[
+                                                                                    val => (val != null) || 'フィールドは必須項目です', 
+                                                                                ]"
+                                                                            />
+                                                                        </template>
+                                                                        <template v-else>
+                                                                            <q-select dense outlined v-model="cc.conAnsID"
                                                                             :options="conditionAnsID[index]"
-                                                                            @update:model-value="(value) => updateConditionAnsID(value, cc)"
+                                                                            @update:model-value="(value) => updateConditionAnsID(value, cc, 'select')"
                                                                             lazy-rules :rules="[
                                                                                 val => val != null || 'フィールドは必須項目です',
                                                                             ]" />
+                                                                        </template>
                                                                     </div>
                                                                 </div>
                                                             </q-card-section>

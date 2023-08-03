@@ -140,7 +140,7 @@ export const useQuotationStore = defineStore('quotation', () => {
     }
 
     const handleStoreQuotation  = async (formData) => {
-        storeLoading(true)
+        // storeLoading(true)
         const response = await API.quotation.store(formData)
         if(response) { 
             storeSuccess(true)
@@ -160,14 +160,15 @@ export const useQuotationStore = defineStore('quotation', () => {
     }
 
     const handleUpdateQuotation = async (id, formData) => {
-        storeLoading(true)
+        // storeLoading(true)
         const response = await API.quotation.update(id, formData)
-        if(response) {
-            storeSuccess(response)
-        } else {
-            storeError(response)
-        }
-        storeLoading(false)
+        console.log(response)
+        // if(response) {
+        //     storeSuccess(response)
+        // } else {
+        //     storeError(response)
+        // }
+        // storeLoading(false)
     }
 
     const handleDestroyQuotation = async (id) => {

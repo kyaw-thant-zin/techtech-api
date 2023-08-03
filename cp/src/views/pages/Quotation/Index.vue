@@ -234,7 +234,17 @@
                     </template>
                   </q-item-label>
                   <q-item-label caption>{{ qC[0].math_symbol.jp_name }} ( {{ qC[0].math_symbol.sign }} )</q-item-label>
-                  <q-item-label >{{ qC[0].qa.label }}</q-item-label>
+                  <q-item-label >
+                    <template v-if="qC[0].qa != null">
+                      {{ qC[0].qa.label }}
+                    </template>
+                    <template v-else-if="qC[0].qa_any == 1">
+                      {{ 'どれでも' }}
+                    </template>
+                    <template v-else-if="qC[0].qa_value != null">
+                      {{ qC[0].qa_value }}
+                    </template>
+                  </q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
