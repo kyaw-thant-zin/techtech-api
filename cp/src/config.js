@@ -6,10 +6,10 @@ const LCOAL_SITE_URL = 'http://localhost/gaiko-souba-api/cp'
 const SERVER_SITE_URL = 'https://gaiko-souba-net.icdl.tokyo/cp'
 const LOCAL_PUBLIC_SITE_URL = 'http://localhost/gaiko-souba-api'
 const SERVER_PUBLIC_SITE_URL = 'https://gaiko-souba-net.icdl.tokyo'
-
 const SECRET_KEY = '+@V0.1'
 const LOCAL_URL = 'http://localhost/gaiko-souba-api/v1'
 const SERVER_URL = 'https://gaiko-souba-net.icdl.tokyo/v1'
+const PREFIX = '/api'
 
 // const LCOAL_SITE_URL = 'https://gaiko-souba.net/cp'
 // const SERVER_SITE_URL = 'https://gaiko-souba.net/cp'
@@ -18,7 +18,7 @@ const SERVER_URL = 'https://gaiko-souba-net.icdl.tokyo/v1'
 // const SECRET_KEY = '+@V0.1'
 // const LOCAL_URL = 'https://gaiko-souba.net'
 // const SERVER_URL = 'https://gaiko-souba.net/v1'
-const PREFIX = '/api'
+// const PREFIX = '/api'
 
 
 export const APP = {

@@ -160,15 +160,14 @@ export const useQuotationStore = defineStore('quotation', () => {
     }
 
     const handleUpdateQuotation = async (id, formData) => {
-        // storeLoading(true)
+        storeLoading(true)
         const response = await API.quotation.update(id, formData)
-        console.log(response)
-        // if(response) {
-        //     storeSuccess(response)
-        // } else {
-        //     storeError(response)
-        // }
-        // storeLoading(false)
+        if(response) {
+            storeSuccess(response)
+        } else {
+            storeError(response)
+        }
+        storeLoading(false)
     }
 
     const handleDestroyQuotation = async (id) => {
