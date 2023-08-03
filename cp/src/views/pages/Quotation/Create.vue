@@ -155,14 +155,12 @@ watch(
 // Events
 const setAnsIDByQqID = (index, cc) => {
     const newValue = conditionSelectedQqID.value[index]
-    console.log(newValue)
     if(newValue.length > 0) {
         const filteredAnsID = [
             conditionAnsFirstItem
         ]
         newValue.forEach((el) => {
             const key = 'q-'+el
-            console.log(key)
             if(groupedQas.value[key] != undefined) {
                 groupedQas.value[key].forEach((el) => {
                     if(el.label != null) {
@@ -216,11 +214,28 @@ const removeConditionQq = (value, cc) => {
         checkConditions.value[indexCC].conAnsID = null
     }
 }
+const updateConditionSymbol = (value, cc) => {
+    const index = checkConditions.value.indexOf(cc)
+    if(value.label == "同等") {
+        if(conditionAnsID.value[index][0].label == "どれでも") {
+            conditionAnsID.value[index][0].disable = false
+        }
+    } else {
+        if(conditionAnsID.value[index][0].label == "どれでも") {
+            conditionAnsID.value[index][0].disable = true
+            if(checkConditions.value[index].conAnsID != null && checkConditions.value[index].conAnsID.label == "どれでも") {
+                checkConditions.value[index].conAnsID = null
+            }
+        }
+    }
+}
 const updateConditionAnsID = (value, cc, type) => {
+
     if(type == 'select') {
         let foundKey = []
         const targetValue = value
         const index = checkConditions.value.indexOf(cc)
+
         conditionSelectedQqID.value[index].forEach((item) => {
             if (groupedQas.value.hasOwnProperty('q-'+item)) {
                 const arr = groupedQas.value['q-'+item]
@@ -344,7 +359,6 @@ const onSubmit = async () => {
         }
     })
 
-    console.log(dumpFormData)
 
     await quoteStore.handleStoreQuotation(dumpFormData)
 
@@ -469,6 +483,7 @@ const onSubmit = async () => {
                                                                 outlined 
                                                                 v-model="cc.conSymbol" 
                                                                 :options="conditionSymbols"
+                                                                @update:model-value="(value) => updateConditionSymbol(value, cc)"
                                                                 lazy-rules
                                                                 :rules="[
                                                                     val => val != null || 'フィールドは必須項目です', 

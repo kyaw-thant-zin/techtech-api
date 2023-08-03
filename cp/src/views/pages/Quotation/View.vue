@@ -411,6 +411,21 @@ const removeConditionQq = (value, cc) => {
     const filteredMain = checkMainArray(checkConditions.value[indexCC], conditionSelectedQqID.value)
     checkConditions.value[indexCC].id = filteredMain
 }
+const updateConditionSymbol = (value, cc) => {
+    const index = checkConditions.value.indexOf(cc)
+    if(value.label == "同等") {
+        if(conditionAnsID.value[index][0].label == "どれでも") {
+            conditionAnsID.value[index][0].disable = false
+        }
+    } else {
+        if(conditionAnsID.value[index][0].label == "どれでも") {
+            conditionAnsID.value[index][0].disable = true
+            if(checkConditions.value[index].conAnsID != null && checkConditions.value[index].conAnsID.label == "どれでも") {
+                checkConditions.value[index].conAnsID = null
+            }
+        }
+    }
+}
 const updateConditionAnsID = (value, cc, type) => {
     let foundKey = []
     const targetValue = value
@@ -651,6 +666,7 @@ const onSubmit = async () => {
                                                                         class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
                                                                         <div>の場合</div>
                                                                         <q-select dense outlined v-model="cc.conSymbol"
+                                                                            @update:model-value="(value) => updateConditionSymbol(value, cc)"
                                                                             :options="conditionSymbols" lazy-rules :rules="[
                                                                                 val => val != null || 'フィールドは必須項目です',
                                                                             ]" />
