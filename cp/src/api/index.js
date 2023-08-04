@@ -265,5 +265,19 @@ export const API = {
             const response = await instance.post(apiURL+'/withdrawal/'+id+'/confirm', {headers: headers})
             return response.data
         },
+    },
+    'unitPrice': {
+        'getAll': async () => {
+            const response = await instance.get(apiURL+'/unit-price', {headers: headers})
+            return response.data
+        },
+        "store": async (formData) => {
+            const response = await instance.post(apiURL+'/unit-price/store', formData, {headers: headers})
+            return response.data
+        },
+        'destroy': async (id) => {
+            const response = await instance.delete(apiURL+'/unit-price/'+id+'/destroy', {headers: headers})
+            return response.data
+        },
     }
 }

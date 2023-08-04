@@ -621,6 +621,7 @@ const onSubmit = async () => {
                                                                                         <div>状態</div>
                                                                                         <q-input 
                                                                                             type="number"
+                                                                                            step="any"
                                                                                             dense 
                                                                                             outlined 
                                                                                             v-model="frc.fconSituation" 
@@ -634,6 +635,7 @@ const onSubmit = async () => {
                                                                                         <div>結果</div>
                                                                                         <q-input 
                                                                                             type="number"
+                                                                                            step="any"
                                                                                             dense 
                                                                                             outlined 
                                                                                             v-model="frc.fconResult" 
@@ -685,6 +687,7 @@ const onSubmit = async () => {
                                 <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-2 q-mt-sm q-mt-sm">
                                     <q-input 
                                         type="number" 
+                                        step="any"
                                         outlined 
                                         class="common-input-text" 
                                         v-model="formData.baseAmount"

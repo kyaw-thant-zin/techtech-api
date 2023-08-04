@@ -789,6 +789,7 @@ const onSubmit = async () => {
                                                                                                     class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
                                                                                                     <div>状態</div>
                                                                                                     <q-input type="number"
+                                                                                                        step="any"
                                                                                                         dense outlined
                                                                                                         v-model="frc.fconSituation"
                                                                                                         lazy-rules :rules="[
@@ -799,6 +800,7 @@ const onSubmit = async () => {
                                                                                                     class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
                                                                                                     <div>結果</div>
                                                                                                     <q-input type="number"
+                                                                                                        step="any"
                                                                                                         dense outlined
                                                                                                         v-model="frc.fconResult"
                                                                                                         lazy-rules :rules="[
@@ -845,7 +847,7 @@ const onSubmit = async () => {
                                                 <label>基本額<small class="required-suffix">※必須</small></label>
                                             </div>
                                             <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-2 q-mt-sm q-mt-sm">
-                                                <q-input type="number" outlined class="common-input-text"
+                                                <q-input type="number" outlined class="common-input-text" step="any"
                                                     v-model="formData.baseAmount" lazy-rules dense :rules="[
                                                         val => val != 0 && val != '' && !!val.replace(/\s/g, '') || 'フィールドは必須項目です',
                                                     ]" />
