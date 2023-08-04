@@ -65,11 +65,11 @@ const menuList = [
     path: '/cp/quotation',
     icon: 'mdi-format-list-checkbox',
   },
-  // {
-  //   label: '単価',
-  //   path: '/cp/unit-price',
-  //   icon: 'mdi-cash-multiple',
-  // },
+  {
+    label: '単価',
+    path: '/cp/unit-price',
+    icon: 'mdi-cash-multiple',
+  },
   {
     label: '登録',
     icon: 'mdi-account-box',

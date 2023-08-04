@@ -209,29 +209,29 @@ const router = createRouter({
             },
           ]
         },
-        // {
-        //   path: 'unit-price',
-        //   children: [
-        //     {
-        //       path: '',
-        //       name: 'cp.unitprice',
-        //       component: UnitPriceIndex,
-        //       meta: { requiresAuth: true, requiresSuperAdmin: true }
-        //     },
-        //     {
-        //       path: ':id/detail',
-        //       name: 'cp.unitprice.detail',
-        //       component: UnitPriceView,
-        //       meta: { requiresAuth: true, requiresSuperAdmin: true }
-        //     },
-        //     {
-        //       path: ':id/create',
-        //       name: 'cp.unitprice.create',
-        //       component: UnitPriceCreate,
-        //       meta: { requiresAuth: true, requiresSuperAdmin: true }
-        //     },
-        //   ]
-        // },
+        {
+          path: 'unit-price',
+          children: [
+            {
+              path: '',
+              name: 'cp.unitprice',
+              component: UnitPriceIndex,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: ':id/detail',
+              name: 'cp.unitprice.detail',
+              component: UnitPriceView,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+            {
+              path: ':id/create',
+              name: 'cp.unitprice.create',
+              component: UnitPriceCreate,
+              meta: { requiresAuth: true, requiresSuperAdmin: true }
+            },
+          ]
+        },
         {
           path: 'registration',
           children: [
