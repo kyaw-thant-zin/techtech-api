@@ -97,7 +97,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
             if(iQQuotes != null && iQQuotes.length > 0) {
                 iQQuotes.forEach((dIq) => {
                     const dumpDiq = {}
-                    dumpDiq.q_name = dIq.quotation.q_name
+                    dumpDiq.q_name = dIq.quotation.parent != null ? dIq.quotation.q_name+' ('+dIq.quotation.parent.q_name+')':dIq.quotation.q_name
                     dumpDiq.quantity = dIq.quantity
                     dumpDiq.unit_price = dIq.unit_price
                     dumpDiq.amount = dIq.amount
