@@ -37,10 +37,6 @@ import QuestView from '@/views/pages/Questionnaire/View.vue'
 import QuotationIndex from '@/views/pages/Quotation/Index.vue'
 import QuotationCreate from '@/views/pages/Quotation/Create.vue'
 import QuotationView from '@/views/pages/Quotation/View.vue'
-// UnitPrice
-import UnitPriceIndex from '@/views/pages/UnitPrice/Index.vue'
-import UnitPriceView from '@/views/pages/UnitPrice/View.vue'
-import UnitPriceCreate from '@/views/pages/UnitPrice/Create.vue'
 // Contact
 import ContactIndex from '@/views/pages/Contact/Index.vue'
 import ContactView from '@/views/pages/Contact/View.vue'
@@ -205,29 +201,6 @@ const router = createRouter({
               path: ':id/detail',
               name: 'cp.quotation.detail',
               component: QuotationView,
-              meta: { requiresAuth: true, requiresSuperAdmin: true }
-            },
-          ]
-        },
-        {
-          path: 'unit-price',
-          children: [
-            {
-              path: '',
-              name: 'cp.unitprice',
-              component: UnitPriceIndex,
-              meta: { requiresAuth: true, requiresSuperAdmin: true }
-            },
-            {
-              path: ':id/detail',
-              name: 'cp.unitprice.detail',
-              component: UnitPriceView,
-              meta: { requiresAuth: true, requiresSuperAdmin: true }
-            },
-            {
-              path: ':id/create',
-              name: 'cp.unitprice.create',
-              component: UnitPriceCreate,
               meta: { requiresAuth: true, requiresSuperAdmin: true }
             },
           ]

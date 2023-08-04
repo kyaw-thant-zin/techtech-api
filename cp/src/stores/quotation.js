@@ -100,7 +100,7 @@ export const useQuotationStore = defineStore('quotation', () => {
             quotations.forEach((q, index) => {
                 const dumpQ = {}
                 dumpQ.id = q.id
-                dumpQ.name = q.parent != null ? emDash+q.q_name+' ('+q?.parent?.q_name+')':q?.q_name
+                dumpQ.name = q.parent_id != null ? emDash+q.q_name+' ('+q.parent.q_name+')':q.q_name
                 dumpQ.base_amount = q.base_amount != null ? q.base_amount:0
                 dumpQ.created = dayjs(q.updated_at).fromNow()
                 dumpQ.action = ''

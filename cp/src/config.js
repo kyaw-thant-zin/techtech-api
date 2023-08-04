@@ -16,7 +16,7 @@ const PREFIX = '/api'
 // const LOCAL_PUBLIC_SITE_URL = 'https://gaiko-souba.net'
 // const SERVER_PUBLIC_SITE_URL = 'https://gaiko-souba.net'
 // const SECRET_KEY = '+@V0.1'
-// const LOCAL_URL = 'https://gaiko-souba.net/v1'
+// const LOCAL_URL = 'https://gaiko-souba.net'
 // const SERVER_URL = 'https://gaiko-souba.net/v1'
 // const PREFIX = '/api'
 
