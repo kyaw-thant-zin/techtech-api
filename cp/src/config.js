@@ -16,7 +16,7 @@ const SERVER_SITE_URL = 'https://gaiko-souba.net/cp'
 const LOCAL_PUBLIC_SITE_URL = 'https://gaiko-souba.net'
 const SERVER_PUBLIC_SITE_URL = 'https://gaiko-souba.net'
 const SECRET_KEY = '+@V0.1'
-const LOCAL_URL = 'https://gaiko-souba.net'
+const LOCAL_URL = 'https://gaiko-souba.net/v1'
 const SERVER_URL = 'https://gaiko-souba.net/v1'
 const PREFIX = '/api'
 
@@ -43,6 +43,6 @@ export const APP = {
         'PREFIX': PREFIX,
         'LOCAL_URL': LOCAL_URL,
         'SERVER_URL': SERVER_URL,
-        'ACTIVE_API_URL': LOCAL_URL,
+        'ACTIVE_API_URL': SERVER_URL,
     }
 }
