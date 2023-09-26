@@ -40,6 +40,10 @@ import QuotationView from '@/views/pages/Quotation/View.vue'
 // Contact
 import ContactIndex from '@/views/pages/Contact/Index.vue'
 import ContactView from '@/views/pages/Contact/View.vue'
+// Maintenance
+import Maintenance from '@/views/pages/Maintenance.vue'
+// Mail-Setting
+import MailSetting from '@/views/pages/Mail-Setting.vue'
 // Setting
 import Setting from '@/views/pages/Setting.vue'
 
@@ -260,6 +264,18 @@ const router = createRouter({
               ]
             },
           ]
+        },
+        {
+          path: 'maintenance',
+          name: 'cp.maintenance',
+          component: Maintenance,
+          meta: { requiresAuth: true, requiresSuperAdmin: true }
+        },
+        {
+          path: 'mail-setting',
+          name: 'cp.mail-setting',
+          component: MailSetting,
+          meta: { requiresAuth: true, requiresSuperAdmin: true }
         },
         {
           path: 'setting',

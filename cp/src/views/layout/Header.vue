@@ -93,6 +93,16 @@ const menuList = [
     icon: 'mdi-mailbox-up-outline',
   },
   {
+    label: 'メンテナンス設定',
+    path: '/cp/maintenance',
+    icon: 'mdi-wrench-clock',
+  },
+  {
+    label: 'メール設定',
+    path: '/cp/mail-setting',
+    icon: 'mdi-email-edit-outline',
+  },
+  {
     label: '設定',
     path: '/cp/setting',
     icon: 'mdi-cog-outline',

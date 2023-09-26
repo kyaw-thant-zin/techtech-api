@@ -265,5 +265,15 @@ export const API = {
             const response = await instance.post(apiURL+'/withdrawal/'+id+'/confirm', {headers: headers})
             return response.data
         },
+    },
+    "maintenance": {
+        "get": async () => {
+            const response = await instance.get(apiURL+'/maintenance/'+id+'/detail', {headers: headers})
+            return response.data
+        },
+        "update": async (id, formData) => {
+            const response = await instance.put(apiURL+'/maintenance/'+id+'/update', formData, {headers: headers})
+            return response.data
+        },
     }
 }
