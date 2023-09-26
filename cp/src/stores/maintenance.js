@@ -22,11 +22,16 @@ export const useMaintenanceStore = defineStore('maintenance', () => {
     }
 
     const storeMaintenance = (maintenance) => {
-
+        const dumpMaintenance = maintenance?.maintenance
+        _maintenance.value = dumpMaintenance
+        return dumpMaintenance
     }
 
-    const handleMaintenance = () => {
-
+    const handleMaintenance = async (id) => {
+        storeLoading(true)
+        const response = await API.maintenance.get(id)
+        storeLoading(false)
+        return storeMaintenance(response)
     }
 
     const handelUpdateMaintenance = async (id, formData) => {
@@ -44,6 +49,7 @@ export const useMaintenanceStore = defineStore('maintenance', () => {
         _success,
         _error,
         _loading,
+        storeLoading,
         _maintenance,
         storeError,
         storeSuccess,

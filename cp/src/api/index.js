@@ -267,7 +267,7 @@ export const API = {
         },
     },
     "maintenance": {
-        "get": async () => {
+        "get": async (id) => {
             const response = await instance.get(apiURL+'/maintenance/'+id+'/detail', {headers: headers})
             return response.data
         },

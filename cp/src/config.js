@@ -43,6 +43,6 @@ export const APP = {
         'PREFIX': PREFIX,
         'LOCAL_URL': LOCAL_URL,
         'SERVER_URL': SERVER_URL,
-        'ACTIVE_API_URL': SERVER_URL,
+        'ACTIVE_API_URL': LOCAL_URL,
     }
 }
