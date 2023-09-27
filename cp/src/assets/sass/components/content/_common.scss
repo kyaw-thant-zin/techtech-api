@@ -110,3 +110,13 @@ a {
     margin-top: 0;
     display: inline-block;
 }
+
+.q-tabs--horizontal {
+    .q-tabs__arrow--right {
+        right: -40px;
+    }
+
+    .q-tabs__arrow--left {
+        left: -40px;
+    }
+}
