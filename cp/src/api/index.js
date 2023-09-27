@@ -275,5 +275,15 @@ export const API = {
             const response = await instance.put(apiURL+'/maintenance/'+id+'/update', formData, {headers: headers})
             return response.data
         },
+    },
+    "mailSettings": {
+        "getAll": async (id) => {
+            const response = await instance.get(apiURL+'/mail-settings', {headers: headers})
+            return response.data
+        },
+        "update": async (id, formData) => {
+            const response = await instance.put(apiURL+'/mail-settings/'+id+'/update', formData, {headers: headers})
+            return response.data
+        },
     }
 }

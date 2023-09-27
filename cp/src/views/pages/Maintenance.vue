@@ -56,10 +56,10 @@ const toggleMaintenance = async () => {
     formData.value.maintenance = !formData.value.maintenance
 
     await maintenanceStore.handelUpdateMaintenance(1, formData.value)
-    await getMaintenance()
     maintenanceStore.storeLoading(false)
 
     if(maintenanceStore._success) {
+        await getMaintenance()
         $q.notify({
             caption: noteTxt.value,
             message: '成功！',
